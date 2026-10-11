@@ -76,10 +76,10 @@
             @csrf
             <div class="panel-header"><h2 class="panel-title">Convidar pessoa</h2></div>
             <div class="panel-body">
-                <x-input name="email" type="email" label="E-mail da conta Google" required placeholder="nome@gmail.com" />
+                <x-input name="email" type="email" label="E-mail da pessoa" required placeholder="nome@empresa.com" />
                 <x-select name="role" label="Perfil" :options="\App\Enums\UserRole::options()" value="funcionario" required />
                 <button class="btn btn-primary w-100">Liberar acesso</button>
-                <p class="small text-muted-2 mt-3 mb-0">A pessoa entra em <strong>{{ url('/login') }}</strong> com essa conta Google e já cai nesta empresa.</p>
+                <p class="small text-muted-2 mt-3 mb-0">A pessoa acessa <strong>{{ url('/login') }}</strong> e entra com o Google ou clica em <strong>Criar conta</strong> usando esse e-mail. Ela já cai nesta empresa.</p>
             </div>
             <div class="panel-body border-top small text-muted-2">
                 <strong>Administrador</strong> acessa tudo. <strong>Funcionário</strong> registra vendas, clientes, produtos e recebimentos, mas não vê financeiro, relatórios e configurações, nem exclui registros.

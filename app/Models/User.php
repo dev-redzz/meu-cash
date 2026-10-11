@@ -5,13 +5,15 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
-    protected $fillable = ['company_id', 'name', 'email', 'google_id', 'avatar', 'password', 'role', 'active'];
+    protected $fillable = ['company_id', 'name', 'email', 'email_verified_at', 'google_id', 'avatar', 'password', 'role', 'active'];
 
     protected $hidden = ['password', 'remember_token', 'google_id'];
 
@@ -23,6 +25,16 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'active' => 'boolean',
         ];
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
+    public function hasPassword(): bool
+    {
+        return filled($this->password);
     }
 
     public function company(): BelongsTo

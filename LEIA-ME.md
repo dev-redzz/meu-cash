@@ -5,6 +5,10 @@ Cada empresa entra com conta Google e só enxerga os próprios dados.
 
 ## Como funciona o acesso
 
+- **E-mail e senha:** em *Criar conta*, a pessoa informa nome, empresa, e-mail e senha. Quem foi convidado pode deixar a empresa em branco e entra direto na empresa que convidou.
+- **Esqueci minha senha:** envia um link por e-mail (vale 60 minutos). Também serve para quem só entrava com Google criar uma senha.
+- **Google:** continua funcionando igual.
+
 - **Primeiro acesso:** a pessoa clica em *Entrar com Google*, escolhe a conta e cadastra a empresa. Ela vira **Administrador** dessa empresa.
 - **Equipe:** o administrador vai em **Configurações > Equipe** e libera o e-mail Google do funcionário. No primeiro login, a pessoa já cai na empresa certa.
 - **Separação dos dados:** todas as tabelas têm `company_id`. O sistema filtra tudo automaticamente pela empresa de quem está logado; um registro de outra empresa responde "não encontrado".
@@ -42,6 +46,26 @@ Como o login agora é só pelo Google, o administrador antigo precisa ter o e-ma
 - Se o e-mail do administrador já for o seu Gmail, não precisa fazer nada.
 
 O módulo **Serviços** foi removido: serviços, despesas de serviço e as parcelas/pagamentos ligados a eles são apagados na migração. As entradas e saídas já lançadas no caixa continuam no fluxo de caixa.
+
+## E-mail (necessário para "Esqueci minha senha")
+
+Sem configurar, o link de redefinição não é enviado. Com Gmail:
+
+1. Ative a verificação em duas etapas na conta Google.
+2. Crie uma **senha de app** em https://myaccount.google.com/apppasswords.
+3. Configure:
+
+```
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=seu@gmail.com
+MAIL_PASSWORD=a-senha-de-app-de-16-letras
+MAIL_FROM_ADDRESS=seu@gmail.com
+MAIL_FROM_NAME="Meu Cash"
+```
+
+O Gmail permite cerca de 500 e-mails por dia. Com muitos clientes, troque por um serviço de envio (Brevo, Resend, Amazon SES).
 
 ## 4. Railway
 

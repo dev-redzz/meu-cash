@@ -30,6 +30,8 @@ class CompanyProvisioner
                 'email' => mb_strtolower($owner['email']),
                 'google_id' => $owner['google_id'] ?? null,
                 'avatar' => $owner['avatar'] ?? null,
+                'password' => $owner['password'] ?? null,
+                'email_verified_at' => isset($owner['google_id']) ? now() : null,
                 'role' => UserRole::Admin,
                 'active' => true,
             ]);

@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('css/app.css') }}?v=5" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}?v=6" rel="stylesheet">
     @stack('styles')
 </head>
 <body>
@@ -30,7 +30,7 @@
 @endphp
 <aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-label="Menu">
     <div class="d-flex align-items-center justify-content-between gap-2 px-3 pt-3 pb-3">
-        <a href="{{ route('dashboard') }}" class="brand"><img src="{{ asset('img/logo-white.png') }}" alt=""> Meu Cash</a>
+        <a href="{{ route('dashboard') }}" class="brand"><img src="{{ asset('img/logo-icon.png') }}" alt=""> Meu Cash</a>
         <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Fechar menu"></button>
     </div>
     <nav class="side-nav px-2 pb-4">
@@ -103,7 +103,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{{ asset('js/app.js') }}?v=5"></script>
+<script src="{{ asset('js/app.js') }}?v=6"></script>
 @stack('scripts')
 </body>
 </html>

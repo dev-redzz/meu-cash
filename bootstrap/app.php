@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'alerts' => SyncAlerts::class,
         ]);
         $middleware->web(append: [SecurityHeaders::class]);
+        $middleware->prependToPriorityList(
+            before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            prepend: IdentifyCompany::class,
+        );
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo('/dashboard');
     })

@@ -78,7 +78,12 @@ class LoginController extends Controller
             return redirect()->route('login')->with('error', 'Seu acesso foi desativado. Fale com o administrador da sua empresa.');
         }
 
+        if (! $user->google_id && $user->hasPassword() && ! $user->email_verified_at) {
+            $user->password = null;
+        }
+
         $user->forceFill([
+            'email_verified_at' => $user->email_verified_at ?? now(),
             'google_id' => $profile['google_id'],
             'avatar' => $profile['avatar'],
             'name' => $user->name ?: $profile['name'],
@@ -87,9 +92,9 @@ class LoginController extends Controller
         return $this->loginAndRedirect($request, $user);
     }
 
-    public function loginAndRedirect(Request $request, User $user): RedirectResponse
+    public function loginAndRedirect(Request $request, User $user, bool $remember = true): RedirectResponse
     {
-        Auth::login($user, true);
+        Auth::login($user, $remember);
         $request->session()->regenerate();
 
         if ($user->company) {

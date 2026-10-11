@@ -1,32 +1,26 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Meu Cash</title>
-    <link rel="icon" type="image/png" href="{{ asset('img/favicon.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('css/app.css') }}?v=5" rel="stylesheet">
-</head>
-<body>
-<main class="auth-page">
-    <div class="auth-card">
-        <img src="{{ asset('img/logo.png') }}" alt="Meu Cash" class="auth-logo">
+@extends('layouts.auth')
 
-        @foreach (['error' => 'danger', 'success' => 'success'] as $key => $class)
-            @if (session($key))
-                <div class="alert alert-{{ $class }} small py-2">{{ session($key) }}</div>
-            @endif
-        @endforeach
+@section('title', 'Entrar')
+@section('heading', 'Entrar')
+@section('subtitle', 'Acesse a conta da sua empresa.')
 
-        <a href="{{ route('auth.google') }}" class="btn btn-google w-100">
-            @include('partials.google-mark')
-            Entrar com Google
-        </a>
+@section('content')
+<form method="POST" action="{{ route('login.store') }}" novalidate>
+    @csrf
+    <x-input name="email" type="email" label="E-mail" autocomplete="username" autofocus required />
+    @include('partials.password-input', [
+        'name' => 'password',
+        'label' => 'Senha',
+        'aside' => '<a href="'.route('password.request').'" class="small fw-semibold">Esqueci minha senha</a>',
+    ])
+    <div class="form-check mb-4">
+        <input class="form-check-input" type="checkbox" name="remember" id="remember" value="1" checked>
+        <label class="form-check-label small" for="remember">Manter conectado</label>
     </div>
-</main>
-</body>
-</html>
+    <button type="submit" class="btn btn-primary btn-lg w-100">Entrar</button>
+</form>
+
+@include('partials.google-button')
+
+<p class="auth-switch">Ainda não tem conta? <a href="{{ route('register') }}">Criar conta</a></p>
+@endsection

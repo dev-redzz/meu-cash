@@ -80,9 +80,12 @@ class TelasTest extends TestCase
         $this->get('/termos')->assertOk()->assertSee('Termos de Uso');
     }
 
-    public function test_login_mostra_somente_google(): void
+    public function test_telas_de_acesso_abrem(): void
     {
-        $this->get('/login')->assertOk()->assertSee('Entrar com Google')->assertDontSee('Senha');
+        $this->get('/login')->assertOk()->assertSee('Entrar com Google')->assertSee('Esqueci minha senha')->assertSee('Criar conta');
+        $this->get('/criar-conta')->assertOk();
+        $this->get('/esqueci-minha-senha')->assertOk();
+        $this->get('/redefinir-senha/abc?email=a@b.com')->assertOk();
     }
 
     public function test_funcionario_ve_menu_reduzido(): void

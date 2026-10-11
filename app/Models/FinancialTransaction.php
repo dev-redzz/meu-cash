@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use App\Enums\PaymentMethod;
 use App\Enums\TransactionType;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class FinancialTransaction extends Model
 {
+    use BelongsToCompany;
+
     protected $fillable = ['type', 'origin', 'category', 'description', 'amount', 'date', 'payment_method', 'source_type', 'source_id', 'user_id'];
 
     protected function casts(): array

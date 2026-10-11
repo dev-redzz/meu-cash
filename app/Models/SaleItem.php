@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SaleItem extends Model
 {
+    use BelongsToCompany;
+
     protected $fillable = ['sale_id', 'product_id', 'description', 'quantity', 'unit_price', 'unit_cost', 'total'];
 
     protected function casts(): array

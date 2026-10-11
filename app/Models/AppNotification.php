@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class AppNotification extends Model
 {
+    use BelongsToCompany;
+
     protected $table = 'notifications';
 
     protected $fillable = ['key', 'type', 'title', 'message', 'url', 'read_at'];

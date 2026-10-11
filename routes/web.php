@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\OnboardingController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
@@ -11,9 +12,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductExpenseController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
-use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\Settings\AuditLogController;
-use App\Http\Controllers\Settings\BackupController;
 use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Settings\UserController;
 use App\Http\Controllers\StockController;
@@ -21,17 +20,23 @@ use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
+Route::view('/privacidade', 'legal.privacy')->name('privacy');
+Route::view('/termos', 'legal.terms')->name('terms');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
-    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
+    Route::get('/auth/google', [LoginController::class, 'redirect'])->middleware('throttle:20,1')->name('auth.google');
+    Route::get('/auth/google/callback', [LoginController::class, 'callback'])->middleware('throttle:20,1')->name('auth.google.callback');
+    Route::get('/comecar', [OnboardingController::class, 'create'])->name('onboarding.create');
+    Route::post('/comecar', [OnboardingController::class, 'store'])->middleware('throttle:10,1')->name('onboarding.store');
 });
 
-Route::middleware(['auth', 'active', 'alerts'])->group(function () {
-    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+Route::middleware(['auth', 'company', 'alerts'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    Route::resource('customers', CustomerController::class)->except('destroy')->parameters(['customers' => 'customer']);
+    Route::resource('customers', CustomerController::class)->except('destroy');
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'edit', 'update']);
 
     Route::resource('products', ProductController::class)->except('destroy');
@@ -44,9 +49,6 @@ Route::middleware(['auth', 'active', 'alerts'])->group(function () {
     Route::patch('/installments/{installment}/due-date', [InstallmentController::class, 'updateDueDate'])->name('installments.due-date');
     Route::get('/installments/{installment}/whatsapp', [WhatsAppController::class, 'installment'])->name('installments.whatsapp');
 
-    Route::resource('services', ServiceController::class)->except('destroy');
-    Route::post('/services/{service}/expenses', [ServiceController::class, 'storeExpense'])->name('services.expenses.store');
-
     Route::get('/notificacoes', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notificacoes/{notification}', [NotificationController::class, 'open'])->name('notifications.open');
     Route::post('/notificacoes/ler-todas', [NotificationController::class, 'readAll'])->name('notifications.read-all');
@@ -58,8 +60,6 @@ Route::middleware(['auth', 'active', 'alerts'])->group(function () {
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
         Route::delete('/products/{product}/expenses/{expense}', [ProductExpenseController::class, 'destroy'])->name('products.expenses.destroy');
         Route::post('/sales/{sale}/cancel', [SaleController::class, 'cancel'])->name('sales.cancel');
-        Route::post('/services/{service}/cancel', [ServiceController::class, 'cancel'])->name('services.cancel');
-        Route::delete('/services/{service}/expenses/{expense}', [ServiceController::class, 'destroyExpense'])->name('services.expenses.destroy');
 
         Route::get('/financeiro', [FinanceController::class, 'index'])->name('finance.index');
         Route::post('/financeiro/lancamentos', [FinanceController::class, 'store'])->name('finance.store');
@@ -70,12 +70,10 @@ Route::middleware(['auth', 'active', 'alerts'])->group(function () {
 
         Route::get('/configuracoes', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/configuracoes', [SettingController::class, 'update'])->name('settings.update');
-        Route::resource('users', UserController::class)->except(['show', 'destroy']);
+        Route::get('/equipe', [UserController::class, 'index'])->name('users.index');
+        Route::post('/equipe/convites', [UserController::class, 'invite'])->name('users.invite');
+        Route::delete('/equipe/convites/{invitation}', [UserController::class, 'cancelInvite'])->name('users.invite.cancel');
+        Route::patch('/equipe/{user}', [UserController::class, 'update'])->name('users.update');
         Route::get('/auditoria', [AuditLogController::class, 'index'])->name('audit.index');
-        Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
-        Route::post('/backup', [BackupController::class, 'store'])->name('backup.store');
-        Route::post('/backup/restaurar', [BackupController::class, 'restore'])->name('backup.restore');
-        Route::get('/backup/{file}', [BackupController::class, 'download'])->name('backup.download');
-        Route::delete('/backup/{file}', [BackupController::class, 'destroy'])->name('backup.destroy');
     });
 });

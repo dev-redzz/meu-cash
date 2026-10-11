@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use App\Enums\CategoryType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
+    use BelongsToCompany;
+
     protected $fillable = ['name', 'type'];
 
     protected function casts(): array
@@ -19,11 +22,6 @@ class Category extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
-    }
-
-    public function services(): HasMany
-    {
-        return $this->hasMany(Service::class);
     }
 
     public function scopeOfType(Builder $query, CategoryType $type): Builder

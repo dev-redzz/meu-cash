@@ -12,14 +12,14 @@ class CategoryController extends Controller
 {
     public function index(): View
     {
-        $categories = Category::withCount(['products', 'services'])->orderBy('type')->orderBy('name')->get()->groupBy(fn ($c) => $c->type->value);
+        $categories = Category::withCount('products')->orderBy('type')->orderBy('name')->get()->groupBy(fn ($c) => $c->type->value);
 
         return view('categories.index', ['categories' => $categories, 'types' => CategoryType::cases(), 'editing' => null]);
     }
 
     public function edit(Category $category): View
     {
-        $categories = Category::withCount(['products', 'services'])->orderBy('type')->orderBy('name')->get()->groupBy(fn ($c) => $c->type->value);
+        $categories = Category::withCount('products')->orderBy('type')->orderBy('name')->get()->groupBy(fn ($c) => $c->type->value);
 
         return view('categories.index', ['categories' => $categories, 'types' => CategoryType::cases(), 'editing' => $category]);
     }

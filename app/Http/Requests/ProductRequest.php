@@ -13,7 +13,7 @@ class ProductRequest extends MoneyRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'category_id' => ['nullable', 'exists:categories,id'],
+            'category_id' => ['nullable', Rule::exists('categories', 'id')->where('company_id', tenant_id())],
             'brand' => ['nullable', 'string', 'max:100'],
             'model' => ['nullable', 'string', 'max:100'],
             'purchase_date' => ['nullable', 'date'],

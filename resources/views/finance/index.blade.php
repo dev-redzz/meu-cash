@@ -14,7 +14,7 @@
     <div class="col-6 col-md-4 col-xl-2"><x-stat label="Entradas" :value="money($s['received'])" tone="positive" /></div>
     <div class="col-6 col-md-4 col-xl-2"><x-stat label="Saídas" :value="money($s['spent'])" tone="negative" /></div>
     <div class="col-6 col-md-4 col-xl-2"><x-stat label="Saldo do período" :value="money($s['net'])" :tone="$s['net'] >= 0 ? 'positive' : 'negative'" /></div>
-    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Lucro" :value="money($s['profit'])" :hint="'Vendas '.money($s['sales_profit']).' · Serviços '.money($s['service_profit'])" /></div>
+    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Lucro" :value="money($s['profit'])" hint="Lucro das vendas" /></div>
 </div>
 
 <div class="row g-3 mb-3">
@@ -109,7 +109,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">
-                <p class="small text-muted-2">Use para movimentações fora de vendas, serviços e contas: aporte, retirada, despesa avulsa, estorno.</p>
+                <p class="small text-muted-2">Use para movimentações fora das vendas: aporte, retirada, despesa avulsa, estorno.</p>
                 <div class="row g-2">
                     <div class="col-6">
                         <label class="form-label" for="t_type">Tipo</label>

@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
+    use BelongsToCompany;
+
     public const DEFAULTS = [
-        'company_name' => 'Meu Cash',
-        'company_phone' => '',
         'initial_balance' => '0',
         'due_reminder_days' => '3',
         'whatsapp_template_lembrete' => 'Olá, {cliente}! Passando para lembrar que a parcela {parcela} no valor de {valor} vence em {vencimento}. Qualquer dúvida, estou à disposição. {empresa}',
@@ -22,7 +23,11 @@ class Setting extends Model
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        $value = Cache::rememberForever("setting.{$key}", fn () => static::query()->where('key', $key)->value('value'));
+        $company = tenant_id();
+
+        $value = $company
+            ? Cache::rememberForever("setting.{$company}.{$key}", fn () => static::query()->where('key', $key)->value('value'))
+            : null;
 
         return $value ?? $default ?? (self::DEFAULTS[$key] ?? null);
     }
@@ -30,6 +35,6 @@ class Setting extends Model
     public static function put(string $key, mixed $value): void
     {
         static::query()->updateOrCreate(['key' => $key], ['value' => $value]);
-        Cache::forget("setting.{$key}");
+        Cache::forget('setting.'.tenant_id().'.'.$key);
     }
 }

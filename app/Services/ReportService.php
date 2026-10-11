@@ -10,7 +10,6 @@ use App\Models\Installment;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
-use App\Models\Service;
 use App\Support\Period;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +24,6 @@ class ReportService
         'receber' => 'Parcelas',
         'fluxo' => 'Fluxo de caixa',
         'produtos_vendidos' => 'Produtos vendidos',
-        'servicos' => 'Serviços vendidos',
     ];
 
     public function __construct(private readonly FinanceService $finance)
@@ -64,12 +62,6 @@ class ReportService
             ->each(function ($s) use (&$rows, &$total) {
                 $rows[] = [$s->sale_date->format('d/m/Y'), 'Venda', $s->code.' · '.$s->customerName(), money($s->total), money($s->cost_total), money($s->profit)];
                 $total += (float) $s->profit;
-            });
-
-        Service::with('customer')->billable()->whereBetween('date', [$period->startDate(), $period->endDate()])->orderBy('date')->get()
-            ->each(function ($s) use (&$rows, &$total) {
-                $rows[] = [$s->date->format('d/m/Y'), 'Serviço', $s->name.' · '.($s->customer?->name ?? '—'), money($s->amount), money($s->expenses_total), money($s->profit())];
-                $total += $s->profit();
             });
 
         usort($rows, fn ($a, $b) => strcmp(implode('', array_reverse(explode('/', $a[0]))), implode('', array_reverse(explode('/', $b[0])))));
@@ -130,7 +122,7 @@ class ReportService
 
     private function reportReceber(Period $period): array
     {
-        $items = Installment::with(['customer', 'sale', 'service'])
+        $items = Installment::with(['customer', 'sale'])
             ->whereBetween('due_date', [$period->startDate(), $period->endDate()])
             ->where('status', '!=', InstallmentStatus::Cancelado->value)
             ->orderBy('due_date')->get();
@@ -177,19 +169,6 @@ class ReportService
             'align' => [1 => 'end', 2 => 'end', 3 => 'end'],
             'rows' => $items->map(fn ($i) => [$i->description, (int) $i->qty, money($i->revenue), money($i->profit)])->all(),
             'totals' => ['Itens vendidos' => (int) $items->sum('qty'), 'Faturamento' => money($items->sum('revenue')), 'Lucro' => money($items->sum('profit'))],
-        ];
-    }
-
-    private function reportServicos(Period $period): array
-    {
-        $services = Service::with(['customer', 'category'])->whereBetween('date', [$period->startDate(), $period->endDate()])->orderBy('date')->get();
-        $billable = $services->filter(fn ($s) => in_array($s->status->value, ['em_andamento', 'concluido'], true));
-
-        return [
-            'columns' => ['Data', 'Serviço', 'Cliente', 'Status', 'Valor', 'Despesas', 'Lucro'],
-            'align' => [4 => 'end', 5 => 'end', 6 => 'end'],
-            'rows' => $services->map(fn ($s) => [$s->date->format('d/m/Y'), $s->name, $s->customer?->name ?? '—', $s->status->label(), money($s->amount), money($s->expenses_total), money($s->profit())])->all(),
-            'totals' => ['Serviços' => $services->count(), 'Faturado' => money($billable->sum('amount')), 'Lucro' => money($billable->sum(fn ($s) => $s->profit()))],
         ];
     }
 }

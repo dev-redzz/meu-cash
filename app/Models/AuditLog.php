@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AuditLog extends Model
 {
+    use BelongsToCompany;
+
     protected $fillable = ['user_id', 'action', 'description', 'auditable_type', 'auditable_id', 'ip_address', 'user_agent'];
 
     public const ACTIONS = [

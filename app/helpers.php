@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Tenant;
 use Illuminate\Support\Carbon;
 
 if (! function_exists('money')) {
@@ -49,5 +50,19 @@ if (! function_exists('only_digits')) {
     function only_digits(?string $value): string
     {
         return preg_replace('/\D/', '', (string) $value);
+    }
+}
+
+if (! function_exists('tenant')) {
+    function tenant(): Tenant
+    {
+        return app(Tenant::class);
+    }
+}
+
+if (! function_exists('tenant_id')) {
+    function tenant_id(): ?int
+    {
+        return app(Tenant::class)->id();
     }
 }

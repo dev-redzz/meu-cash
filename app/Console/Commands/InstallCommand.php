@@ -36,8 +36,6 @@ class InstallCommand extends Command
         }
 
         $this->call($this->option('fresh') ? 'migrate:fresh' : 'migrate', ['--force' => true]);
-        $this->call('db:seed', ['--force' => true]);
-
         if (! file_exists(public_path('storage'))) {
             $this->call('storage:link');
         }
@@ -47,8 +45,11 @@ class InstallCommand extends Command
         $this->newLine();
         $this->info('Meu Cash instalado.');
         $this->line('Acesse: '.config('app.url'));
-        $this->line('E-mail: '.config('meucash.admin.email'));
-        $this->line('Senha:  '.config('meucash.admin.password').'  (troque depois em Configurações > Usuários)');
+        $this->line('Entre com sua conta Google e cadastre sua empresa.');
+
+        if (blank(config('services.google.client_id'))) {
+            $this->warn('Falta configurar GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no .env (veja o LEIA-ME).');
+        }
 
         return self::SUCCESS;
     }

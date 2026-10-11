@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use App\Enums\InstallmentStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\SaleStatus;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
+    use BelongsToCompany;
+
     protected $fillable = [
         'code', 'customer_id', 'user_id', 'sale_date', 'subtotal', 'discount', 'total', 'cost_total',
         'profit', 'down_payment', 'payment_method', 'installments_count', 'status', 'notes',

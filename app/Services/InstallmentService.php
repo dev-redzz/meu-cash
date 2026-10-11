@@ -7,7 +7,6 @@ use App\Enums\TransactionType;
 use App\Models\Installment;
 use App\Models\Payment;
 use App\Models\Sale;
-use App\Models\Service;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -20,7 +19,7 @@ class InstallmentService
     ) {
     }
 
-    public function generate(Sale|Service $owner, ?int $customerId, float $amount, int $count, mixed $firstDue, int $intervalDays = 0): void
+    public function generate(Sale $sale, ?int $customerId, float $amount, int $count, mixed $firstDue, int $intervalDays = 0): void
     {
         if ($amount <= 0 || $count < 1) {
             return;
@@ -35,8 +34,7 @@ class InstallmentService
             $due = $intervalDays > 0 ? $first->copy()->addDays($intervalDays * ($i - 1)) : $first->copy()->addMonthsNoOverflow($i - 1);
 
             Installment::create([
-                'sale_id' => $owner instanceof Sale ? $owner->id : null,
-                'service_id' => $owner instanceof Service ? $owner->id : null,
+                'sale_id' => $sale->id,
                 'customer_id' => $customerId,
                 'number' => $i,
                 'total_count' => $count,
@@ -47,18 +45,15 @@ class InstallmentService
         }
     }
 
-    public function registerDownPayment(Sale|Service $owner, float $amount, mixed $date, string $method): void
+    public function registerDownPayment(Sale $sale, float $amount, mixed $date, string $method): void
     {
         if ($amount <= 0) {
             return;
         }
 
-        $isSale = $owner instanceof Sale;
-
         $payment = Payment::create([
-            'sale_id' => $isSale ? $owner->id : null,
-            'service_id' => $isSale ? null : $owner->id,
-            'customer_id' => $owner->customer_id,
+            'sale_id' => $sale->id,
+            'customer_id' => $sale->customer_id,
             'user_id' => auth()->id(),
             'amount' => $amount,
             'paid_at' => Carbon::parse($date)->toDateString(),
@@ -66,11 +61,7 @@ class InstallmentService
             'notes' => 'Entrada / pagamento à vista',
         ]);
 
-        $description = $isSale
-            ? "Venda {$owner->code} · ".$owner->customerName()
-            : "Serviço {$owner->name} · ".($owner->customer?->name ?? 'Sem cliente');
-
-        $this->finance->record(TransactionType::Entrada, $isSale ? 'venda' : 'servico', $description, $amount, $date, $method, null, $payment);
+        $this->finance->record(TransactionType::Entrada, 'venda', "Venda {$sale->code} · ".$sale->customerName(), $amount, $date, $method, null, $payment);
     }
 
     public function pay(Installment $installment, mixed $paidAt, string $method, ?string $notes = null): Payment
@@ -90,7 +81,6 @@ class InstallmentService
             $payment = Payment::create([
                 'installment_id' => $installment->id,
                 'sale_id' => $installment->sale_id,
-                'service_id' => $installment->service_id,
                 'customer_id' => $installment->customer_id,
                 'user_id' => auth()->id(),
                 'amount' => $installment->amount,
@@ -135,8 +125,8 @@ class InstallmentService
         AuditService::log('parcela_alterada', "Vencimento da parcela {$installment->label()} alterado de {$old} para {$new->format('d/m/Y')}", $installment);
     }
 
-    public function cancelOpen(Sale|Service $owner): void
+    public function cancelOpen(Sale $sale): void
     {
-        $owner->installments()->whereIn('status', InstallmentStatus::open())->update(['status' => InstallmentStatus::Cancelado->value]);
+        $sale->installments()->whereIn('status', InstallmentStatus::open())->update(['status' => InstallmentStatus::Cancelado->value]);
     }
 }

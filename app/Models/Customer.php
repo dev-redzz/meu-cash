@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use App\Enums\InstallmentStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -9,16 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Customer extends Model
 {
+    use BelongsToCompany;
+
     protected $fillable = ['name', 'document', 'phone', 'whatsapp', 'email', 'city', 'address', 'notes'];
 
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
-    }
-
-    public function services(): HasMany
-    {
-        return $this->hasMany(Service::class);
     }
 
     public function installments(): HasMany

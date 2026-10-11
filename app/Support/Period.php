@@ -77,4 +77,12 @@ class Period
     {
         return $this->end->toDateString();
     }
+
+    public function previous(): self
+    {
+        $days = (int) $this->start->copy()->startOfDay()->diffInDays($this->end->copy()->startOfDay()) + 1;
+        $end = $this->start->copy()->subDay()->endOfDay();
+
+        return new self($end->copy()->subDays($days - 1)->startOfDay(), $end, 'personalizado');
+    }
 }

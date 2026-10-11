@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use App\Enums\InstallmentStatus;
 use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,8 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Installment extends Model
 {
+    use BelongsToCompany;
+
     protected $fillable = [
-        'sale_id', 'service_id', 'customer_id', 'number', 'total_count', 'amount', 'due_date',
+        'sale_id', 'customer_id', 'number', 'total_count', 'amount', 'due_date',
         'status', 'paid_at', 'payment_method', 'notes',
     ];
 
@@ -30,11 +33,6 @@ class Installment extends Model
     public function sale(): BelongsTo
     {
         return $this->belongsTo(Sale::class);
-    }
-
-    public function service(): BelongsTo
-    {
-        return $this->belongsTo(Service::class);
     }
 
     public function customer(): BelongsTo
@@ -59,20 +57,17 @@ class Installment extends Model
 
     public function originLabel(): string
     {
-        if ($this->sale_id) {
-            return 'Venda '.($this->sale?->code ?? '#'.$this->sale_id);
-        }
-
-        return 'Serviço: '.($this->service?->name ?? '#'.$this->service_id);
+        return 'Venda '.($this->sale?->code ?? '#'.$this->sale_id);
     }
 
     public function originUrl(): ?string
     {
-        if ($this->sale_id) {
-            return route('sales.show', $this->sale_id);
-        }
+        return $this->sale_id ? route('sales.show', $this->sale_id) : null;
+    }
 
-        return $this->service_id ? route('services.show', $this->service_id) : null;
+    public function daysOverdue(): int
+    {
+        return max(0, (int) $this->due_date->diffInDays(now()->startOfDay(), false));
     }
 
     public function scopeOpen(Builder $query): Builder

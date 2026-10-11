@@ -19,7 +19,7 @@ class CategoryRequest extends FormRequest
             'type' => ['required', Rule::enum(CategoryType::class)],
             'name' => [
                 'required', 'string', 'max:100',
-                Rule::unique('categories')->where('type', $this->input('type'))->ignore($this->route('category')),
+                Rule::unique('categories')->where('type', $this->input('type'))->where('company_id', tenant_id())->ignore($this->route('category')),
             ],
         ];
     }

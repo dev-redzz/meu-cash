@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Company;
 use App\Services\NotificationService;
 use Illuminate\Console\Command;
 
@@ -13,7 +14,9 @@ class AlertsCommand extends Command
 
     public function handle(NotificationService $notifications): int
     {
-        $notifications->sync();
+        Company::where('active', true)->each(
+            fn (Company $company) => tenant()->run($company, fn () => $notifications->sync())
+        );
         $this->info('Vencimentos verificados.');
 
         return self::SUCCESS;

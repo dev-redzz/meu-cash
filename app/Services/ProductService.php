@@ -137,7 +137,7 @@ class ProductService
     private function storePhotos(array $photos): array
     {
         return array_values(array_map(
-            fn (UploadedFile $file) => $file->store('products', 'public'),
+            fn (UploadedFile $file) => $file->store('products/'.tenant_id(), 'public'),
             array_filter($photos, fn ($file) => $file instanceof UploadedFile && $file->isValid()),
         ));
     }

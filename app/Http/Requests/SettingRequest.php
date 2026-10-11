@@ -9,7 +9,8 @@ class SettingRequest extends MoneyRequest
     public function rules(): array
     {
         return [
-            'company_name' => ['required', 'string', 'max:100'],
+            'company_name' => ['required', 'string', 'max:120'],
+            'company_document' => ['nullable', 'string', 'max:20'],
             'company_phone' => ['nullable', 'string', 'max:20'],
             'initial_balance' => ['required', 'numeric', 'min:-9999999', 'max:9999999'],
             'due_reminder_days' => ['required', 'integer', 'min:0', 'max:30'],

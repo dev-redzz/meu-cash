@@ -24,7 +24,7 @@ class NotificationService
 
     public function syncIfDue(): void
     {
-        if (Cache::add('meucash.alerts-sync', true, now()->addMinutes(30))) {
+        if (Cache::add('meucash.alerts-sync.'.tenant_id(), true, now()->addMinutes(30))) {
             $this->sync();
         }
     }
@@ -36,7 +36,7 @@ class NotificationService
 
         Installment::where('status', InstallmentStatus::Pendente->value)->where('due_date', '<', $today->toDateString())->update(['status' => InstallmentStatus::Vencido->value]);
 
-        Installment::with(['customer', 'sale', 'service'])
+        Installment::with(['customer', 'sale'])
             ->open()
             ->where('due_date', '<=', $limit->toDateString())
             ->get()

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ProductStatus;
 use App\Enums\SaleStatus;
+use App\Models\Company;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Support\Carbon;
@@ -21,6 +22,7 @@ class SaleService
     public function create(array $data): Sale
     {
         return DB::transaction(function () use ($data) {
+            Company::whereKey(tenant_id())->lockForUpdate()->first();
             $lines = [];
             $subtotal = 0;
             $cost = 0;
@@ -79,7 +81,7 @@ class SaleService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            $sale->update(['code' => 'V'.str_pad((string) $sale->id, 5, '0', STR_PAD_LEFT)]);
+            $sale->update(['code' => 'V'.str_pad((string) Sale::where('id', '<=', $sale->id)->count(), 5, '0', STR_PAD_LEFT)]);
 
             foreach ($lines as $line) {
                 $sale->items()->create([

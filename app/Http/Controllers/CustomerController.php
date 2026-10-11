@@ -45,19 +45,17 @@ class CustomerController extends Controller
         $today = Carbon::today()->toDateString();
 
         $sales = $customer->sales()->latest('sale_date')->get();
-        $services = $customer->services()->latest('date')->get();
-        $installments = $customer->installments()->with(['sale', 'service'])->open()->orderBy('due_date')->get();
-        $payments = $customer->payments()->with(['installment', 'sale', 'service'])->latest('paid_at')->get();
+        $installments = $customer->installments()->with('sale')->open()->orderBy('due_date')->get();
+        $payments = $customer->payments()->with(['installment', 'sale'])->latest('paid_at')->get();
 
         $totals = [
-            'purchases' => (float) $sales->where('status.value', 'concluida')->sum('total')
-                + (float) $services->whereIn('status.value', ['em_andamento', 'concluido'])->sum('amount'),
+            'purchases' => (float) $sales->where('status.value', 'concluida')->sum('total'),
             'paid' => (float) $payments->sum('amount'),
             'open' => (float) $installments->sum('amount'),
             'overdue' => (float) $installments->filter(fn ($i) => $i->due_date->toDateString() < $today)->sum('amount'),
         ];
 
-        return view('customers.show', compact('customer', 'sales', 'services', 'installments', 'payments', 'totals'));
+        return view('customers.show', compact('customer', 'sales', 'installments', 'payments', 'totals'));
     }
 
     public function edit(Customer $customer): View
@@ -75,8 +73,8 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer): RedirectResponse
     {
-        if ($customer->sales()->exists() || $customer->services()->exists()) {
-            return back()->with('error', 'Este cliente tem vendas ou serviços registrados e não pode ser excluído.');
+        if ($customer->sales()->exists()) {
+            return back()->with('error', 'Este cliente tem vendas registradas e não pode ser excluído.');
         }
 
         AuditService::log('cliente_excluido', "Cliente {$customer->name} excluído");

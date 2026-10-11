@@ -7,6 +7,5 @@
 .phpunit.result.cache
 /.idea
 /.vscode
-/.env.exemple
-/.atualizar.bat
-/.instalar.bat
+instalar.bat
+atualizar.bat

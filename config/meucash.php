@@ -1,11 +1,7 @@
 <?php
 
 return [
-    'admin' => [
-        'name' => env('ADMIN_NAME', 'Administrador'),
-        'email' => env('ADMIN_EMAIL', 'admin@meucash.local'),
-        'password' => env('ADMIN_PASSWORD', 'admin123'),
-    ],
+    'support_email' => env('SUPPORT_EMAIL'),
 
     'product_expense_categories' => [
         'manutencao' => 'Manutenção',

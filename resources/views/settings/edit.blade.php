@@ -8,10 +8,13 @@
     @csrf @method('PUT')
     <div class="col-lg-5">
         <div class="panel">
-            <div class="panel-header"><h2 class="panel-title">Empresa e financeiro</h2></div>
+            <div class="panel-header"><h2 class="panel-title">Dados da empresa</h2></div>
             <div class="panel-body">
-                <x-input name="company_name" label="Nome que aparece no sistema e nas mensagens" :value="$settings['company_name']" required maxlength="100" />
-                <x-input name="company_phone" label="Telefone / WhatsApp da empresa" :value="$settings['company_phone']" maxlength="20" />
+                <x-input name="company_name" label="Nome da empresa" :value="$company->name" required maxlength="120" help="Aparece no sistema, nos relatórios e nas mensagens." />
+                <div class="row gx-3">
+                    <div class="col-sm-6"><x-input name="company_document" label="CPF/CNPJ" :value="$company->document" maxlength="20" /></div>
+                    <div class="col-sm-6"><x-input name="company_phone" label="Telefone / WhatsApp" :value="$company->phone" maxlength="20" /></div>
+                </div>
                 <x-input name="initial_balance" label="Saldo inicial do caixa" :value="number_format((float) $settings['initial_balance'], 2, ',', '.')" inputmode="decimal" help="Dinheiro que você já tinha antes de começar a usar o Meu Cash." required />
                 <x-input name="due_reminder_days" type="number" min="0" max="30" label="Avisar vencimentos com quantos dias de antecedência" :value="$settings['due_reminder_days']" required />
             </div>

@@ -41,7 +41,7 @@ class WhatsAppService
             '{valor}' => money($installment->amount),
             '{vencimento}' => $installment->due_date->format('d/m/Y'),
             '{parcela}' => $installment->label(),
-            '{empresa}' => (string) Setting::get('company_name', 'Meu Cash'),
+            '{empresa}' => (string) (tenant()->company()?->name ?? 'Meu Cash'),
         ]);
     }
 

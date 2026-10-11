@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    protected $fillable = ['installment_id', 'sale_id', 'service_id', 'customer_id', 'user_id', 'amount', 'paid_at', 'payment_method', 'notes'];
+    use BelongsToCompany;
+
+    protected $fillable = ['installment_id', 'sale_id', 'customer_id', 'user_id', 'amount', 'paid_at', 'payment_method', 'notes'];
 
     protected function casts(): array
     {
@@ -25,11 +28,6 @@ class Payment extends Model
         return $this->belongsTo(Sale::class);
     }
 
-    public function service(): BelongsTo
-    {
-        return $this->belongsTo(Service::class);
-    }
-
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
@@ -37,7 +35,7 @@ class Payment extends Model
 
     public function description(): string
     {
-        $origin = $this->sale_id ? 'Venda '.($this->sale?->code ?? '') : 'Serviço '.($this->service?->name ?? '');
+        $origin = 'Venda '.($this->sale?->code ?? '');
 
         return $this->installment_id ? "Parcela {$this->installment?->label()} · {$origin}" : "Entrada · {$origin}";
     }

@@ -16,6 +16,15 @@ $paths = [
     'menu' => '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>',
     'plus' => '<path d="M12 5v14"/><path d="M5 12h14"/>',
     'whatsapp' => '<path d="M3.5 20.5 5 16a8.5 8.5 0 1 1 3.2 3.1z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-1.8-.9-.9.9a4 4 0 0 1-2.3-2.3l.9-.9-.9-1.8z"/>',
+    'eye' => '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    'pencil' => '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+    'trend-up' => '<path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
+    'trend-down' => '<path d="m3 7 6 6 4-4 8 8"/><path d="M14 17h7v-7"/>',
+    'arrow-in' => '<path d="M12 5v14"/><path d="m5 12 7 7 7-7"/>',
+    'arrow-out' => '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>',
+    'logout' => '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+    'calendar' => '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+    'team' => '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M19 8v6"/><path d="M22 11h-6"/>',
 ];
 @endphp
 <svg {{ $attributes->merge(['width' => 18, 'height' => 18]) }} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{!! $paths[$name] ?? '' !!}</svg>

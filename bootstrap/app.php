@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserHasRole;
-use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\IdentifyCompany;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SyncAlerts;
 use Illuminate\Foundation\Application;
@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
         $middleware->alias([
-            'active' => EnsureUserIsActive::class,
+            'company' => IdentifyCompany::class,
             'role' => EnsureUserHasRole::class,
             'alerts' => SyncAlerts::class,
         ]);

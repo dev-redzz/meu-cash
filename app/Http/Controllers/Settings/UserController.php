@@ -4,54 +4,66 @@ namespace App\Http\Controllers\Settings;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserRequest;
+use App\Models\CompanyInvitation;
 use App\Models\User;
 use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class UserController extends Controller
 {
     public function index(): View
     {
-        return view('settings.users.index', ['users' => User::orderBy('name')->get()]);
+        return view('settings.users.index', [
+            'users' => User::where('company_id', tenant_id())->orderBy('name')->get(),
+            'invitations' => CompanyInvitation::pending()->with('inviter')->latest()->get(),
+        ]);
     }
 
-    public function create(): View
+    public function invite(Request $request): RedirectResponse
     {
-        return view('settings.users.form', ['user' => new User(['role' => UserRole::Funcionario, 'active' => true])]);
+        $request->merge(['email' => mb_strtolower(trim((string) $request->input('email')))]);
+
+        $data = $request->validate([
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+            'role' => ['required', Rule::enum(UserRole::class)],
+        ], ['email.unique' => 'Este e-mail já tem acesso ao Meu Cash (nesta ou em outra empresa).'], ['email' => 'e-mail', 'role' => 'perfil']);
+
+        CompanyInvitation::updateOrCreate(
+            ['email' => $data['email']],
+            ['role' => $data['role'], 'invited_by' => auth()->id(), 'accepted_at' => null],
+        );
+
+        AuditService::log('usuario_criado', "Convite enviado para {$data['email']}");
+
+        return back()->with('success', "Pronto. Peça para {$data['email']} entrar no Meu Cash com essa conta Google.");
     }
 
-    public function store(UserRequest $request): RedirectResponse
+    public function cancelInvite(CompanyInvitation $invitation): RedirectResponse
     {
-        $user = User::create([...$request->safe()->except('password_confirmation'), 'active' => $request->boolean('active')]);
-        AuditService::log('usuario_criado', "Usuário {$user->email} criado como {$user->role->label()}", $user);
+        $invitation->delete();
 
-        return redirect()->route('users.index')->with('success', 'Usuário criado.');
+        return back()->with('success', 'Convite cancelado.');
     }
 
-    public function edit(User $user): View
+    public function update(Request $request, User $user): RedirectResponse
     {
-        return view('settings.users.form', compact('user'));
-    }
-
-    public function update(UserRequest $request, User $user): RedirectResponse
-    {
-        $data = $request->safe()->except(['password', 'password_confirmation']);
-        $data['active'] = $request->boolean('active');
+        abort_unless($user->company_id === tenant_id(), 404);
 
         if ($user->is(auth()->user())) {
-            $data['active'] = true;
-            $data['role'] = UserRole::Admin->value;
+            return back()->with('error', 'Você não pode alterar o próprio perfil ou desativar a si mesmo.');
         }
 
-        if ($request->filled('password')) {
-            $data['password'] = $request->input('password');
-        }
+        $data = $request->validate([
+            'role' => ['required', Rule::enum(UserRole::class)],
+            'active' => ['required', 'boolean'],
+        ]);
 
         $user->update($data);
-        AuditService::log('usuario_editado', "Usuário {$user->email} editado", $user);
+        AuditService::log('usuario_editado', "Acesso de {$user->email} alterado", $user);
 
-        return redirect()->route('users.index')->with('success', 'Usuário atualizado.');
+        return back()->with('success', 'Acesso atualizado.');
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use App\Models\AppNotification;
-use App\Models\Setting;
 use App\Models\User;
+use App\Support\Tenant;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
@@ -15,6 +15,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->scoped(Tenant::class);
     }
 
     public function boot(): void
@@ -27,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.app', function ($view) {
             $view->with([
                 'unreadNotifications' => AppNotification::unread()->count(),
-                'companyName' => Setting::get('company_name', 'Meu Cash'),
+                'companyName' => tenant()->company()?->name ?? 'Meu Cash',
             ]);
         });
     }

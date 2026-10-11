@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Setting;
 use App\Services\ReportService;
 use App\Support\Period;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -35,7 +34,7 @@ class ReportController extends Controller
 
         $pdf = Pdf::loadView('reports.pdf', [
             'report' => $report,
-            'company' => Setting::get('company_name', 'Meu Cash'),
+            'company' => tenant()->company()->name,
         ])->setPaper('a4', count($report['columns']) > 6 ? 'landscape' : 'portrait');
 
         return $pdf->download('relatorio-'.$report['type'].'-'.now()->format('Ymd-His').'.pdf');

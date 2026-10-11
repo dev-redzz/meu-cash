@@ -18,16 +18,24 @@ class SettingController extends Controller
             $settings[$key] = Setting::get($key);
         }
 
-        return view('settings.edit', compact('settings'));
+        return view('settings.edit', ['settings' => $settings, 'company' => tenant()->company()]);
     }
 
     public function update(SettingRequest $request): RedirectResponse
     {
-        foreach ($request->validated() as $key => $value) {
-            Setting::put($key, (string) $value);
+        $data = $request->validated();
+
+        tenant()->company()->update([
+            'name' => $data['company_name'],
+            'document' => $data['company_document'] ?? null,
+            'phone' => $data['company_phone'] ?? null,
+        ]);
+
+        foreach (array_keys(Setting::DEFAULTS) as $key) {
+            Setting::put($key, (string) $data[$key]);
         }
 
-        AuditService::log('configuracoes', 'Configurações gerais atualizadas');
+        AuditService::log('configuracoes', 'Configurações da empresa atualizadas');
 
         return back()->with('success', 'Configurações salvas.');
     }

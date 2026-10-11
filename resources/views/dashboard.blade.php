@@ -9,115 +9,186 @@
 @section('content')
 @php $s = $summary; @endphp
 
-<div class="row g-3 mb-4">
+<div class="row g-3 mb-3">
     <div class="col-12 col-xl-4">
-        <x-stat class="stat-balance" label="Saldo atual" :value="money($s['balance'])" hint="Dinheiro disponível em caixa" />
+        <div class="stat stat-balance h-100">
+            <div class="stat-label">Saldo atual</div>
+            <div class="stat-value">{{ money($s['balance']) }}</div>
+            <div class="stat-hint">Dinheiro disponível em caixa</div>
+        </div>
     </div>
     <div class="col-12 col-xl-8">
         <div class="row g-3 h-100">
-            <div class="col-6 col-md-4"><x-stat label="Faturamento" :value="money($s['revenue'])" :hint="$s['sales_count'].' vendas · '.$s['services_count'].' serviços'" /></div>
-            <div class="col-6 col-md-4"><x-stat label="Recebido" :value="money($s['received'])" tone="positive" hint="Entradas no período" /></div>
-            <div class="col-6 col-md-4"><x-stat label="A receber" :value="money($s['receivable'])" tone="warning" hint="Parcelas em aberto" /></div>
-            <div class="col-6 col-md-6"><x-stat label="Gastos" :value="money($s['spent'])" tone="negative" hint="Saídas no período" /></div>
-            <div class="col-12 col-md-6"><x-stat label="Lucro" :value="money($s['profit'])" :tone="$s['profit'] >= 0 ? 'positive' : 'negative'" hint="Vendas e serviços no período" /></div>
+            <div class="col-sm-4">
+                <x-stat label="Faturamento" :value="money($s['revenue'])" :hint="$s['sales_count'].' '.($s['sales_count'] === 1 ? 'venda' : 'vendas').' no período'" />
+            </div>
+            <div class="col-sm-4">
+                <x-stat label="Recebido" :value="money($s['received'])" hint="Entradas no período" />
+            </div>
+            <div class="col-sm-4">
+                <x-stat label="A receber" :value="money($s['receivable'])" hint="Parcelas em aberto" />
+            </div>
+            <div class="col-sm-6">
+                <x-stat label="Gastos" :value="money($s['spent'])" tone="negative" :change="$changes['spent']" :inverse="true"
+                    :hint="$topExpenses ? 'Maiores: '.collect($topExpenses)->map(fn ($e) => $e['label'].' ('.money($e['total']).')')->implode(', ') : 'Saídas no período'" />
+            </div>
+            <div class="col-sm-6">
+                <x-stat label="Lucro" :value="money($s['profit'])" :tone="$s['profit'] >= 0 ? 'positive' : 'negative'" :change="$changes['profit']" hint="Vendas no período" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-xl-7">
+        <div class="panel h-100">
+            <div class="panel-header">
+                <h2 class="panel-title">Vendas recentes</h2>
+                <a href="{{ route('sales.index') }}" class="small fw-semibold">Ver todas</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Data</th><th>Cliente</th><th>Itens</th><th class="num">Total</th><th>Status</th><th class="text-end"><span class="visually-hidden">Ações</span></th></tr></thead>
+                    <tbody>
+                        @forelse ($recentSales as $sale)
+                            <tr>
+                                <td>{{ $sale->sale_date->format('d/m/Y') }}</td>
+                                <td><span class="cell-truncate">{{ $sale->customerName() }}</span></td>
+                                <td>{{ (int) $sale->units }} {{ (int) $sale->units === 1 ? 'item' : 'itens' }}</td>
+                                <td class="num fw-semibold">{{ money($sale->total) }}</td>
+                                <td><x-status :value="$sale->status" /></td>
+                                <td class="text-end text-nowrap">
+                                    <a href="{{ route('sales.show', $sale) }}" class="icon-btn" title="Ver venda"><x-icon name="eye" width="16" height="16" /></a>
+                                    <a href="{{ route('sales.edit', $sale) }}" class="icon-btn" title="Editar"><x-icon name="pencil" width="16" height="16" /></a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="6"><x-empty message="Nenhuma venda registrada." /></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-5">
+        <div class="panel h-100">
+            <div class="panel-header"><h2 class="panel-title">Parcelas vencidas</h2></div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Cliente</th><th class="num">Valor</th><th>Atraso</th><th></th></tr></thead>
+                    <tbody>
+                        @forelse ($overdue as $installment)
+                            <tr>
+                                <td>
+                                    <span class="cell-truncate fw-semibold">{{ $installment->customer?->name ?? 'Sem cliente' }}</span>
+                                    <div class="small text-muted-2">{{ $installment->sale?->code }} · parcela {{ $installment->label() }}</div>
+                                </td>
+                                <td class="num fw-semibold">{{ money($installment->amount) }}</td>
+                                <td><span class="pill pill-danger">{{ $installment->daysOverdue() }} {{ $installment->daysOverdue() === 1 ? 'dia' : 'dias' }}</span></td>
+                                <td class="text-end"><a href="{{ $installment->originUrl() }}" class="btn btn-sm btn-light">Ver</a></td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="4"><x-empty message="Nenhuma parcela vencida." /></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="row g-3">
-    <div class="col-lg-6">
-        <div class="panel h-100">
-            <div class="panel-header">
-                <h2 class="panel-title">Vendas recentes</h2>
-                <a href="{{ route('sales.index') }}" class="small">Ver todas</a>
-            </div>
-            @forelse ($recentSales as $sale)
-                <a href="{{ route('sales.show', $sale) }}" class="list-row list-link">
-                    <div>
-                        <div class="fw-semibold">{{ $sale->code }} · {{ $sale->customerName() }}</div>
-                        <div class="small text-muted-2">{{ $sale->sale_date->format('d/m/Y') }} · {{ $sale->payment_method->label() }}</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="num fw-semibold">{{ money($sale->total) }}</div>
-                        <x-status :value="$sale->status" />
-                    </div>
-                </a>
-            @empty
-                <x-empty message="Nenhuma venda registrada." />
-            @endforelse
-        </div>
-    </div>
-
-    <div class="col-lg-6">
-        <div class="panel h-100">
-            <div class="panel-header"><h2 class="panel-title">Parcelas vencidas</h2></div>
-            @forelse ($overdue as $installment)
-                <a href="{{ $installment->originUrl() }}" class="list-row list-link">
-                    <div>
-                        <div class="fw-semibold">{{ $installment->customer?->name ?? 'Sem cliente' }}</div>
-                        <div class="small text-muted-2">Parcela {{ $installment->label() }} · venceu em {{ $installment->due_date->format('d/m/Y') }}</div>
-                    </div>
-                    <div class="num fw-semibold text-negative">{{ money($installment->amount) }}</div>
-                </a>
-            @empty
-                <x-empty message="Nenhuma parcela vencida." />
-            @endforelse
-        </div>
-    </div>
-
-    <div class="col-lg-6">
+    <div class="col-xl-4">
         <div class="panel h-100">
             <div class="panel-header"><h2 class="panel-title">Próximos vencimentos</h2></div>
-            @forelse ($upcoming as $installment)
-                <a href="{{ $installment->originUrl() }}" class="list-row list-link">
-                    <div>
-                        <div class="fw-semibold">{{ $installment->customer?->name ?? 'Sem cliente' }}</div>
-                        <div class="small text-muted-2">Parcela {{ $installment->label() }} · {{ $installment->originLabel() }}</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="num fw-semibold">{{ money($installment->amount) }}</div>
-                        <div class="small {{ $installment->due_date->isToday() ? 'text-negative fw-semibold' : 'text-muted-2' }}">{{ $installment->due_date->isToday() ? 'Vence hoje' : $installment->due_date->format('d/m/Y') }}</div>
-                    </div>
-                </a>
-            @empty
-                <x-empty message="Nenhuma parcela a vencer." />
-            @endforelse
-        </div>
-    </div>
-
-    <div class="col-lg-6">
-        <div class="panel h-100">
-            <div class="panel-header">
-                <h2 class="panel-title">Últimas movimentações</h2>
-                @can('admin')<a href="{{ route('finance.index') }}" class="small">Fluxo de caixa</a>@endcan
+            <div class="table-responsive">
+                <table class="table table-compact align-middle">
+                    <thead><tr><th>Cliente</th><th class="num">Valor</th><th>Vence</th></tr></thead>
+                    <tbody>
+                        @forelse ($upcoming as $installment)
+                            @php $days = (int) now()->startOfDay()->diffInDays($installment->due_date, false); @endphp
+                            <tr>
+                                <td>
+                                    <a href="{{ $installment->originUrl() }}" class="text-body fw-semibold cell-truncate">{{ $installment->customer?->name ?? 'Sem cliente' }}</a>
+                                    <div class="small text-muted-2">{{ $installment->sale?->code }} · parcela {{ $installment->label() }}</div>
+                                </td>
+                                <td class="num">{{ money($installment->amount) }}</td>
+                                <td>
+                                    <span class="pill {{ $days === 0 ? 'pill-danger' : ($days <= 3 ? 'pill-warning' : 'pill-secondary') }}">
+                                        {{ $days === 0 ? 'Hoje' : ($days === 1 ? 'Amanhã' : 'Em '.$days.' dias') }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3"><x-empty message="Nenhuma parcela a vencer." /></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            @forelse ($transactions as $t)
-                <div class="list-row">
-                    <div class="text-truncate">
-                        <div class="fw-semibold text-truncate">{{ $t->description }}</div>
-                        <div class="small text-muted-2">{{ $t->date->format('d/m/Y') }} · {{ $t->originLabel() }}</div>
-                    </div>
-                    <div class="num fw-semibold {{ $t->type->value === 'entrada' ? 'text-positive' : 'text-negative' }}">
-                        {{ $t->type->value === 'entrada' ? '+' : '−' }} {{ money($t->amount) }}
-                    </div>
-                </div>
-            @empty
-                <x-empty message="Nenhuma movimentação ainda." />
-            @endforelse
         </div>
     </div>
 
-    <div class="col-12">
-        <div class="panel">
+    <div class="col-xl-4">
+        <div class="panel h-100 d-flex flex-column">
+            <div class="panel-header"><h2 class="panel-title">Últimas movimentações</h2></div>
+            <div class="timeline flex-grow-1">
+                @forelse ($transactions as $t)
+                    @php $in = $t->type === $entrada; @endphp
+                    <div class="timeline-item">
+                        <span class="timeline-icon {{ $in ? 'is-in' : 'is-out' }}"><x-icon :name="$in ? 'arrow-in' : 'arrow-out'" width="14" height="14" /></span>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold text-truncate">{{ $t->description }}</div>
+                            <div class="small text-muted-2">{{ $t->date->format('d/m/Y') }} · {{ $t->originLabel() }}</div>
+                        </div>
+                        <div class="num fw-semibold {{ $in ? 'text-positive' : 'text-negative' }}">{{ $in ? '+' : '−' }} {{ money($t->amount) }}</div>
+                    </div>
+                @empty
+                    <x-empty message="Nenhuma movimentação ainda." />
+                @endforelse
+            </div>
+            @can('admin')
+                <div class="panel-footer"><a href="{{ route('finance.index') }}" class="btn btn-sm btn-light">Ver fluxo de caixa</a></div>
+            @endcan
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="panel h-100">
             <div class="panel-header"><h2 class="panel-title">Produtos vendidos no período</h2></div>
-            @forelse ($topProducts as $item)
-                <div class="list-row">
-                    <span class="text-truncate">{{ $item->description }}</span>
-                    <span class="num fw-semibold">{{ (int) $item->qty }} un.</span>
-                </div>
-            @empty
-                <x-empty message="Nenhum produto vendido no período." />
-            @endforelse
+            <div class="table-responsive">
+                <table class="table table-compact align-middle">
+                    <thead><tr><th>Produto</th><th class="num">Qtd.</th><th class="num">Total</th></tr></thead>
+                    <tbody>
+                        @forelse ($sold as $item)
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if ($item->product && $item->product->photos)
+                                            <img src="{{ $item->product->photoUrls()[0] }}" alt="" class="thumb">
+                                        @else
+                                            <span class="thumb thumb-empty"><x-icon name="box" width="16" height="16" /></span>
+                                        @endif
+                                        <div class="min-w-0">
+                                            @if ($item->product)
+                                                <a href="{{ route('products.show', $item->product) }}" class="text-body fw-semibold cell-truncate">{{ $item->description }}</a>
+                                                <div class="small text-muted-2">{{ $item->product->category?->name ?? 'Sem categoria' }}</div>
+                                            @else
+                                                <span class="fw-semibold cell-truncate">{{ $item->description }}</span>
+                                                <div class="small text-muted-2">Item avulso</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="num">{{ $item->qty }}</td>
+                                <td class="num fw-semibold">{{ money($item->revenue) }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3"><x-empty message="Nenhum produto vendido no período." /></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

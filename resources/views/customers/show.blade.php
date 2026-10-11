@@ -4,7 +4,6 @@
 
 @section('actions')
     <a href="{{ route('sales.create', ['customer_id' => $customer->id]) }}" class="btn btn-primary">Nova venda</a>
-    <a href="{{ route('services.create', ['customer_id' => $customer->id]) }}" class="btn btn-outline-primary">Novo serviço</a>
     <a href="{{ route('customers.edit', $customer) }}" class="btn btn-light">Editar</a>
     @can('admin')
         <form method="POST" action="{{ route('customers.destroy', $customer) }}" data-confirm="Excluir este cliente?">
@@ -72,27 +71,6 @@
                             </tr>
                         @empty
                             <tr><td colspan="5"><x-empty message="Nenhuma venda para este cliente." /></td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="panel mb-3">
-            <div class="panel-header"><h2 class="panel-title">Histórico de serviços</h2></div>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead><tr><th>Data</th><th>Serviço</th><th>Status</th><th class="num">Valor</th></tr></thead>
-                    <tbody>
-                        @forelse ($services as $service)
-                            <tr>
-                                <td>{{ $service->date->format('d/m/Y') }}</td>
-                                <td><a href="{{ route('services.show', $service) }}">{{ $service->name }}</a></td>
-                                <td><x-status :value="$service->status" /></td>
-                                <td class="num">{{ money($service->amount) }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="4"><x-empty message="Nenhum serviço para este cliente." /></td></tr>
                         @endforelse
                     </tbody>
                 </table>

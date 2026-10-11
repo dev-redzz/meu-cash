@@ -26,7 +26,7 @@ class AuditLogController extends Controller
         return view('settings.audit', [
             'logs' => $logs,
             'period' => $period,
-            'users' => User::orderBy('name')->get(['id', 'name']),
+            'users' => User::where('company_id', tenant_id())->orderBy('name')->get(['id', 'name']),
             'actions' => AuditLog::ACTIONS,
         ]);
     }

@@ -165,7 +165,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         @if ($item->product && $item->product->photos)
-                                            <img src="{{ $item->product->photoUrls()[0] }}" alt="" class="thumb">
+                                            <img src="{{ $item->product->photoUrls()[0] }}" alt="" class="thumb" onerror="this.classList.add('img-missing')">
                                         @else
                                             <span class="thumb thumb-empty"><x-icon name="box" width="16" height="16" /></span>
                                         @endif

@@ -72,7 +72,7 @@ class Product extends Model
 
     public function photoUrls(): array
     {
-        return array_map(fn ($path) => asset('storage/'.$path), $this->photos ?? []);
+        return array_map(fn ($path) => route('photos.show', $path), $this->photos ?? []);
     }
 
     public function fullName(): string

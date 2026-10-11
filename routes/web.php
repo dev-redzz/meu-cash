@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductExpenseController;
 use App\Http\Controllers\ReportController;
@@ -45,6 +46,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 
 Route::middleware(['auth', 'company', 'alerts'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/fotos/{path}', PhotoController::class)->where('path', '.*')->name('photos.show');
 
     Route::resource('customers', CustomerController::class)->except('destroy');
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'edit', 'update']);

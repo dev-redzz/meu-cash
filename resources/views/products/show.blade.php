@@ -46,7 +46,7 @@
                 <div class="panel-header"><h2 class="panel-title">Fotos</h2></div>
                 <div class="panel-body d-flex flex-wrap gap-2">
                     @foreach ($product->photoUrls() as $url)
-                        <a href="{{ $url }}" target="_blank" rel="noopener"><img src="{{ $url }}" class="photo-thumb" alt="Foto de {{ $product->name }}"></a>
+                        <a href="{{ $url }}" target="_blank" rel="noopener"><img src="{{ $url }}" class="photo-thumb" onerror="this.classList.add('img-missing')" alt="Foto de {{ $product->name }}"></a>
                     @endforeach
                 </div>
             </div>

@@ -32,7 +32,7 @@
                     <div class="d-flex flex-wrap gap-3 mb-3">
                         @foreach ($product->photos as $path)
                             <label class="text-center small">
-                                <img src="{{ asset('storage/'.$path) }}" class="photo-thumb d-block mb-1" alt="Foto do produto">
+                                <img src="{{ route('photos.show', $path) }}" class="photo-thumb d-block mb-1" alt="Foto do produto" onerror="this.classList.add('img-missing')">
                                 <input type="checkbox" name="remove_photos[]" value="{{ $path }}" class="form-check-input"> remover
                             </label>
                         @endforeach

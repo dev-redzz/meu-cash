@@ -12,6 +12,7 @@ class Setting extends Model
 
     public const DEFAULTS = [
         'initial_balance' => '0',
+        'monthly_goal' => '0',
         'due_reminder_days' => '3',
         'whatsapp_template_lembrete' => 'Olá, {cliente}! Passando para lembrar que a parcela {parcela} no valor de {valor} vence em {vencimento}. Qualquer dúvida, estou à disposição. {empresa}',
         'whatsapp_template_vence_hoje' => 'Olá, {cliente}! A parcela {parcela} no valor de {valor} vence hoje ({vencimento}). Pode me enviar o comprovante por aqui quando pagar. {empresa}',

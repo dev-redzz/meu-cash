@@ -3,8 +3,11 @@
 @section('title', 'Venda '.$sale->code)
 
 @section('actions')
+    <a href="{{ route('receipts.show', $sale) }}" target="_blank" class="btn btn-primary">Recibo PDF</a>
+    @if ($sale->customer?->whatsappNumber())
+        <a href="{{ route('receipts.whatsapp', $sale) }}" target="_blank" rel="noopener" class="btn btn-outline-success"><x-icon name="whatsapp" width="16" height="16" /> Enviar recibo</a>
+    @endif
     <a href="{{ route('sales.edit', $sale) }}" class="btn btn-light">Editar</a>
-    <button type="button" class="btn btn-light" onclick="window.print()">Imprimir</button>
     @can('admin')
         @if ($sale->status->value === 'concluida')
             <form method="POST" action="{{ route('sales.cancel', $sale) }}" data-confirm="Cancelar esta venda? O estoque volta e as parcelas em aberto serão canceladas.">
@@ -40,6 +43,11 @@
                     <dt class="col-5 text-muted-2 fw-normal">Entrada</dt><dd class="col-7">{{ money($sale->down_payment) }}</dd>
                     <dt class="col-5 text-muted-2 fw-normal">Parcelas</dt><dd class="col-7">{{ $sale->installments_count ?: 'À vista' }}</dd>
                     <dt class="col-5 text-muted-2 fw-normal">Vendedor</dt><dd class="col-7">{{ $sale->user?->name ?? '—' }}</dd>
+                    @can('admin')
+                        @if ((float) $sale->commission > 0)
+                            <dt class="col-5 text-muted-2 fw-normal">Comissão</dt><dd class="col-7">{{ money($sale->commission) }} ({{ number_format((float) $sale->commission_rate, 2, ',', '.') }}%)</dd>
+                        @endif
+                    @endcan
                 </dl>
                 @if ($sale->notes)<hr><p class="mb-0" style="white-space: pre-line">{{ $sale->notes }}</p>@endif
             </div>

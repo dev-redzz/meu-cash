@@ -7,6 +7,7 @@ use App\Enums\SaleStatus;
 use App\Models\Company;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -65,9 +66,14 @@ class SaleService
             $remaining = round($total - $down, 2);
             $count = $remaining > 0 ? max(1, (int) ($data['installments_count'] ?? 1)) : 0;
 
+            $seller = User::where('company_id', tenant_id())->find($data['user_id'] ?? null) ?? auth()->user();
+            $rate = round((float) ($seller?->commission_rate ?? 0), 2);
+
             $sale = Sale::create([
                 'customer_id' => $data['customer_id'] ?? null,
-                'user_id' => auth()->id(),
+                'user_id' => $seller?->id,
+                'commission_rate' => $rate,
+                'commission' => round($total * $rate / 100, 2),
                 'sale_date' => $data['sale_date'],
                 'subtotal' => $subtotal,
                 'discount' => $discount,

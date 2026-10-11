@@ -16,6 +16,7 @@
                     <div class="col-sm-6"><x-input name="company_phone" label="Telefone / WhatsApp" :value="$company->phone" maxlength="20" /></div>
                 </div>
                 <x-input name="initial_balance" label="Saldo inicial do caixa" :value="number_format((float) $settings['initial_balance'], 2, ',', '.')" inputmode="decimal" help="Dinheiro que você já tinha antes de começar a usar o Meu Cash." required />
+                <x-input name="monthly_goal" label="Meta de vendas da empresa por mês" :value="number_format((float) $settings['monthly_goal'], 2, ',', '.')" inputmode="decimal" help="Deixe 0 para não usar meta." required />
                 <x-input name="due_reminder_days" type="number" min="0" max="30" label="Avisar vencimentos com quantos dias de antecedência" :value="$settings['due_reminder_days']" required />
             </div>
         </div>

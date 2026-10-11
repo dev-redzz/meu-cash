@@ -16,6 +16,7 @@ class ProductRequest extends MoneyRequest
             'category_id' => ['nullable', Rule::exists('categories', 'id')->where('company_id', tenant_id())],
             'brand' => ['nullable', 'string', 'max:100'],
             'model' => ['nullable', 'string', 'max:100'],
+            'barcode' => ['nullable', 'string', 'max:50', Rule::unique('products', 'barcode')->where('company_id', tenant_id())->ignore($this->route('product'))],
             'purchase_date' => ['nullable', 'date'],
             'purchase_price' => ['required', 'numeric', 'min:0', 'max:9999999'],
             'sale_price' => ['required', 'numeric', 'min:0', 'max:9999999'],

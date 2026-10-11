@@ -52,18 +52,29 @@ class UserController extends Controller
     {
         abort_unless($user->company_id === tenant_id(), 404);
 
-        if ($user->is(auth()->user())) {
-            return back()->with('error', 'Você não pode alterar o próprio perfil ou desativar a si mesmo.');
-        }
-
-        $data = $request->validate([
-            'role' => ['required', Rule::enum(UserRole::class)],
-            'active' => ['required', 'boolean'],
+        $request->merge([
+            'commission_rate' => to_decimal($request->input('commission_rate')) ?? 0,
+            'monthly_goal' => to_decimal($request->input('monthly_goal')) ?? 0,
         ]);
 
-        $user->update($data);
-        AuditService::log('usuario_editado', "Acesso de {$user->email} alterado", $user);
+        $data = $request->validate([
+            'role' => ['sometimes', Rule::enum(UserRole::class)],
+            'active' => ['sometimes', 'boolean'],
+            'commission_rate' => ['numeric', 'min:0', 'max:100'],
+            'monthly_goal' => ['numeric', 'min:0', 'max:999999999'],
+        ], [], ['commission_rate' => 'comissão', 'monthly_goal' => 'meta']);
 
-        return back()->with('success', 'Acesso atualizado.');
+        if ($user->is(auth()->user())) {
+            if ((isset($data['role']) && $data['role'] !== $user->role->value) || (isset($data['active']) && ! $data['active'])) {
+                return back()->with('error', 'Você não pode alterar o próprio perfil nem desativar a si mesmo.');
+            }
+
+            unset($data['role'], $data['active']);
+        }
+
+        $user->update($data);
+        AuditService::log('usuario_editado', "Acesso, comissão ou meta de {$user->email} alterados", $user);
+
+        return back()->with('success', 'Dados de '.$user->firstName().' atualizados.');
     }
 }

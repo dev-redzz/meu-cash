@@ -22,10 +22,11 @@
         ['Produtos', 'products.index', 'products.*|categories.*', 'box', false],
         ['Estoque', 'stock.index', 'stock.*', 'layers', false],
         ['Clientes', 'customers.index', 'customers.*', 'users', false],
+        ['Vendedores', 'sellers.index', 'sellers.*', 'team', true],
         ['Financeiro', 'finance.index', 'finance.*', 'wallet', true],
         ['Relatórios', 'reports.index', 'reports.*', 'chart', true],
         ['Notificações', 'notifications.index', 'notifications.*', 'bell', false],
-        ['Configurações', 'settings.edit', 'settings.*|users.*|audit.*', 'gear', true],
+        ['Configurações', 'settings.edit', 'settings.*|users.*|audit.*|export.*', 'gear', true],
     ];
 @endphp
 <aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-label="Menu">
@@ -80,6 +81,10 @@
                             <div class="small text-muted-2">{{ $user->role->label() }} · {{ $companyName }}</div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
+                        @if ($user->isPlatformAdmin())
+                            <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('platform.index') }}"><x-icon name="layers" width="16" height="16" /> Painel da plataforma</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                        @endif
                         <li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf

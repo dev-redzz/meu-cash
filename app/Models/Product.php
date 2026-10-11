@@ -14,7 +14,7 @@ class Product extends Model
     use BelongsToCompany;
 
     protected $fillable = [
-        'category_id', 'name', 'brand', 'model', 'purchase_date', 'purchase_price', 'expenses_total',
+        'category_id', 'name', 'brand', 'model', 'barcode', 'purchase_date', 'purchase_price', 'expenses_total',
         'sale_price', 'initial_quantity', 'quantity', 'status', 'notes', 'photos',
     ];
 
@@ -93,7 +93,7 @@ class Product extends Model
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return $query
-            ->when($filters['q'] ?? null, fn ($q, $term) => $q->where(fn ($w) => $w->where('name', 'like', "%{$term}%")->orWhere('model', 'like', "%{$term}%")->orWhere('brand', 'like', "%{$term}%")))
+            ->when($filters['q'] ?? null, fn ($q, $term) => $q->where(fn ($w) => $w->where('name', 'like', "%{$term}%")->orWhere('model', 'like', "%{$term}%")->orWhere('brand', 'like', "%{$term}%")->orWhere('barcode', $term)))
             ->when($filters['category_id'] ?? null, fn ($q, $v) => $q->where('category_id', $v))
             ->when($filters['brand'] ?? null, fn ($q, $v) => $q->where('brand', $v))
             ->when($filters['status'] ?? null, fn ($q, $v) => $q->where('status', $v))

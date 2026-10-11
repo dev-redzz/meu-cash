@@ -33,6 +33,11 @@
                         <div class="col-md-4">
                             <x-input name="sale_date" type="date" label="Data da venda" :value="now()->toDateString()" required class="mb-0" />
                         </div>
+                        @if (auth()->user()->isAdmin() && $sellers->count() > 1)
+                            <div class="col-md-4">
+                                <x-select name="user_id" label="Vendedor" :options="$sellers->pluck('name', 'id')" :value="auth()->id()" class="mb-0" />
+                            </div>
+                        @endif
                     </div>
                     <div class="form-text" x-show="remaining() > 0 && !customer">Para vender parcelado, selecione um cliente cadastrado para poder cobrar as parcelas.</div>
                 </div>
@@ -44,6 +49,19 @@
                     <button type="button" class="btn btn-sm btn-outline-primary" @click="addItem()">Adicionar item</button>
                 </div>
                 <div class="panel-body">
+                    <div class="scan-bar mb-3">
+                        <label class="form-label" for="barcode_scan">Código de barras</label>
+                        <div class="input-group">
+                            <input type="text" id="barcode_scan" class="form-control" placeholder="Bipe o produto ou digite o código e tecle Enter" autocomplete="off"
+                                x-model="scanCode" @keydown.enter.prevent="scan(scanCode)">
+                            <button type="button" class="btn btn-light" x-show="cameraSupported" @click="openCamera()">Câmera</button>
+                        </div>
+                        <div class="form-text" :class="scanError ? 'text-negative' : 'text-positive'" x-show="scanMessage" x-text="scanMessage"></div>
+                        <div class="scan-camera mt-2" x-show="cameraOpen">
+                            <video x-ref="video" playsinline muted></video>
+                            <button type="button" class="btn btn-sm btn-light mt-2" @click="closeCamera()">Fechar câmera</button>
+                        </div>
+                    </div>
                     @error('items')<div class="alert alert-danger py-2 small">{{ $message }}</div>@enderror
                     <template x-for="(item, index) in items" :key="item.key">
                         <div class="border rounded p-2 mb-2">
@@ -212,6 +230,64 @@ function saleForm() {
         totalCost() { return this.items.reduce((sum, item) => sum + this.costOf(item), 0); },
         total() { return Math.max(0, this.subtotal() - this.toNumber(this.discount)); },
         remaining() { return Math.max(0, Math.round((this.total() - this.toNumber(this.down)) * 100) / 100); },
+        scanCode: '',
+        scanMessage: '',
+        scanError: false,
+        cameraOpen: false,
+        cameraSupported: 'BarcodeDetector' in window && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+        stream: null,
+        scan(code) {
+            code = String(code || '').trim();
+            if (!code) return;
+            const p = this.products.find(x => x.barcode && x.barcode === code);
+            this.scanCode = '';
+            if (!p) { this.scanError = true; this.scanMessage = `Nenhum produto disponível com o código ${code}.`; return; }
+            let item = this.items.find(i => String(i.product_id) === String(p.id));
+            if (item) {
+                if (item.quantity >= p.stock) { this.scanError = true; this.scanMessage = `${p.name}: só há ${p.stock} em estoque.`; return; }
+                item.quantity++;
+            } else {
+                item = this.items.find(i => !i.product_id && !i.description && !i.unit_price);
+                if (!item) { this.addItem(); item = this.items[this.items.length - 1]; }
+                item.product_id = String(p.id);
+                item.quantity = 1;
+                this.pickProduct(item);
+            }
+            this.scanError = false;
+            this.scanMessage = `${p.name} adicionado (${item.quantity} un.).`;
+        },
+        async openCamera() {
+            try {
+                const detector = new BarcodeDetector();
+                this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                this.cameraOpen = true;
+                const video = this.$refs.video;
+                video.srcObject = this.stream;
+                await video.play();
+                let last = '';
+                const loop = async () => {
+                    if (!this.cameraOpen) return;
+                    try {
+                        const codes = await detector.detect(video);
+                        if (codes.length && codes[0].rawValue !== last) {
+                            last = codes[0].rawValue;
+                            this.scan(last);
+                            setTimeout(() => { last = ''; }, 1500);
+                        }
+                    } catch (e) {}
+                    requestAnimationFrame(loop);
+                };
+                loop();
+            } catch (e) {
+                this.scanError = true;
+                this.scanMessage = 'Não foi possível abrir a câmera. Verifique a permissão do navegador.';
+                this.closeCamera();
+            }
+        },
+        closeCamera() {
+            this.cameraOpen = false;
+            if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; }
+        },
         addItem() { this.items.push({ key: this.nextKey++, product_id: '', description: '', quantity: 1, unit_price: '' }); },
         removeItem(i) { this.items.splice(i, 1); },
         methodChanged() { this.down = this.method === 'parcelado' ? '0,00' : this.format(this.total()); },

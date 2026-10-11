@@ -9,6 +9,7 @@ use App\Http\Requests\SaleUpdateRequest;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\User;
 use App\Services\SaleService;
 use App\Support\Period;
 use Illuminate\Http\RedirectResponse;
@@ -56,11 +57,13 @@ class SaleController extends Controller
             'price' => (float) $p->sale_price,
             'stock' => $p->quantity,
             'cost' => $p->unitCost(),
+            'barcode' => $p->barcode,
         ]);
 
         return view('sales.create', [
             'customers' => Customer::orderBy('name')->get(['id', 'name', 'whatsapp', 'phone']),
             'products' => $products,
+            'sellers' => User::where('company_id', tenant_id())->where('active', true)->orderBy('name')->get(['id', 'name']),
             'methods' => PaymentMethod::options(),
             'receivingMethods' => PaymentMethod::receiving(),
             'selectedCustomer' => $request->integer('customer_id') ?: null,
@@ -70,7 +73,13 @@ class SaleController extends Controller
 
     public function store(SaleRequest $request): RedirectResponse
     {
-        $sale = $this->sales->create($request->validated());
+        $data = $request->validated();
+
+        if (! $request->user()->isAdmin()) {
+            $data['user_id'] = $request->user()->id;
+        }
+
+        $sale = $this->sales->create($data);
 
         return redirect()->route('sales.show', $sale)->with('success', "Venda {$sale->code} registrada.");
     }

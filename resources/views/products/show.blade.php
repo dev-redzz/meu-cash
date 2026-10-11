@@ -32,6 +32,7 @@
                     <dt class="col-5 text-muted-2 fw-normal">Categoria</dt><dd class="col-7">{{ $product->category?->name ?? '—' }}</dd>
                     <dt class="col-5 text-muted-2 fw-normal">Marca</dt><dd class="col-7">{{ $product->brand ?: '—' }}</dd>
                     <dt class="col-5 text-muted-2 fw-normal">Modelo</dt><dd class="col-7">{{ $product->model ?: '—' }}</dd>
+                    <dt class="col-5 text-muted-2 fw-normal">Código de barras</dt><dd class="col-7">{{ $product->barcode ?: '—' }}</dd>
                     <dt class="col-5 text-muted-2 fw-normal">Data da compra</dt><dd class="col-7">{{ date_br($product->purchase_date) }}</dd>
                     <dt class="col-5 text-muted-2 fw-normal">Valor de compra</dt><dd class="col-7">{{ money($product->purchase_price) }} / un.</dd>
                     <dt class="col-5 text-muted-2 fw-normal">Despesas</dt><dd class="col-7">{{ money($product->expenses_total) }}</dd>

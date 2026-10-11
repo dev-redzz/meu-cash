@@ -17,7 +17,7 @@ class Sale extends Model
 
     protected $fillable = [
         'code', 'customer_id', 'user_id', 'sale_date', 'subtotal', 'discount', 'total', 'cost_total',
-        'profit', 'down_payment', 'payment_method', 'installments_count', 'status', 'notes',
+        'profit', 'commission_rate', 'commission', 'down_payment', 'payment_method', 'installments_count', 'status', 'notes',
     ];
 
     protected function casts(): array
@@ -29,6 +29,8 @@ class Sale extends Model
             'total' => 'decimal:2',
             'cost_total' => 'decimal:2',
             'profit' => 'decimal:2',
+            'commission_rate' => 'decimal:2',
+            'commission' => 'decimal:2',
             'down_payment' => 'decimal:2',
             'payment_method' => PaymentMethod::class,
             'status' => SaleStatus::class,

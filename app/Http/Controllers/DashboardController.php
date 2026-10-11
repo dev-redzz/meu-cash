@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Services\FinanceService;
+use App\Services\SellerPerformanceService;
 use App\Support\Period;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -17,7 +18,7 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request, FinanceService $finance): View
+    public function __invoke(Request $request, FinanceService $finance, SellerPerformanceService $performance): View
     {
         $period = Period::fromRequest($request);
         $previous = $period->previous();
@@ -59,6 +60,8 @@ class DashboardController extends Controller
                 'revenue' => (float) $row->revenue,
             ]),
             'entrada' => TransactionType::Entrada,
+            'companyGoal' => $request->user()->isAdmin() ? $performance->companyGoal() : null,
+            'myGoal' => $performance->userGoal($request->user()),
         ]);
     }
 }

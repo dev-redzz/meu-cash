@@ -101,6 +101,15 @@ php artisan serve
 
 Acesse `http://localhost:8000`. O MySQL do XAMPP precisa estar iniciado.
 
+## Recursos extras
+
+- **Painel da plataforma** (`/plataforma`): lista todas as empresas, uso e permite suspender. Só aparece para os e-mails em `PLATFORM_ADMINS` (separados por vírgula; se vazio, usa `OWNER_EMAIL`).
+- **Recibo da venda:** na venda, *Recibo PDF* e *Enviar recibo* (WhatsApp com link do PDF válido por 60 dias).
+- **Exportar dados:** Configurações > Exportar dados (CSV de cada tabela ou tudo em .zip).
+- **Importar produtos:** Produtos > Importar planilha (CSV; baixe o modelo na própria tela).
+- **Código de barras:** cadastre no produto; na nova venda, bipe com leitor USB ou use a câmera (Chrome/Android).
+- **Vendedores, comissão e metas:** em Configurações > Equipe defina % de comissão e meta mensal de cada um; meta da empresa em Configurações > Empresa; acompanhamento em *Vendedores*.
+
 ## Perfis
 
 - **Administrador**: acesso total à empresa, inclusive Financeiro, Relatórios, Configurações e Equipe.

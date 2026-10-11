@@ -39,6 +39,21 @@
     </div>
 </div>
 
+@if ($companyGoal || $myGoal)
+    <div class="panel mb-3">
+        <div class="panel-body">
+            <div class="row g-4">
+                @if ($companyGoal)
+                    <div class="{{ $myGoal ? 'col-lg-6' : 'col-12' }}">@include('partials.goal-bar', ['goal' => $companyGoal, 'title' => 'Meta da empresa neste mês'])</div>
+                @endif
+                @if ($myGoal)
+                    <div class="{{ $companyGoal ? 'col-lg-6' : 'col-12' }}">@include('partials.goal-bar', ['goal' => $myGoal, 'title' => 'Sua meta neste mês'])</div>
+                @endif
+            </div>
+        </div>
+    </div>
+@endif
+
 <div class="row g-3 mb-3">
     <div class="col-xl-7">
         <div class="panel h-100">

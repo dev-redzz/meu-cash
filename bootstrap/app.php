@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\IdentifyCompany;
 use App\Http\Middleware\SecurityHeaders;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'company' => IdentifyCompany::class,
             'role' => EnsureUserHasRole::class,
             'alerts' => SyncAlerts::class,
+            'platform' => EnsurePlatformAdmin::class,
         ]);
         $middleware->web(append: [SecurityHeaders::class]);
         $middleware->prependToPriorityList(

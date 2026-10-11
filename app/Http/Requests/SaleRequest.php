@@ -41,6 +41,7 @@ class SaleRequest extends MoneyRequest
     {
         return [
             'customer_id' => ['nullable', Rule::exists('customers', 'id')->where('company_id', tenant_id())],
+            'user_id' => ['nullable', Rule::exists('users', 'id')->where('company_id', tenant_id())->where('active', true)],
             'sale_date' => ['required', 'date'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['nullable', 'integer', Rule::exists('products', 'id')->where('company_id', tenant_id())],

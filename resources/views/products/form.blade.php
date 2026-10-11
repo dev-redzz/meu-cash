@@ -17,6 +17,7 @@
                     </div>
                     <div class="col-md-4"><x-input name="brand" label="Marca" :value="$product->brand" maxlength="100" list="brands" /></div>
                     <div class="col-md-4"><x-input name="model" label="Modelo" :value="$product->model" maxlength="100" /></div>
+                    <div class="col-md-4"><x-input name="barcode" label="Código de barras" :value="$product->barcode" maxlength="50" placeholder="Bipe ou digite" /></div>
                     <div class="col-md-4"><x-input name="purchase_date" type="date" label="Data da compra" :value="$product->purchase_date?->toDateString()" /></div>
                     <div class="col-md-4"><x-select name="status" label="Status" :options="\App\Enums\ProductStatus::options()" :value="$product->status" required /></div>
                     <div class="col-md-4"><x-input name="quantity" type="number" min="0" label="Quantidade em estoque" :value="$product->quantity ?? 1" required /></div>

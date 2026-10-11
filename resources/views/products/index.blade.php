@@ -4,6 +4,7 @@
 
 @section('actions')
     <a href="{{ route('categories.index') }}" class="btn btn-light">Categorias</a>
+    <a href="{{ route('products.import.create') }}" class="btn btn-light">Importar planilha</a>
     <a href="{{ route('products.create') }}" class="btn btn-primary">Novo produto</a>
 @endsection
 

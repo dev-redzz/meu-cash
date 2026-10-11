@@ -3,6 +3,11 @@
 return [
     'support_email' => env('SUPPORT_EMAIL'),
 
+    'platform_admins' => array_values(array_filter(array_map(
+        fn ($email) => mb_strtolower(trim($email)),
+        explode(',', (string) env('PLATFORM_ADMINS', env('OWNER_EMAIL', '')))
+    ))),
+
     'product_expense_categories' => [
         'manutencao' => 'Manutenção',
         'pecas' => 'Peças',

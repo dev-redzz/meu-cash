@@ -13,7 +13,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['company_id', 'name', 'email', 'email_verified_at', 'google_id', 'avatar', 'password', 'role', 'active'];
+    protected $fillable = ['company_id', 'name', 'email', 'email_verified_at', 'google_id', 'avatar', 'password', 'role', 'active', 'commission_rate', 'monthly_goal'];
 
     protected $hidden = ['password', 'remember_token', 'google_id'];
 
@@ -24,6 +24,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
             'active' => 'boolean',
+            'commission_rate' => 'decimal:2',
+            'monthly_goal' => 'decimal:2',
         ];
     }
 
@@ -40,6 +42,11 @@ class User extends Authenticatable
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function isPlatformAdmin(): bool
+    {
+        return in_array(mb_strtolower($this->email), config('meucash.platform_admins'), true);
     }
 
     public function isAdmin(): bool

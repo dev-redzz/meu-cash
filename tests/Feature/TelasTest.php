@@ -65,7 +65,7 @@ class TelasTest extends TestCase
         $this->actingAs($admin)->get('/relatorios/pdf?tipo=vendas&periodo=ano')->assertOk()->assertHeader('content-type', 'application/pdf');
 
         $this->actingAs($admin)->put('/configuracoes', [
-            'company_name' => 'Loja Renomeada', 'initial_balance' => '100,00', 'due_reminder_days' => 3,
+            'company_name' => 'Loja Renomeada', 'initial_balance' => '100,00', 'monthly_goal' => '5.000,00', 'due_reminder_days' => 3,
             'whatsapp_template_lembrete' => 'a', 'whatsapp_template_vence_hoje' => 'b',
             'whatsapp_template_atrasada' => 'c', 'whatsapp_template_pagamento' => 'd',
         ])->assertSessionHasNoErrors();

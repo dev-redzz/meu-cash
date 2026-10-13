@@ -113,6 +113,21 @@ Acesse `http://localhost:8000`. O MySQL do XAMPP precisa estar iniciado.
 - **Modo escuro:** no menu do usuário (canto superior direito), escolha Claro, Escuro ou Auto (segue o celular/computador).
 - **Resumo semanal por e-mail:** toda segunda os administradores recebem o resumo da semana anterior. Liga/desliga e prévia em Configurações > Empresa. O envio acontece quando alguém da empresa abre o sistema na semana; para sair às 8h em ponto mesmo sem ninguém entrar, crie no Railway um Cron com `php artisan meucash:resumo-semanal` e horário `0 11 * * 1` (segunda, 8h de Brasília). Precisa do e-mail configurado.
 
+## Trazer os dados do Meu Cash antigo (localhost)
+
+Rode no seu computador, com o MySQL do XAMPP ligado:
+
+1. No `.env` do projeto local, adicione:
+   ```
+   DB_URL="(MYSQL_PUBLIC_URL do MySQL no Railway)"
+   LEGACY_DB_DATABASE=meu_cash
+   ```
+2. `php artisan config:clear`
+3. `php artisan meucash:importar-antigo seu@gmail.com`
+4. Depois, **apague a linha DB_URL** do `.env` local.
+
+Copia categorias, clientes, produtos, despesas, vendas, parcelas, pagamentos, caixa e saldo inicial. Fotos não são copiadas. Só roda uma vez por empresa (use `--repetir` para forçar).
+
 ## Perfis
 
 - **Administrador**: acesso total à empresa, inclusive Financeiro, Relatórios, Configurações e Equipe.

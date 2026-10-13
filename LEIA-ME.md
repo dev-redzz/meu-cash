@@ -110,6 +110,9 @@ Acesse `http://localhost:8000`. O MySQL do XAMPP precisa estar iniciado.
 - **Código de barras:** cadastre no produto; na nova venda, bipe com leitor USB ou use a câmera (Chrome/Android).
 - **Vendedores, comissão e metas:** em Configurações > Equipe defina % de comissão e meta mensal de cada um; meta da empresa em Configurações > Empresa; acompanhamento em *Vendedores*.
 
+- **Modo escuro:** no menu do usuário (canto superior direito), escolha Claro, Escuro ou Auto (segue o celular/computador).
+- **Resumo semanal por e-mail:** toda segunda os administradores recebem o resumo da semana anterior. Liga/desliga e prévia em Configurações > Empresa. O envio acontece quando alguém da empresa abre o sistema na semana; para sair às 8h em ponto mesmo sem ninguém entrar, crie no Railway um Cron com `php artisan meucash:resumo-semanal` e horário `0 11 * * 1` (segunda, 8h de Brasília). Precisa do e-mail configurado.
+
 ## Perfis
 
 - **Administrador**: acesso total à empresa, inclusive Financeiro, Relatórios, Configurações e Equipe.

@@ -80,6 +80,12 @@ class TelasTest extends TestCase
         $this->get('/termos')->assertOk()->assertSee('Termos de Uso');
     }
 
+    public function test_aviso_de_cookies(): void
+    {
+        $this->get('/login')->assertSee('cookie-notice', false);
+        $this->withUnencryptedCookie('cookie_notice', '1')->get('/login')->assertDontSee('cookie-notice', false);
+    }
+
     public function test_telas_de_acesso_abrem(): void
     {
         $this->get('/login')->assertOk()->assertSee('Entrar com Google')->assertSee('Esqueci minha senha')->assertSee('Criar conta');

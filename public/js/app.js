@@ -57,3 +57,29 @@ window.parseMoney = function (value) {
     const n = parseFloat(v);
     return isNaN(n) ? 0 : n;
 };
+
+(function () {
+    var root = document.documentElement;
+    var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    var apply = function (choice) {
+        var dark = choice === 'dark' || (choice === 'auto' && media && media.matches);
+        root.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+        root.setAttribute('data-theme-choice', choice);
+        document.querySelectorAll('[data-theme-set]').forEach(function (button) {
+            button.setAttribute('aria-pressed', button.dataset.themeSet === choice);
+        });
+    };
+    var current = function () { return root.getAttribute('data-theme-choice') || 'light'; };
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest('[data-theme-set]');
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+        try { localStorage.setItem('mc-theme', button.dataset.themeSet); } catch (e) {}
+        apply(button.dataset.themeSet);
+    });
+    if (media && media.addEventListener) {
+        media.addEventListener('change', function () { if (current() === 'auto') apply('auto'); });
+    }
+    apply(current());
+})();

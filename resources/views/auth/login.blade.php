@@ -11,11 +11,13 @@
     @include('partials.password-input', [
         'name' => 'password',
         'label' => 'Senha',
-        'aside' => '<a href="'.route('password.request').'" class="small fw-semibold">Esqueci minha senha</a>',
     ])
-    <div class="form-check mb-4">
-        <input class="form-check-input" type="checkbox" name="remember" id="remember" value="1" checked>
-        <label class="form-check-label small" for="remember">Manter conectado</label>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" name="remember" id="remember" value="1" checked>
+            <label class="form-check-label small" for="remember">Manter conectado</label>
+        </div>
+        <a href="{{ route('password.request') }}" class="small fw-semibold">Esqueci minha senha</a>
     </div>
     <button type="submit" class="btn btn-primary btn-lg w-100">Entrar</button>
 </form>

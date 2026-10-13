@@ -33,7 +33,7 @@
                         <td>{{ $log->created_at->format('d/m/Y') }}</td>
                         <td>{{ $log->created_at->format('H:i:s') }}</td>
                         <td>{{ $log->user?->name ?? 'Sistema' }}</td>
-                        <td><span class="badge text-bg-light border">{{ $log->actionLabel() }}</span></td>
+                        <td><span class="badge bg-body-tertiary text-body border">{{ $log->actionLabel() }}</span></td>
                         <td class="small">{{ $log->description }}</td>
                         <td class="small text-muted-2">{{ $log->ip_address }}</td>
                     </tr>

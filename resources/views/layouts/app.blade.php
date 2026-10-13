@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    @include('partials.theme-head')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Painel') · Meu Cash</title>
     <link rel="icon" type="image/png" href="{{ asset('img/favicon.png') }}">
@@ -10,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('css/app.css') }}?v=6" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}?v=7" rel="stylesheet">
     @stack('styles')
 </head>
 <body>
@@ -81,6 +82,15 @@
                             <div class="small text-muted-2">{{ $user->role->label() }} · {{ $companyName }}</div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
+                        <li class="px-3 pt-1 pb-2">
+                            <div class="small text-muted-2 fw-semibold mb-1">Tema</div>
+                            <div class="theme-switch" role="group" aria-label="Tema">
+                                <button type="button" data-theme-set="light"><x-icon name="sun" width="15" height="15" /> Claro</button>
+                                <button type="button" data-theme-set="dark"><x-icon name="moon" width="15" height="15" /> Escuro</button>
+                                <button type="button" data-theme-set="auto"><x-icon name="monitor" width="15" height="15" /> Auto</button>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
                         @if ($user->isPlatformAdmin())
                             <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('platform.index') }}"><x-icon name="layers" width="16" height="16" /> Painel da plataforma</a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -108,7 +118,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{{ asset('js/app.js') }}?v=6"></script>
+<script src="{{ asset('js/app.js') }}?v=7"></script>
 @stack('scripts')
+@include('partials.cookie-notice')
 </body>
 </html>

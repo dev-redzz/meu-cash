@@ -1,0 +1,1 @@
+    <script>(function(){var t='light';try{t=localStorage.getItem('mc-theme')||'light'}catch(e){}var d=t==='dark'||(t==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-bs-theme',d?'dark':'light');document.documentElement.setAttribute('data-theme-choice',t)})();</script>

@@ -17,8 +17,15 @@
 <h2>4. Compartilhamento</h2>
 <p>Não vendemos nem alugamos dados. Os dados são armazenados em provedores de hospedagem e banco de dados contratados para operar o sistema e só são compartilhados com terceiros quando exigido por lei ou ordem judicial.</p>
 
-<h2>5. Cookies</h2>
-<p>Usamos apenas cookies necessários para manter você conectado e proteger os formulários. Não usamos cookies de publicidade.</p>
+<h2 id="cookies">5. Cookies</h2>
+<p>Usamos apenas cookies necessários para o funcionamento do sistema. Não usamos cookies de publicidade nem de rastreamento.</p>
+<ul>
+    <li><strong>Sessão</strong>: mantém você conectado enquanto usa o sistema.</li>
+    <li><strong>Segurança</strong> (XSRF-TOKEN): protege os formulários contra envios falsos.</li>
+    <li><strong>Manter conectado</strong> (remember_web_…): só é criado se você marcar essa opção ao entrar.</li>
+    <li><strong>Aviso de cookies</strong> (cookie_notice): lembra que você já viu este aviso, por 1 ano.</li>
+</ul>
+<p>Por serem necessários, esses cookies não podem ser desativados no sistema. Você pode apagá-los nas configurações do seu navegador, mas precisará entrar de novo.</p>
 
 <h2>6. Retenção e exclusão</h2>
 <p>Os dados são mantidos enquanto a empresa usar o sistema. A empresa pode solicitar a exclusão da conta e de todos os seus dados a qualquer momento pelo contato abaixo.</p>

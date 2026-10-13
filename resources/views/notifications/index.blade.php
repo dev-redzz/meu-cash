@@ -25,7 +25,7 @@
         </form>
     </div>
     @forelse ($notifications as $notification)
-        <a href="{{ route('notifications.open', $notification) }}" class="list-row text-decoration-none text-body {{ $notification->read_at ? '' : 'bg-light' }}">
+        <a href="{{ route('notifications.open', $notification) }}" class="list-row text-decoration-none text-body {{ $notification->read_at ? '' : 'bg-body-tertiary' }}">
             <div>
                 <div class="{{ $notification->read_at ? '' : 'fw-bold' }}">{{ $notification->title }}</div>
                 @if ($notification->message)<div class="small text-muted-2">{{ $notification->message }}</div>@endif

@@ -137,7 +137,7 @@
                         </div>
                     </div>
 
-                    <div class="border rounded p-3 bg-light" x-show="remaining() > 0">
+                    <div class="border rounded p-3 bg-body-tertiary" x-show="remaining() > 0">
                         <div class="fw-semibold mb-2">Restante de <span x-text="brl(remaining())"></span> em parcelas</div>
                         <div class="row g-2">
                             <div class="col-md-3">

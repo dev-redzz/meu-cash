@@ -99,6 +99,7 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
 
         Route::get('/configuracoes', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/configuracoes', [SettingController::class, 'update'])->name('settings.update');
+        Route::post('/configuracoes/resumo-semanal/previa', [SettingController::class, 'previewSummary'])->middleware('throttle:5,10')->name('settings.summary.preview');
         Route::get('/equipe', [UserController::class, 'index'])->name('users.index');
         Route::post('/equipe/convites', [UserController::class, 'invite'])->name('users.invite');
         Route::delete('/equipe/convites/{invitation}', [UserController::class, 'cancelInvite'])->name('users.invite.cancel');

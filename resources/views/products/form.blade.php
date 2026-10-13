@@ -54,7 +54,7 @@
                 <x-input name="purchase_price" label="Valor de compra (unitário)" :value="$product->exists ? number_format((float) $product->purchase_price, 2, ',', '.') : ''" inputmode="decimal" placeholder="0,00" required data-calc />
                 <x-input name="sale_price" label="Preço de venda (unitário)" :value="$product->exists ? number_format((float) $product->sale_price, 2, ',', '.') : ''" inputmode="decimal" placeholder="0,00" required data-calc />
 
-                <div class="border rounded p-3 small bg-light">
+                <div class="border rounded p-3 small bg-body-tertiary">
                     <div class="d-flex justify-content-between"><span>Despesas adicionais</span><span class="num">{{ money($product->expenses_total ?? 0) }}</span></div>
                     <div class="d-flex justify-content-between"><span>Total investido</span><span class="num fw-semibold" id="calc-invested">—</span></div>
                     <div class="d-flex justify-content-between"><span>Lucro esperado</span><span class="num fw-semibold" id="calc-profit">—</span></div>

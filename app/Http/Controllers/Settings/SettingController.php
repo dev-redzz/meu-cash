@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SettingRequest;
+use App\Mail\WeeklySummaryMail;
 use App\Models\Setting;
 use App\Services\AuditService;
+use App\Services\WeeklySummaryService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -24,6 +28,7 @@ class SettingController extends Controller
     public function update(SettingRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $data['weekly_summary'] = $request->boolean('weekly_summary') ? '1' : '0';
 
         tenant()->company()->update([
             'name' => $data['company_name'],
@@ -38,5 +43,18 @@ class SettingController extends Controller
         AuditService::log('configuracoes', 'Configurações da empresa atualizadas');
 
         return back()->with('success', 'Configurações salvas.');
+    }
+
+    public function previewSummary(Request $request, WeeklySummaryService $service): RedirectResponse
+    {
+        try {
+            Mail::to($request->user()->email, $request->user()->name)->send(new WeeklySummaryMail($service->build(), $request->user()));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Não foi possível enviar o e-mail. Confira a configuração de e-mail do sistema.');
+        }
+
+        return back()->with('success', 'Prévia enviada para '.$request->user()->email.'.');
     }
 }

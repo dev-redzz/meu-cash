@@ -14,6 +14,7 @@ class Setting extends Model
         'initial_balance' => '0',
         'monthly_goal' => '0',
         'due_reminder_days' => '3',
+        'weekly_summary' => '1',
         'whatsapp_template_lembrete' => 'Olá, {cliente}! Passando para lembrar que a parcela {parcela} no valor de {valor} vence em {vencimento}. Qualquer dúvida, estou à disposição. {empresa}',
         'whatsapp_template_vence_hoje' => 'Olá, {cliente}! A parcela {parcela} no valor de {valor} vence hoje ({vencimento}). Pode me enviar o comprovante por aqui quando pagar. {empresa}',
         'whatsapp_template_atrasada' => 'Olá, {cliente}! A parcela {parcela} no valor de {valor}, com vencimento em {vencimento}, consta em aberto. Podemos combinar o pagamento? {empresa}',

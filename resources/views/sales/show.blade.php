@@ -10,11 +10,15 @@
     <a href="{{ route('sales.edit', $sale) }}" class="btn btn-light">Editar</a>
     @can('admin')
         @if ($sale->status->value === 'concluida')
-            <form method="POST" action="{{ route('sales.cancel', $sale) }}" data-confirm="Cancelar esta venda? O estoque volta e as parcelas em aberto serão canceladas.">
+            <form method="POST" action="{{ route('sales.cancel', $sale) }}" data-confirm="Cancelar esta venda? O estoque volta, as parcelas são canceladas e o dinheiro dela sai do caixa. A venda continua no histórico como cancelada.">
                 @csrf
                 <button class="btn btn-outline-danger">Cancelar venda</button>
             </form>
         @endif
+        <form method="POST" action="{{ route('sales.destroy', $sale) }}" data-confirm="Excluir a venda {{ $sale->code }} de vez? O estoque volta, o dinheiro dela sai do caixa e ela some do sistema. Não dá para desfazer.">
+            @csrf @method('DELETE')
+            <button class="btn btn-danger">Excluir</button>
+        </form>
     @endcan
 @endsection
 

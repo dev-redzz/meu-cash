@@ -107,6 +107,14 @@ class SaleController extends Controller
     {
         $this->sales->cancel($sale);
 
-        return redirect()->route('sales.show', $sale)->with('success', 'Venda cancelada. O estoque foi devolvido e as parcelas em aberto foram canceladas. Se houve devolução de dinheiro, registre uma saída no Financeiro.');
+        return redirect()->route('sales.show', $sale)->with('success', 'Venda cancelada. O estoque voltou e o dinheiro dela saiu do caixa.');
+    }
+
+    public function destroy(Sale $sale): RedirectResponse
+    {
+        $code = $sale->code;
+        $this->sales->delete($sale);
+
+        return redirect()->route('sales.index')->with('success', "Venda {$code} excluída. O estoque voltou e o dinheiro dela saiu do caixa.");
     }
 }

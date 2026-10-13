@@ -88,6 +88,7 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
         Route::delete('/products/{product}/expenses/{expense}', [ProductExpenseController::class, 'destroy'])->name('products.expenses.destroy');
         Route::post('/sales/{sale}/cancel', [SaleController::class, 'cancel'])->name('sales.cancel');
+        Route::delete('/sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');
 
         Route::get('/vendedores', SellerController::class)->name('sellers.index');
         Route::get('/financeiro', [FinanceController::class, 'index'])->name('finance.index');

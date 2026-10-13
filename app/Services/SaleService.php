@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\InstallmentStatus;
 use App\Enums\ProductStatus;
 use App\Enums\SaleStatus;
 use App\Models\Company;
@@ -17,6 +18,7 @@ class SaleService
     public function __construct(
         private readonly InstallmentService $installments,
         private readonly NotificationService $notifications,
+        private readonly FinanceService $finance,
     ) {
     }
 
@@ -87,7 +89,7 @@ class SaleService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            $sale->update(['code' => 'V'.str_pad((string) Sale::where('id', '<=', $sale->id)->count(), 5, '0', STR_PAD_LEFT)]);
+            $sale->update(['code' => $this->nextCode($sale)]);
 
             foreach ($lines as $line) {
                 $sale->items()->create([
@@ -155,11 +157,50 @@ class SaleService
                 }
             }
 
-            $this->installments->cancelOpen($sale);
+            $this->reverseMoney($sale);
             $sale->update(['status' => SaleStatus::Cancelada]);
 
             AuditService::log('venda_cancelada', "Venda {$sale->code} cancelada", $sale);
         });
+    }
+
+    public function delete(Sale $sale): void
+    {
+        DB::transaction(function () use ($sale) {
+            if ($sale->status === SaleStatus::Cancelada) {
+                $this->reverseMoney($sale);
+            } else {
+                $this->cancel($sale);
+            }
+
+            AuditService::log('venda_excluida', "Venda {$sale->code} de ".money($sale->total).' excluída', $sale);
+
+            $sale->installments()->delete();
+            $sale->items()->delete();
+            $sale->delete();
+        });
+    }
+
+    /** Tira do caixa tudo o que entrou por esta venda e cancela as parcelas. */
+    private function reverseMoney(Sale $sale): void
+    {
+        foreach ($sale->payments()->get() as $payment) {
+            $this->finance->removeFor($payment);
+            $payment->delete();
+        }
+
+        $this->finance->removeFor($sale);
+
+        $sale->installments()
+            ->where('status', '!=', InstallmentStatus::Cancelado->value)
+            ->update(['status' => InstallmentStatus::Cancelado->value, 'paid_at' => null, 'payment_method' => null]);
+    }
+
+    private function nextCode(Sale $sale): string
+    {
+        $last = Sale::where('id', '!=', $sale->id)->where('code', 'like', 'V%')->max('code');
+
+        return 'V'.str_pad((string) ((int) substr((string) $last, 1) + 1), 5, '0', STR_PAD_LEFT);
     }
 
     private function decrementStock(Product $product, int $quantity, Sale $sale): void

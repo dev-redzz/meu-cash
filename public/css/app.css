@@ -815,3 +815,6 @@ html[data-bs-theme="dark"] {
 [data-bs-theme="dark"] .theme-switch { background: #0f1622; }
 [data-bs-theme="dark"] .theme-switch button[aria-pressed="true"] { background: #243044; box-shadow: none; }
 [data-bs-theme="dark"] .cookie-notice { background: var(--mc-surface); border-color: var(--mc-line); color: #c3cbd8; box-shadow: 0 12px 32px rgba(0, 0, 0, .45); }
+
+.icon-btn-danger:hover { background: #fde8e6 !important; border-color: #f4c3be !important; color: #c0362c; }
+[data-bs-theme="dark"] .icon-btn-danger:hover { background: rgba(239, 68, 68, .15) !important; border-color: #5b2a2a !important; color: #f87171; }

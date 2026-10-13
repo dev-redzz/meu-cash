@@ -75,6 +75,12 @@
                                 <td class="text-end text-nowrap">
                                     <a href="{{ route('sales.show', $sale) }}" class="icon-btn" title="Ver venda"><x-icon name="eye" width="16" height="16" /></a>
                                     <a href="{{ route('sales.edit', $sale) }}" class="icon-btn" title="Editar"><x-icon name="pencil" width="16" height="16" /></a>
+                                    @can('admin')
+                                        <form method="POST" action="{{ route('sales.destroy', $sale) }}" class="d-inline" data-confirm="Excluir a venda {{ $sale->code }} de vez? O estoque volta, o dinheiro dela sai do caixa e ela some do sistema. Não dá para desfazer.">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="icon-btn icon-btn-danger border-0 bg-transparent" title="Excluir"><x-icon name="trash" width="16" height="16" /></button>
+                                        </form>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty

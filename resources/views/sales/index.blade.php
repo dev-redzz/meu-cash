@@ -45,6 +45,7 @@
                     <th>Status</th>
                     <th class="num">Total</th>
                     <th class="num">Lucro</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -57,9 +58,18 @@
                         <td><x-status :value="$sale->status" /></td>
                         <td class="num">{{ money($sale->total) }}</td>
                         <td class="num {{ $sale->profit >= 0 ? 'text-positive' : 'text-negative' }}">{{ money($sale->profit) }}</td>
+                        <td class="text-end text-nowrap">
+                            <a href="{{ route('sales.show', $sale) }}" class="icon-btn" title="Ver venda"><x-icon name="eye" width="16" height="16" /></a>
+                            @can('admin')
+                                <form method="POST" action="{{ route('sales.destroy', $sale) }}" class="d-inline" data-confirm="Excluir a venda {{ $sale->code }} de vez? O estoque volta, o dinheiro dela sai do caixa e ela some do sistema. Não dá para desfazer.">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="icon-btn icon-btn-danger border-0 bg-transparent" title="Excluir"><x-icon name="trash" width="16" height="16" /></button>
+                                </form>
+                            @endcan
+                        </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7"><x-empty message="Nenhuma venda neste período." /></td></tr>
+                    <tr><td colspan="8"><x-empty message="Nenhuma venda neste período." /></td></tr>
                 @endforelse
             </tbody>
         </table>

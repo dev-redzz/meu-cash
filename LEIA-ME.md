@@ -47,25 +47,23 @@ Como o login agora é só pelo Google, o administrador antigo precisa ter o e-ma
 
 O módulo **Serviços** foi removido: serviços, despesas de serviço e as parcelas/pagamentos ligados a eles são apagados na migração. As entradas e saídas já lançadas no caixa continuam no fluxo de caixa.
 
-## E-mail (necessário para "Esqueci minha senha")
+## E-mail (Esqueci minha senha e resumo semanal)
 
-Sem configurar, o link de redefinição não é enviado. Com Gmail:
+O Railway bloqueia SMTP (Gmail) nos planos Free/Hobby, então use a **Brevo**, que envia por HTTPS (grátis até 300 e-mails/dia):
 
-1. Ative a verificação em duas etapas na conta Google.
-2. Crie uma **senha de app** em https://myaccount.google.com/apppasswords.
-3. Configure:
+1. Crie conta em https://www.brevo.com
+2. **Senders, Domains & Dedicated IPs > Senders**: adicione e confirme o e-mail remetente (ex.: seu Gmail).
+3. **SMTP & API > API Keys**: gere uma chave.
+4. Variáveis no Railway:
 
 ```
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=seu@gmail.com
-MAIL_PASSWORD=a-senha-de-app-de-16-letras
+MAIL_MAILER=brevo
+BREVO_API_KEY=xkeysib-...
 MAIL_FROM_ADDRESS=seu@gmail.com
 MAIL_FROM_NAME="Meu Cash"
 ```
 
-O Gmail permite cerca de 500 e-mails por dia. Com muitos clientes, troque por um serviço de envio (Brevo, Resend, Amazon SES).
+Pode apagar MAIL_HOST, MAIL_PORT, MAIL_USERNAME e MAIL_PASSWORD. No computador (XAMPP), o SMTP do Gmail continua funcionando.
 
 ## 4. Railway
 

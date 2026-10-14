@@ -25,10 +25,10 @@
 @section('content')
 @php $received = $sale->payments->sum('amount'); $open = $sale->installments->filter->isOpen()->sum('amount'); @endphp
 <div class="row g-3 mb-3">
-    <div class="col-6 col-lg-3"><x-stat label="Total da venda" :value="money($sale->total)" :hint="$sale->discount > 0 ? 'Desconto de '.money($sale->discount) : null" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Recebido" :value="money($received)" tone="positive" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="A receber" :value="money($open)" :tone="$open > 0 ? 'warning' : null" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Lucro" :value="money($sale->profit)" :tone="$sale->profit >= 0 ? 'positive' : 'negative'" :hint="'Custo '.money($sale->cost_total)" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Total da venda" icon="receipt" accent="blue" :value="money($sale->total)" :hint="$sale->discount > 0 ? 'Desconto de '.money($sale->discount) : null" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Recebido" icon="arrow-in" accent="green" :value="money($received)" tone="positive" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="A receber" icon="clock" accent="amber" :value="money($open)" :tone="$open > 0 ? 'warning' : null" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Lucro" icon="trend-up" accent="violet" :value="money($sale->profit)" :tone="$sale->profit >= 0 ? 'positive' : 'negative'" :hint="'Custo '.money($sale->cost_total)" /></div>
 </div>
 
 <div class="row g-3">

@@ -11,10 +11,10 @@
 @php $s = $summary; $stock = $s['stock']; @endphp
 <div class="row g-3 mb-3">
     <div class="col-12 col-xl-4"><x-stat class="stat-balance" label="Saldo atual" :value="money($s['balance'])" hint="Saldo inicial + todas as entradas − todas as saídas" /></div>
-    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Entradas" :value="money($s['received'])" tone="positive" /></div>
-    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Saídas" :value="money($s['spent'])" tone="negative" /></div>
-    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Saldo do período" :value="money($s['net'])" :tone="$s['net'] >= 0 ? 'positive' : 'negative'" /></div>
-    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Lucro" :value="money($s['profit'])" hint="Lucro das vendas" /></div>
+    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Entradas" icon="arrow-in" accent="green" :value="money($s['received'])" tone="positive" /></div>
+    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Saídas" icon="arrow-out" accent="rose" :value="money($s['spent'])" tone="negative" /></div>
+    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Saldo do período" icon="wallet" accent="blue" :value="money($s['net'])" :tone="$s['net'] >= 0 ? 'positive' : 'negative'" /></div>
+    <div class="col-6 col-md-4 col-xl-2"><x-stat label="Lucro" icon="trend-up" accent="violet" :value="money($s['profit'])" hint="Lucro das vendas" /></div>
 </div>
 
 <div class="row g-3 mb-3">

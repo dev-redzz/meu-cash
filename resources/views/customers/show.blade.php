@@ -15,10 +15,10 @@
 
 @section('content')
 <div class="row g-3 mb-3">
-    <div class="col-6 col-lg-3"><x-stat label="Total de compras" :value="money($totals['purchases'])" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Total pago" :value="money($totals['paid'])" tone="positive" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Em aberto" :value="money($totals['open'])" tone="warning" :hint="$installments->count().' parcelas pendentes'" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Vencido" :value="money($totals['overdue'])" :tone="$totals['overdue'] > 0 ? 'negative' : null" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Total de compras" icon="cart" accent="blue" :value="money($totals['purchases'])" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Total pago" icon="arrow-in" accent="green" :value="money($totals['paid'])" tone="positive" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Em aberto" icon="clock" accent="amber" :value="money($totals['open'])" tone="warning" :hint="$installments->count().' parcelas pendentes'" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Vencido" icon="alert" accent="rose" :value="money($totals['overdue'])" :tone="$totals['overdue'] > 0 ? 'negative' : null" /></div>
 </div>
 
 <div class="row g-3">

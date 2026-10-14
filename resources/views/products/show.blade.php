@@ -17,10 +17,10 @@
 
 @section('content')
 <div class="row g-3 mb-3">
-    <div class="col-6 col-lg-3"><x-stat label="Total investido" :value="money($product->totalInvested())" :hint="'Compra '.money((float) $product->purchase_price * $product->initial_quantity).' + despesas '.money($product->expenses_total)" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Preço de venda" :value="money($product->sale_price)" :hint="$product->initial_quantity > 1 ? 'por unidade · custo un. '.money($product->unitCost()) : null" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Lucro esperado" :value="money($product->expectedProfit())" :tone="$product->expectedProfit() >= 0 ? 'positive' : 'negative'" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Em estoque" :value="$product->quantity.' un.'" :hint="'de '.$product->initial_quantity.' compradas'" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Total investido" icon="arrow-out" accent="amber" :value="money($product->totalInvested())" :hint="'Compra '.money((float) $product->purchase_price * $product->initial_quantity).' + despesas '.money($product->expenses_total)" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Preço de venda" icon="dollar" accent="blue" :value="money($product->sale_price)" :hint="$product->initial_quantity > 1 ? 'por unidade · custo un. '.money($product->unitCost()) : null" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Lucro esperado" icon="trend-up" accent="violet" :value="money($product->expectedProfit())" :tone="$product->expectedProfit() >= 0 ? 'positive' : 'negative'" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Em estoque" icon="box" accent="green" :value="$product->quantity.' un.'" :hint="'de '.$product->initial_quantity.' compradas'" /></div>
 </div>
 
 <div class="row g-3">

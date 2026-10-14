@@ -2,84 +2,127 @@
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     @include('partials.theme-head')
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#0b1426">
     <title>@yield('title', 'Painel') · Meu Cash</title>
     <link rel="icon" type="image/png" href="{{ asset('img/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('css/app.css') }}?v=7" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}?v=8" rel="stylesheet">
     @stack('styles')
 </head>
-<body>
+<body class="app-body">
 @php
     $user = auth()->user();
-    $nav = [
-        ['Dashboard', 'dashboard', 'dashboard', 'home', false],
-        ['Vendas', 'sales.index', 'sales.*', 'cart', false],
-        ['Produtos', 'products.index', 'products.*|categories.*', 'box', false],
-        ['Estoque', 'stock.index', 'stock.*', 'layers', false],
-        ['Clientes', 'customers.index', 'customers.*', 'users', false],
-        ['Vendedores', 'sellers.index', 'sellers.*', 'team', true],
-        ['Financeiro', 'finance.index', 'finance.*', 'wallet', true],
-        ['Relatórios', 'reports.index', 'reports.*', 'chart', true],
-        ['Notificações', 'notifications.index', 'notifications.*', 'bell', false],
-        ['Configurações', 'settings.edit', 'settings.*|users.*|audit.*|export.*', 'gear', true],
+    $groups = [
+        'Operação' => [
+            ['Dashboard', 'dashboard', 'dashboard', 'home', false],
+            ['Vendas', 'sales.index', 'sales.*', 'cart', false],
+            ['Clientes', 'customers.index', 'customers.*', 'users', false],
+        ],
+        'Estoque' => [
+            ['Produtos', 'products.index', 'products.*|categories.*', 'box', false],
+            ['Estoque', 'stock.index', 'stock.*', 'layers', false],
+        ],
+        'Gestão' => [
+            ['Vendedores', 'sellers.index', 'sellers.*', 'team', true],
+            ['Financeiro', 'finance.index', 'finance.*', 'wallet', true],
+            ['Relatórios', 'reports.index', 'reports.*', 'chart', true],
+        ],
+        'Sistema' => [
+            ['Notificações', 'notifications.index', 'notifications.*', 'bell', false],
+            ['Configurações', 'settings.edit', 'settings.*|users.*|audit.*|export.*', 'gear', true],
+        ],
+    ];
+    $tabs = [
+        ['Início', 'dashboard', 'dashboard', 'home'],
+        ['Vendas', 'sales.index', 'sales.*', 'cart'],
+        ['Produtos', 'products.index', 'products.*|categories.*|stock.*', 'box'],
+        ['Clientes', 'customers.index', 'customers.*', 'users'],
     ];
 @endphp
 <aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-label="Menu">
-    <div class="d-flex align-items-center justify-content-between gap-2 px-3 pt-3 pb-3">
-        <a href="{{ route('dashboard') }}" class="brand"><img src="{{ asset('img/logo-icon.png') }}" alt=""> Meu Cash</a>
+    <div class="sidebar-head">
+        <a href="{{ route('dashboard') }}" class="brand"><img src="{{ asset('img/logo-icon.png') }}" alt=""> <span>Meu Cash</span></a>
         <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Fechar menu"></button>
     </div>
-    <nav class="side-nav px-2 pb-4">
-        <ul class="nav flex-column gap-1">
-            @foreach ($nav as [$label, $route, $pattern, $icon, $adminOnly])
-                @continue($adminOnly && ! $user->isAdmin())
-                <li class="nav-item">
-                    <a href="{{ route($route) }}" @class(['nav-link', 'active' => request()->routeIs(...explode('|', $pattern))])>
-                        <x-icon :name="$icon" />
-                        <span>{{ $label }}</span>
-                        @if ($route === 'notifications.index' && $unreadNotifications > 0)
-                            <span class="nav-count ms-auto">{{ $unreadNotifications > 99 ? '99+' : $unreadNotifications }}</span>
-                        @endif
-                    </a>
-                </li>
-            @endforeach
-        </ul>
+
+    <nav class="side-nav" aria-label="Principal">
+        @foreach ($groups as $group => $items)
+            @php $visible = collect($items)->reject(fn ($i) => $i[4] && ! $user->isAdmin()); @endphp
+            @continue($visible->isEmpty())
+            <div class="side-group">
+                <div class="side-group-title">{{ $group }}</div>
+                <ul class="nav flex-column">
+                    @foreach ($visible as [$label, $route, $pattern, $icon])
+                        <li class="nav-item">
+                            <a href="{{ route($route) }}" @class(['nav-link', 'active' => request()->routeIs(...explode('|', $pattern))])>
+                                <x-icon :name="$icon" />
+                                <span>{{ $label }}</span>
+                                @if ($route === 'notifications.index' && $unreadNotifications > 0)
+                                    <span class="nav-count ms-auto">{{ $unreadNotifications > 99 ? '99+' : $unreadNotifications }}</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endforeach
     </nav>
+
+    <div class="sidebar-foot">
+        <div class="company-card">
+            <span class="company-mark">{{ mb_strtoupper(mb_substr($companyName, 0, 1)) }}</span>
+            <div class="min-w-0">
+                <div class="company-name text-truncate">{{ $companyName }}</div>
+                <div class="company-role">{{ $user->role->label() }}</div>
+            </div>
+        </div>
+    </div>
 </aside>
 
 <div class="app-main">
     <header class="app-topbar">
-        <div class="container-fluid px-3 px-lg-4 d-flex align-items-center gap-2">
-            <button class="btn btn-light btn-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-label="Abrir menu">
+        <div class="topbar-inner">
+            <button class="btn btn-ghost btn-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-label="Abrir menu">
                 <x-icon name="menu" />
             </button>
-            <span class="topbar-company text-truncate">{{ $companyName }}</span>
-            <div class="ms-auto d-flex align-items-center gap-1">
+            <a href="{{ route('dashboard') }}" class="topbar-logo d-lg-none" aria-label="Início"><img src="{{ asset('img/logo-icon.png') }}" alt=""></a>
+
+            <form action="{{ route('search') }}" method="GET" class="topbar-search" role="search" data-no-lock>
+                <x-icon name="search" width="17" height="17" />
+                <input type="search" name="q" value="{{ request()->routeIs('search') ? request('q') : '' }}" placeholder="Buscar cliente, produto ou venda" aria-label="Buscar" autocomplete="off">
+                <kbd class="d-none d-xl-inline">/</kbd>
+            </form>
+
+            <div class="topbar-actions">
+                <a href="{{ route('search') }}" class="btn btn-icon btn-ghost d-md-none" aria-label="Buscar"><x-icon name="search" /></a>
                 <a href="{{ route('notifications.index') }}" class="btn btn-icon btn-ghost position-relative" aria-label="Notificações">
                     <x-icon name="bell" />
                     @if ($unreadNotifications > 0)
                         <span class="dot-count">{{ $unreadNotifications > 9 ? '9+' : $unreadNotifications }}</span>
                     @endif
                 </a>
-                @can('admin')
-                    <a href="{{ route('users.index') }}" class="btn btn-icon btn-ghost d-none d-sm-inline-flex" aria-label="Equipe"><x-icon name="team" /></a>
-                @endcan
                 <div class="dropdown">
-                    <button class="btn btn-ghost user-chip" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="d-none d-sm-inline">{{ $user->firstName() }}</span>
-                        @include('partials.avatar', ['person' => $user, 'size' => 32])
+                    <button class="user-chip" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Minha conta">
+                        @include('partials.avatar', ['person' => $user, 'size' => 34])
+                        <span class="user-chip-text d-none d-md-flex">
+                            <span class="user-chip-name">{{ $user->firstName() }}</span>
+                            <span class="user-chip-role">{{ $user->role->label() }}</span>
+                        </span>
+                        <x-icon name="chevron-down" width="16" height="16" class="d-none d-md-inline text-muted-2" />
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                        <li class="px-3 py-2">
-                            <div class="fw-semibold">{{ $user->name }}</div>
-                            <div class="small text-muted-2">{{ $user->email }}</div>
-                            <div class="small text-muted-2">{{ $user->role->label() }} · {{ $companyName }}</div>
+                    <ul class="dropdown-menu dropdown-menu-end user-menu">
+                        <li class="user-menu-head">
+                            @include('partials.avatar', ['person' => $user, 'size' => 40])
+                            <div class="min-w-0">
+                                <div class="fw-semibold text-truncate">{{ $user->name }}</div>
+                                <div class="small text-muted-2 text-truncate">{{ $user->email }}</div>
+                            </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li class="px-3 pt-1 pb-2">
@@ -91,14 +134,18 @@
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
+                        @can('admin')
+                            <li><a class="dropdown-item" href="{{ route('users.index') }}"><x-icon name="team" width="16" height="16" /> Equipe</a></li>
+                            <li><a class="dropdown-item" href="{{ route('settings.edit') }}"><x-icon name="gear" width="16" height="16" /> Configurações</a></li>
+                        @endcan
                         @if ($user->isPlatformAdmin())
-                            <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('platform.index') }}"><x-icon name="layers" width="16" height="16" /> Painel da plataforma</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('platform.index') }}"><x-icon name="layers" width="16" height="16" /> Painel da plataforma</a></li>
                         @endif
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="dropdown-item d-flex align-items-center gap-2"><x-icon name="logout" width="16" height="16" /> Sair</button>
+                                <button type="submit" class="dropdown-item text-negative"><x-icon name="logout" width="16" height="16" /> Sair</button>
                             </form>
                         </li>
                     </ul>
@@ -107,18 +154,34 @@
         </div>
     </header>
 
-    <main class="container-fluid px-3 px-lg-4 py-4">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-            <h1 class="page-title">@hasSection('heading') @yield('heading') @else @yield('title') @endif</h1>
-            <div class="d-flex flex-wrap gap-2">@yield('actions')</div>
+    <main class="app-content">
+        <div class="page-head">
+            <div class="min-w-0">
+                <h1 class="page-title">@hasSection('heading') @yield('heading') @else @yield('title') @endif</h1>
+                @hasSection('subtitle')<p class="page-subtitle">@yield('subtitle')</p>@endif
+            </div>
+            <div class="page-actions">@yield('actions')</div>
         </div>
         @include('partials.flash')
         @yield('content')
     </main>
 </div>
 
+<nav class="tabbar d-lg-none" aria-label="Atalhos">
+    @foreach ($tabs as [$label, $route, $pattern, $icon])
+        <a href="{{ route($route) }}" @class(['tabbar-item', 'active' => request()->routeIs(...explode('|', $pattern))])>
+            <x-icon :name="$icon" width="22" height="22" />
+            <span>{{ $label }}</span>
+        </a>
+    @endforeach
+    <button type="button" class="tabbar-item" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
+        <x-icon name="menu" width="22" height="22" />
+        <span>Menu</span>
+    </button>
+</nav>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{{ asset('js/app.js') }}?v=7"></script>
+<script src="{{ asset('js/app.js') }}?v=8"></script>
 @stack('scripts')
 @include('partials.cookie-notice')
 </body>

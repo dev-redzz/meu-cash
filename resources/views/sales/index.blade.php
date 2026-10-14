@@ -8,9 +8,9 @@
 
 @section('content')
 <div class="row g-3 mb-3">
-    <div class="col-md-4"><x-stat label="Vendas concluídas" :value="$totals['count']" :hint="$period->label()" /></div>
-    <div class="col-md-4"><x-stat label="Faturamento" :value="money($totals['revenue'])" /></div>
-    <div class="col-md-4"><x-stat label="Lucro" :value="money($totals['profit'])" :tone="$totals['profit'] >= 0 ? 'positive' : 'negative'" /></div>
+    <div class="col-6 col-md-4"><x-stat label="Vendas concluídas" icon="cart" accent="blue" :value="$totals['count']" :hint="$period->label()" /></div>
+    <div class="col-6 col-md-4"><x-stat label="Faturamento" icon="dollar" accent="green" :value="money($totals['revenue'])" /></div>
+    <div class="col-12 col-md-4"><x-stat label="Lucro" icon="trend-up" accent="violet" :value="money($totals['profit'])" :tone="$totals['profit'] >= 0 ? 'positive' : 'negative'" /></div>
 </div>
 
 <div class="panel">
@@ -39,7 +39,7 @@
             <thead>
                 <tr>
                     <th>Data</th>
-                    <th>Código</th>
+                    <th data-stack-title>Código</th>
                     <th>Cliente</th>
                     <th>Pagamento</th>
                     <th>Status</th>

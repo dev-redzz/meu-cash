@@ -52,7 +52,10 @@ class SettingController extends Controller
         } catch (\Throwable $e) {
             report($e);
 
-            return back()->with('error', 'Não foi possível enviar o e-mail. Confira a configuração de e-mail do sistema.');
+            $reason = str($e->getMessage())->squish()->limit(300);
+            $mailer = config('mail.default');
+
+            return back()->with('error', "Não foi possível enviar o e-mail (envio: {$mailer}). Motivo: {$reason}");
         }
 
         return back()->with('success', 'Prévia enviada para '.$request->user()->email.'.');

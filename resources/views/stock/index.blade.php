@@ -8,10 +8,10 @@
 
 @section('content')
 <div class="row g-3 mb-3">
-    <div class="col-6 col-lg-3"><x-stat label="Unidades em estoque" :value="$totals['units']" hint="Disponível, reservado e manutenção" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Total investido" :value="money($totals['invested'])" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Valor estimado de venda" :value="money($totals['sale_value'])" /></div>
-    <div class="col-6 col-lg-3"><x-stat label="Lucro potencial" :value="money($totals['potential'])" tone="positive" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Unidades em estoque" icon="box" accent="blue" :value="$totals['units']" hint="Disponível, reservado e manutenção" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Total investido" icon="arrow-out" accent="amber" :value="money($totals['invested'])" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Valor estimado de venda" icon="dollar" accent="green" :value="money($totals['sale_value'])" /></div>
+    <div class="col-6 col-lg-3"><x-stat label="Lucro potencial" icon="trend-up" accent="violet" :value="money($totals['potential'])" tone="positive" /></div>
 </div>
 
 <div class="d-flex flex-wrap gap-2 mb-3">

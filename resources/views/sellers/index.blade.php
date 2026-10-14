@@ -9,9 +9,9 @@
 
 @section('content')
 <div class="row g-3 mb-3">
-    <div class="col-md-4"><x-stat label="Vendas no período" :value="$totals['sales']" :hint="$period->label()" /></div>
-    <div class="col-md-4"><x-stat label="Faturamento" :value="money($totals['revenue'])" /></div>
-    <div class="col-md-4"><x-stat label="Comissões a pagar" :value="money($totals['commission'])" hint="Soma das comissões das vendas concluídas" /></div>
+    <div class="col-md-4"><x-stat label="Vendas no período" icon="cart" accent="blue" :value="$totals['sales']" :hint="$period->label()" /></div>
+    <div class="col-md-4"><x-stat label="Faturamento" icon="dollar" accent="green" :value="money($totals['revenue'])" /></div>
+    <div class="col-md-4"><x-stat label="Comissões a pagar" icon="team" accent="violet" :value="money($totals['commission'])" hint="Soma das comissões das vendas concluídas" /></div>
 </div>
 
 @if ($companyGoal)

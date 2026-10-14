@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard')
+@section('heading', 'Olá, '.auth()->user()->firstName())
+@section('subtitle', ucfirst(now()->locale('pt_BR')->translatedFormat('l, j \\d\\e F')).' · '.$period->label())
 
 @section('actions')
     <x-period :period="$period" />
@@ -11,29 +13,33 @@
 
 <div class="row g-3 mb-3">
     <div class="col-12 col-xl-4">
-        <div class="stat stat-balance h-100">
-            <div class="stat-label">Saldo atual</div>
-            <div class="stat-value">{{ money($s['balance']) }}</div>
-            <div class="stat-hint">Dinheiro disponível em caixa</div>
+        <div class="stat-balance h-100">
+            <img src="{{ asset('img/logo-icon.png') }}" alt="" class="stat-balance-mark">
+            <div class="stat-balance-label">Saldo atual</div>
+            <div class="stat-balance-value">{{ money($s['balance']) }}</div>
+            <div class="stat-balance-foot">
+                <span><span class="dim">Entrou</span> {{ money($s['received']) }}</span>
+                <span><span class="dim">Saiu</span> {{ money($s['spent']) }}</span>
+            </div>
         </div>
     </div>
     <div class="col-12 col-xl-8">
         <div class="row g-3 h-100">
-            <div class="col-sm-4">
-                <x-stat label="Faturamento" :value="money($s['revenue'])" :hint="$s['sales_count'].' '.($s['sales_count'] === 1 ? 'venda' : 'vendas').' no período'" />
+            <div class="col-6 col-md-4">
+                <x-stat label="Faturamento" icon="dollar" accent="blue" :value="money($s['revenue'])" :hint="$s['sales_count'].' '.($s['sales_count'] === 1 ? 'venda' : 'vendas').' no período'" />
             </div>
-            <div class="col-sm-4">
-                <x-stat label="Recebido" :value="money($s['received'])" hint="Entradas no período" />
+            <div class="col-6 col-md-4">
+                <x-stat label="Recebido" icon="arrow-in" accent="green" :value="money($s['received'])" hint="Entradas no período" />
             </div>
-            <div class="col-sm-4">
-                <x-stat label="A receber" :value="money($s['receivable'])" hint="Parcelas em aberto" />
+            <div class="col-12 col-md-4">
+                <x-stat label="A receber" icon="clock" accent="amber" :value="money($s['receivable'])" hint="Parcelas em aberto" />
             </div>
             <div class="col-sm-6">
-                <x-stat label="Gastos" :value="money($s['spent'])" tone="negative" :change="$changes['spent']" :inverse="true"
+                <x-stat label="Gastos" icon="arrow-out" accent="rose" :value="money($s['spent'])" :change="$changes['spent']" :inverse="true"
                     :hint="$topExpenses ? 'Maiores: '.collect($topExpenses)->map(fn ($e) => $e['label'].' ('.money($e['total']).')')->implode(', ') : 'Saídas no período'" />
             </div>
             <div class="col-sm-6">
-                <x-stat label="Lucro" :value="money($s['profit'])" :tone="$s['profit'] >= 0 ? 'positive' : 'negative'" :change="$changes['profit']" hint="Vendas no período" />
+                <x-stat label="Lucro" icon="trend-up" accent="violet" :value="money($s['profit'])" :tone="$s['profit'] >= 0 ? 'positive' : 'negative'" :change="$changes['profit']" hint="Vendas no período" />
             </div>
         </div>
     </div>
@@ -55,7 +61,7 @@
 @endif
 
 <div class="row g-3 mb-3">
-    <div class="col-xl-7">
+    <div class="col-12">
         <div class="panel h-100">
             <div class="panel-header">
                 <h2 class="panel-title">Vendas recentes</h2>
@@ -63,7 +69,7 @@
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
-                    <thead><tr><th>Data</th><th>Cliente</th><th>Itens</th><th class="num">Total</th><th>Status</th><th class="text-end"><span class="visually-hidden">Ações</span></th></tr></thead>
+                    <thead><tr><th>Data</th><th data-stack-title>Cliente</th><th>Itens</th><th class="num">Total</th><th>Status</th><th class="text-end"><span class="visually-hidden">Ações</span></th></tr></thead>
                     <tbody>
                         @forelse ($recentSales as $sale)
                             <tr>
@@ -92,7 +98,10 @@
         </div>
     </div>
 
-    <div class="col-xl-5">
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-xl-6">
         <div class="panel h-100">
             <div class="panel-header"><h2 class="panel-title">Parcelas vencidas</h2></div>
             <div class="table-responsive">
@@ -117,10 +126,7 @@
             </div>
         </div>
     </div>
-</div>
-
-<div class="row g-3">
-    <div class="col-xl-4">
+    <div class="col-xl-6">
         <div class="panel h-100">
             <div class="panel-header"><h2 class="panel-title">Próximos vencimentos</h2></div>
             <div class="table-responsive">
@@ -150,7 +156,10 @@
         </div>
     </div>
 
-    <div class="col-xl-4">
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-6">
         <div class="panel h-100 d-flex flex-column">
             <div class="panel-header"><h2 class="panel-title">Últimas movimentações</h2></div>
             <div class="timeline flex-grow-1">
@@ -174,7 +183,7 @@
         </div>
     </div>
 
-    <div class="col-xl-4">
+    <div class="col-xl-6">
         <div class="panel h-100">
             <div class="panel-header"><h2 class="panel-title">Produtos vendidos no período</h2></div>
             <div class="table-responsive">

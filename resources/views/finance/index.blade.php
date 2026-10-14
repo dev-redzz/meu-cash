@@ -4,7 +4,7 @@
 
 @section('actions')
     <x-period :period="$period" :keep="['tipo', 'origem', 'q']" />
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transactionModal">Novo lançamento</button>
+    <button type="button" class="btn btn-cta" data-bs-toggle="modal" data-bs-target="#transactionModal"><span class="btn-cta-icon"><x-icon name="plus" width="16" height="16" /></span>Novo lançamento</button>
 @endsection
 
 @section('content')

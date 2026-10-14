@@ -3,7 +3,7 @@
 @section('title', 'Estoque')
 
 @section('actions')
-    <a href="{{ route('products.create') }}" class="btn btn-primary">Novo produto</a>
+    <a href="{{ route('products.create') }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="plus" width="16" height="16" /></span>Novo produto</a>
 @endsection
 
 @section('content')

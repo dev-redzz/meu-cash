@@ -10,6 +10,7 @@
 
 @section('content')
 @php $s = $summary; @endphp
+<div class="dash">
 
 <div class="row g-3 mb-3">
     <div class="col-12 col-xl-4">
@@ -17,10 +18,7 @@
             <img src="{{ asset('img/logo-icon.png') }}" alt="" class="stat-balance-mark">
             <div class="stat-balance-label">Saldo atual</div>
             <div class="stat-balance-value">{{ money($s['balance']) }}</div>
-            <div class="stat-balance-foot">
-                <span><span class="dim">Entrou</span> {{ money($s['received']) }}</span>
-                <span><span class="dim">Saiu</span> {{ money($s['spent']) }}</span>
-            </div>
+            <div class="stat-balance-hint">Dinheiro disponível em caixa</div>
         </div>
     </div>
     <div class="col-12 col-xl-8">
@@ -221,5 +219,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection

@@ -4,9 +4,9 @@
 
 @section('actions')
     @if (in_array($product->status->value, ['disponivel', 'reservado']) && $product->quantity > 0)
-        <a href="{{ route('sales.create', ['product_id' => $product->id]) }}" class="btn btn-primary">Vender</a>
+        <a href="{{ route('sales.create', ['product_id' => $product->id]) }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="cart" width="16" height="16" /></span>Vender</a>
     @endif
-    <a href="{{ route('products.edit', $product) }}" class="btn btn-light">Editar</a>
+    <a href="{{ route('products.edit', $product) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="pencil" width="16" height="16" /></span>Editar</a>
     @can('admin')
         <form method="POST" action="{{ route('products.destroy', $product) }}" data-confirm="Excluir este produto e suas despesas?">
             @csrf @method('DELETE')

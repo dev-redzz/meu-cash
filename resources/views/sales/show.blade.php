@@ -3,21 +3,21 @@
 @section('title', 'Venda '.$sale->code)
 
 @section('actions')
-    <a href="{{ route('receipts.show', $sale) }}" target="_blank" class="btn btn-primary">Recibo PDF</a>
+    <a href="{{ route('receipts.show', $sale) }}" target="_blank" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="receipt" width="16" height="16" /></span>Recibo PDF</a>
     @if ($sale->customer?->whatsappNumber())
-        <a href="{{ route('receipts.whatsapp', $sale) }}" target="_blank" rel="noopener" class="btn btn-outline-success"><x-icon name="whatsapp" width="16" height="16" /> Enviar recibo</a>
+        <a href="{{ route('receipts.whatsapp', $sale) }}" target="_blank" rel="noopener" class="btn btn-cta btn-cta-green"><span class="btn-cta-icon"><x-icon name="whatsapp" width="16" height="16" /></span>Enviar recibo</a>
     @endif
-    <a href="{{ route('sales.edit', $sale) }}" class="btn btn-light">Editar</a>
+    <a href="{{ route('sales.edit', $sale) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="pencil" width="16" height="16" /></span>Editar</a>
     @can('admin')
         @if ($sale->status->value === 'concluida')
             <form method="POST" action="{{ route('sales.cancel', $sale) }}" data-confirm="Cancelar esta venda? O estoque volta, as parcelas são canceladas e o dinheiro dela sai do caixa. A venda continua no histórico como cancelada.">
                 @csrf
-                <button class="btn btn-outline-danger">Cancelar venda</button>
+                <button class="btn btn-cta btn-cta-light btn-cta-warn"><span class="btn-cta-icon"><x-icon name="alert" width="16" height="16" /></span>Cancelar venda</button>
             </form>
         @endif
         <form method="POST" action="{{ route('sales.destroy', $sale) }}" data-confirm="Excluir a venda {{ $sale->code }} de vez? O estoque volta, o dinheiro dela sai do caixa e ela some do sistema. Não dá para desfazer.">
             @csrf @method('DELETE')
-            <button class="btn btn-danger">Excluir</button>
+            <button class="btn btn-cta btn-cta-red"><span class="btn-cta-icon"><x-icon name="trash" width="16" height="16" /></span>Excluir</button>
         </form>
     @endcan
 @endsection

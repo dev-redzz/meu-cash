@@ -3,7 +3,7 @@
 @section('title', 'Relatórios')
 
 @section('actions')
-    <a href="{{ route('reports.pdf', ['tipo' => $report['type']] + $period->query()) }}" class="btn btn-primary">Baixar PDF</a>
+    <a href="{{ route('reports.pdf', ['tipo' => $report['type']] + $period->query()) }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="receipt" width="16" height="16" /></span>Baixar PDF</a>
     <button type="button" class="btn btn-light" onclick="window.print()">Imprimir</button>
 @endsection
 

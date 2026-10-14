@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('css/app.css') }}?v=8" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}?v=9" rel="stylesheet">
     @stack('styles')
 </head>
 <body class="app-body">
@@ -136,7 +136,6 @@
                         <li><hr class="dropdown-divider"></li>
                         @can('admin')
                             <li><a class="dropdown-item" href="{{ route('users.index') }}"><x-icon name="team" width="16" height="16" /> Equipe</a></li>
-                            <li><a class="dropdown-item" href="{{ route('settings.edit') }}"><x-icon name="gear" width="16" height="16" /> Configurações</a></li>
                         @endcan
                         @if ($user->isPlatformAdmin())
                             <li><a class="dropdown-item" href="{{ route('platform.index') }}"><x-icon name="layers" width="16" height="16" /> Painel da plataforma</a></li>

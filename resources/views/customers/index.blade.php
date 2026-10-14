@@ -3,7 +3,7 @@
 @section('title', 'Clientes')
 
 @section('actions')
-    <a href="{{ route('customers.create') }}" class="btn btn-primary">Novo cliente</a>
+    <a href="{{ route('customers.create') }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="plus" width="16" height="16" /></span>Novo cliente</a>
 @endsection
 
 @section('content')

@@ -3,8 +3,8 @@
 @section('title', $customer->name)
 
 @section('actions')
-    <a href="{{ route('sales.create', ['customer_id' => $customer->id]) }}" class="btn btn-primary">Nova venda</a>
-    <a href="{{ route('customers.edit', $customer) }}" class="btn btn-light">Editar</a>
+    <a href="{{ route('sales.create', ['customer_id' => $customer->id]) }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="cart" width="16" height="16" /></span>Nova venda</a>
+    <a href="{{ route('customers.edit', $customer) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="pencil" width="16" height="16" /></span>Editar</a>
     @can('admin')
         <form method="POST" action="{{ route('customers.destroy', $customer) }}" data-confirm="Excluir este cliente?">
             @csrf @method('DELETE')

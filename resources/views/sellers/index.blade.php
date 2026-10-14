@@ -4,7 +4,7 @@
 
 @section('actions')
     <x-period :period="$period" />
-    <a href="{{ route('users.index') }}" class="btn btn-light">Definir comissões e metas</a>
+    <a href="{{ route('users.index') }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="team" width="16" height="16" /></span>Definir comissões e metas</a>
 @endsection
 
 @section('content')

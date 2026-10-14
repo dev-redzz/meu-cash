@@ -3,9 +3,9 @@
 @section('title', 'Produtos')
 
 @section('actions')
-    <a href="{{ route('categories.index') }}" class="btn btn-light">Categorias</a>
-    <a href="{{ route('products.import.create') }}" class="btn btn-light">Importar planilha</a>
-    <a href="{{ route('products.create') }}" class="btn btn-primary">Novo produto</a>
+    <a href="{{ route('categories.index') }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="layers" width="16" height="16" /></span>Categorias</a>
+    <a href="{{ route('products.import.create') }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="arrow-in" width="16" height="16" /></span>Importar planilha</a>
+    <a href="{{ route('products.create') }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="plus" width="16" height="16" /></span>Novo produto</a>
 @endsection
 
 @section('content')

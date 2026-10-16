@@ -16,6 +16,7 @@ class SettingRequest extends MoneyRequest
             'monthly_goal' => ['required', 'numeric', 'min:0', 'max:999999999'],
             'due_reminder_days' => ['required', 'integer', 'min:0', 'max:30'],
             'weekly_summary' => ['nullable', 'boolean'],
+            'receipt_terms' => ['nullable', 'string', 'max:5000'],
             'whatsapp_template_lembrete' => ['required', 'string', 'max:1000'],
             'whatsapp_template_vence_hoje' => ['required', 'string', 'max:1000'],
             'whatsapp_template_atrasada' => ['required', 'string', 'max:1000'],

@@ -37,7 +37,7 @@ class SettingController extends Controller
         ]);
 
         foreach (array_keys(Setting::DEFAULTS) as $key) {
-            Setting::put($key, (string) $data[$key]);
+            Setting::put($key, (string) (array_key_exists($key, $data) ? ($data[$key] ?? '') : Setting::get($key)));
         }
 
         AuditService::log('configuracoes', 'Configurações da empresa atualizadas');

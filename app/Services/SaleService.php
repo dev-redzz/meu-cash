@@ -120,6 +120,8 @@ class SaleService
                 );
             }
 
+            $sale->customer?->ensureAccessCode();
+
             $this->notifications->notify('venda_concluida', "Venda {$sale->code} concluída", $sale->customerName().' · '.money($total), route('sales.show', $sale));
             AuditService::log('venda_criada', "Venda {$sale->code} de ".money($total).' para '.$sale->customerName(), $sale);
 

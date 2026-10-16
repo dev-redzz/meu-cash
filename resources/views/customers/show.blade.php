@@ -8,7 +8,7 @@
     @can('admin')
         <form method="POST" action="{{ route('customers.destroy', $customer) }}" data-confirm="Excluir este cliente?">
             @csrf @method('DELETE')
-            <button class="btn btn-outline-danger">Excluir</button>
+            <button class="btn btn-cta btn-cta-light btn-cta-warn"><span class="btn-cta-icon"><x-icon name="trash" width="16" height="16" /></span>Excluir</button>
         </form>
     @endcan
 @endsection
@@ -45,6 +45,32 @@
                 @if ($customer->notes)
                     <hr><p class="mb-0" style="white-space: pre-line">{{ $customer->notes }}</p>
                 @endif
+            </div>
+        </div>
+
+        <div class="panel mt-3 access-card">
+            <div class="panel-header">
+                <h2 class="panel-title">Área do cliente</h2>
+                <span class="stat-icon accent-blue"><x-icon name="key" width="18" height="18" /></span>
+            </div>
+            <div class="panel-body">
+                <p class="small text-muted-2 mb-3">Com este código o cliente vê só as próprias compras, parcelas e comprovantes.</p>
+                <div class="access-code" data-copy="{{ $customer->access_code }}">
+                    <span>{{ $customer->access_code }}</span>
+                    <button type="button" class="icon-btn" data-copy-button title="Copiar código"><x-icon name="copy" width="16" height="16" /></button>
+                </div>
+                <div class="small text-muted-2 mt-2 text-break">{{ route('portal.login') }}</div>
+                <div class="d-grid gap-2 mt-3">
+                    @if ($customer->whatsappNumber())
+                        <a href="{{ route('customers.access.whatsapp', $customer) }}" target="_blank" rel="noopener" class="btn btn-cta btn-cta-green"><span class="btn-cta-icon"><x-icon name="whatsapp" width="16" height="16" /></span>Enviar acesso pelo WhatsApp</a>
+                    @endif
+                    @can('admin')
+                        <form method="POST" action="{{ route('customers.access.regenerate', $customer) }}" data-confirm="Gerar um novo código? O código atual para de funcionar e o cliente precisará do novo.">
+                            @csrf
+                            <button class="btn btn-link btn-sm p-0">Gerar novo código</button>
+                        </form>
+                    @endcan
+                </div>
             </div>
         </div>
     </div>

@@ -111,6 +111,14 @@ Acesse `http://localhost:8000`. O MySQL do XAMPP precisa estar iniciado.
 - **Modo escuro:** no menu do usuário (canto superior direito), escolha Claro, Escuro ou Auto (segue o celular/computador).
 - **Resumo semanal por e-mail:** toda segunda os administradores recebem o resumo da semana anterior. Liga/desliga e prévia em Configurações > Empresa. O envio acontece quando alguém da empresa abre o sistema na semana; para sair às 8h em ponto mesmo sem ninguém entrar, crie no Railway um Cron com `php artisan meucash:resumo-semanal` e horário `0 11 * * 1` (segunda, 8h de Brasília). Precisa do e-mail configurado.
 
+## Área do cliente
+
+- Cada cliente tem um código de acesso único (ex.: `K7QM-4XPA`), criado no cadastro e impresso no comprovante de venda.
+- O cliente entra em `SEU-DOMINIO/cliente`, digita o código e vê só as próprias compras, parcelas, pagamentos e comprovantes.
+- Na ficha do cliente: copiar o código, enviar o acesso pelo WhatsApp e gerar um código novo (o antigo para de funcionar na hora).
+- Proteções: limite de 5 tentativas por minuto, código não reaproveitável entre empresas e empresa suspensa não acessa.
+- As cláusulas do comprovante ficam em Configurações > Empresa.
+
 ## Trazer os dados do Meu Cash antigo (localhost)
 
 Rode no seu computador, com o MySQL do XAMPP ligado:

@@ -31,6 +31,15 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/dashboard');
 Route::view('/privacidade', 'legal.privacy')->name('privacy');
 Route::view('/termos', 'legal.terms')->name('terms');
+Route::prefix('cliente')->name('portal.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Portal\PortalController::class, 'login'])->name('login');
+    Route::post('/', [\App\Http\Controllers\Portal\PortalController::class, 'authenticate'])->middleware('throttle:20,1')->name('authenticate');
+    Route::middleware('portal')->group(function () {
+        Route::get('/minha-area', [\App\Http\Controllers\Portal\PortalController::class, 'home'])->name('home');
+        Route::get('/compras/{sale}/comprovante', [\App\Http\Controllers\Portal\PortalController::class, 'receipt'])->whereNumber('sale')->middleware('throttle:30,1')->name('receipt');
+        Route::post('/sair', [\App\Http\Controllers\Portal\PortalController::class, 'logout'])->name('logout');
+    });
+});
 Route::get('/recibo/{sale}', [ReceiptController::class, 'public'])->middleware(['signed', 'throttle:30,1'])->whereNumber('sale')->name('receipts.public');
 
 Route::middleware('guest')->group(function () {
@@ -55,6 +64,7 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
     Route::get('/fotos/{path}', PhotoController::class)->where('path', '.*')->name('photos.show');
 
     Route::resource('customers', CustomerController::class)->except('destroy');
+    Route::get('/customers/{customer}/acesso/whatsapp', [\App\Http\Controllers\CustomerAccessController::class, 'whatsapp'])->name('customers.access.whatsapp');
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'edit', 'update']);
 
     Route::get('/products/importar', [ProductImportController::class, 'create'])->name('products.import.create');
@@ -85,6 +95,7 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+        Route::post('/customers/{customer}/codigo', [\App\Http\Controllers\CustomerAccessController::class, 'regenerate'])->name('customers.access.regenerate');
         Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
         Route::delete('/products/{product}/expenses/{expense}', [ProductExpenseController::class, 'destroy'])->name('products.expenses.destroy');

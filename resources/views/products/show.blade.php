@@ -10,7 +10,7 @@
     @can('admin')
         <form method="POST" action="{{ route('products.destroy', $product) }}" data-confirm="Excluir este produto e suas despesas?">
             @csrf @method('DELETE')
-            <button class="btn btn-outline-danger">Excluir</button>
+            <button class="btn btn-cta btn-cta-light btn-cta-warn"><span class="btn-cta-icon"><x-icon name="trash" width="16" height="16" /></span>Excluir</button>
         </form>
     @endcan
 @endsection

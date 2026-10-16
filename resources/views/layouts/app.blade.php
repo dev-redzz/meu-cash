@@ -7,12 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#0b1426">
     <title>@yield('title', 'Painel') · Meu Cash</title>
-    <link rel="icon" type="image/png" href="{{ asset('img/favicon.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('css/app.css') }}?v=9" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" rel="stylesheet">
+    @include('partials.head-assets')
     @stack('styles')
 </head>
 <body class="app-body">
@@ -180,7 +176,9 @@
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{{ asset('js/app.js') }}?v=8"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
+<script src="{{ asset('js/app.js') }}?v=10"></script>
 @stack('scripts')
 @include('partials.cookie-notice')
 </body>

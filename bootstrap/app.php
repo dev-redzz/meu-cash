@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
             'alerts' => SyncAlerts::class,
             'platform' => EnsurePlatformAdmin::class,
+            'portal' => \App\Http\Middleware\EnsurePortalCustomer::class,
         ]);
         $middleware->web(append: [SecurityHeaders::class]);
         $middleware->prependToPriorityList(

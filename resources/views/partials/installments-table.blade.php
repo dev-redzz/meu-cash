@@ -10,7 +10,7 @@
                 <th>Status</th>
                 <th>Pago em</th>
                 <th class="num">Valor</th>
-                <th class="text-end no-print">Ações</th>
+                <th class="text-end no-print"><span class="visually-hidden">Ações</span></th>
             </tr>
         </thead>
         <tbody>
@@ -37,20 +37,20 @@
                     </td>
                     <td class="num">{{ money($installment->amount) }}</td>
                     <td class="text-end no-print">
-                        <div class="d-inline-flex gap-1">
+                        <div class="d-inline-flex align-items-center gap-1">
                             @if ($installment->isOpen())
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#payModal"
                                     data-action="{{ route('installments.pay', $installment) }}"
                                     data-label="Parcela {{ $installment->label() }} · {{ $installment->customer?->name ?? 'Sem cliente' }}"
-                                    data-amount="{{ money($installment->amount) }}">Receber</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#dueModal"
+                                    data-amount="{{ money($installment->amount) }}"><x-icon name="check" width="15" height="15" /> Receber</button>
+                                <button type="button" class="icon-btn" title="Mudar vencimento" aria-label="Mudar vencimento" data-bs-toggle="modal" data-bs-target="#dueModal"
                                     data-action="{{ route('installments.due-date', $installment) }}"
                                     data-label="Parcela {{ $installment->label() }} · {{ money($installment->amount) }}"
-                                    data-due="{{ $installment->due_date->toDateString() }}">Vencimento</button>
+                                    data-due="{{ $installment->due_date->toDateString() }}"><x-icon name="calendar" width="16" height="16" /></button>
                             @endif
                             @if ($installment->customer?->whatsappNumber())
                                 <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="dropdown" aria-expanded="false" title="Enviar pelo WhatsApp">
+                                    <button class="icon-btn icon-btn-whatsapp" data-bs-toggle="dropdown" aria-expanded="false" title="Enviar pelo WhatsApp" aria-label="Enviar pelo WhatsApp">
                                         <x-icon name="whatsapp" width="16" height="16" />
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">

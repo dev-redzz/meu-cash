@@ -42,6 +42,7 @@ class CustomerController extends Controller
 
     public function show(Customer $customer): View
     {
+        $customer->ensureAccessCode();
         $today = Carbon::today()->toDateString();
 
         $sales = $customer->sales()->latest('sale_date')->get();

@@ -104,7 +104,7 @@ class ImportLegacyCommand extends Command
         DB::transaction(function () use ($admin) {
             $this->mapUsers($admin);
             $this->importCategories();
-            $this->copy('customers');
+            $this->copy('customers', fn () => ['access_code' => \App\Models\Customer::newAccessCode()]);
             $this->copy('products', fn ($row) => [
                 'category_id' => $this->ref('categories', $row->category_id),
                 'photos' => null,

@@ -15,7 +15,12 @@ class ReceiptController extends Controller
 {
     public function show(Sale $sale): Response
     {
-        return $this->pdf($sale)->stream("recibo-{$sale->code}.pdf");
+        return $this->stream($sale);
+    }
+
+    public function stream(Sale $sale): Response
+    {
+        return $this->pdf($sale)->stream("comprovante-{$sale->code}.pdf");
     }
 
     public function public(int $sale): Response
@@ -23,7 +28,7 @@ class ReceiptController extends Controller
         $sale = Sale::withoutGlobalScopes()->with('company')->findOrFail($sale);
         abort_unless($sale->company?->active, 404);
 
-        return tenant()->run($sale->company, fn () => $this->pdf($sale->fresh())->stream("recibo-{$sale->code}.pdf"));
+        return tenant()->run($sale->company, fn () => $this->stream($sale->fresh()));
     }
 
     public function whatsapp(Sale $sale, WhatsAppService $whatsapp): RedirectResponse
@@ -34,8 +39,9 @@ class ReceiptController extends Controller
             return back()->with('error', 'O cliente desta venda não tem WhatsApp ou telefone cadastrado.');
         }
 
-        $message = 'Olá, '.str($sale->customer->name)->explode(' ')->first().'! Segue o recibo da sua compra '.$sale->code
-            .' na '.tenant()->company()->name.', no valor de '.money($sale->total).': '.$this->publicUrl($sale);
+        $message = 'Olá, '.str($sale->customer->name)->explode(' ')->first().'! Segue o comprovante da sua compra '.$sale->code
+            .' na '.tenant()->company()->name.', no valor de '.money($sale->total).': '.$this->publicUrl($sale)
+            .' | Acompanhe suas parcelas em '.route('portal.login').' com o código '.$sale->customer->ensureAccessCode().'.';
 
         WhatsAppMessage::create([
             'customer_id' => $sale->customer_id,
@@ -58,11 +64,19 @@ class ReceiptController extends Controller
 
     private function pdf(Sale $sale)
     {
-        $sale->load(['customer', 'user', 'items', 'installments', 'payments.installment']);
+        $sale->load(['customer', 'user', 'items.product', 'installments' => fn ($q) => $q->orderBy('number'), 'payments' => fn ($q) => $q->orderBy('paid_at')]);
+        $sale->customer?->ensureAccessCode();
+
+        $terms = collect(preg_split('/\r\n|\r|\n/', (string) \App\Models\Setting::get('receipt_terms')))
+            ->map(fn ($line) => trim($line))
+            ->filter()
+            ->values();
 
         return Pdf::loadView('receipts.sale', [
             'sale' => $sale,
             'company' => tenant()->company(),
+            'terms' => $terms,
+            'portalUrl' => route('portal.login'),
         ])->setPaper('a4');
     }
 }

@@ -23,7 +23,9 @@ document.addEventListener('show.bs.modal', function (event) {
         const key = el.getAttribute('data-fill');
         const value = trigger.dataset[key];
         if (value === undefined) return;
-        if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+        if (el._flatpickr) {
+            el._flatpickr.setDate(value, false);
+        } else if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
             el.value = value;
         } else {
             el.textContent = value;
@@ -31,19 +33,7 @@ document.addEventListener('show.bs.modal', function (event) {
     });
 });
 
-document.querySelectorAll('[data-period-select]').forEach(function (select) {
-    const toggle = function () {
-        const custom = select.value === 'personalizado';
-        select.closest('form').querySelectorAll('[data-period-custom]').forEach(function (el) {
-            el.classList.toggle('d-none', !custom);
-        });
-    };
-    select.addEventListener('change', function () {
-        toggle();
-        if (select.value !== 'personalizado') select.form.submit();
-    });
-    toggle();
-});
+
 
 window.brl = function (value) {
     return (Number(value) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -120,3 +110,60 @@ document.addEventListener('keydown', function (event) {
         input.focus();
     }
 });
+
+/* Copiar código */
+document.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-copy-button]');
+    if (!button) return;
+    var box = button.closest('[data-copy]');
+    if (!box || !navigator.clipboard) return;
+    navigator.clipboard.writeText(box.getAttribute('data-copy')).then(function () {
+        box.classList.add('is-copied');
+        setTimeout(function () { box.classList.remove('is-copied'); }, 1500);
+    });
+});
+
+/* Calendário em português para os campos de data (no celular usa o calendário do aparelho) */
+(function () {
+    if (!window.flatpickr) return;
+    if (flatpickr.l10ns && flatpickr.l10ns.pt) flatpickr.localize(flatpickr.l10ns.pt);
+
+    var setup = function (input) {
+        if (input._flatpickr || input.hasAttribute('data-native')) return;
+        flatpickr(input, {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd/m/Y',
+            allowInput: true,
+            monthSelectorType: 'static',
+            static: !!input.closest('.dropdown-menu, .modal'),
+            onReady: function (dates, str, instance) {
+                if (instance.altInput) {
+                    instance.altInput.classList.add('date-input');
+                    instance.altInput.setAttribute('placeholder', 'dd/mm/aaaa');
+                    instance.altInput.setAttribute('inputmode', 'numeric');
+                }
+                if (instance.mobileInput) instance.mobileInput.classList.add('date-input');
+            },
+            onChange: function () {
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    };
+
+    var run = function (scope) {
+        scope.querySelectorAll('input[type="date"]').forEach(function (input) {
+            if (input.hasAttribute('x-model')) return;
+            setup(input);
+        });
+    };
+    run(document);
+
+    document.addEventListener('alpine:initialized', function () {
+        document.querySelectorAll('input[type="date"][x-model]').forEach(setup);
+    });
+    if (window.Alpine && window.Alpine.version) {
+        document.querySelectorAll('input[type="date"][x-model]').forEach(setup);
+    }
+})();

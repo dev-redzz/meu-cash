@@ -3,9 +3,9 @@
 @section('title', 'Venda '.$sale->code)
 
 @section('actions')
-    <a href="{{ route('receipts.show', $sale) }}" target="_blank" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="receipt" width="16" height="16" /></span>Recibo PDF</a>
+    <a href="{{ route('receipts.show', $sale) }}" target="_blank" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="receipt" width="16" height="16" /></span>Comprovante</a>
     @if ($sale->customer?->whatsappNumber())
-        <a href="{{ route('receipts.whatsapp', $sale) }}" target="_blank" rel="noopener" class="btn btn-cta btn-cta-green"><span class="btn-cta-icon"><x-icon name="whatsapp" width="16" height="16" /></span>Enviar recibo</a>
+        <a href="{{ route('receipts.whatsapp', $sale) }}" target="_blank" rel="noopener" class="btn btn-cta btn-cta-green"><span class="btn-cta-icon"><x-icon name="whatsapp" width="16" height="16" /></span>Enviar comprovante</a>
     @endif
     <a href="{{ route('sales.edit', $sale) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="pencil" width="16" height="16" /></span>Editar</a>
     @can('admin')

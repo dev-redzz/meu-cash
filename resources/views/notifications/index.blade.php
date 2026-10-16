@@ -31,7 +31,7 @@
                 @if ($notification->message)<div class="small text-muted-2">{{ $notification->message }}</div>@endif
             </div>
             <div class="text-end flex-shrink-0">
-                <span class="badge text-bg-{{ $notification->typeColor() }}">{{ $notification->typeLabel() }}</span>
+                <span class="pill pill-{{ $notification->typeColor() }}">{{ $notification->typeLabel() }}</span>
                 <div class="small text-muted-2 mt-1">{{ $notification->created_at->format('d/m H:i') }}</div>
             </div>
         </a>

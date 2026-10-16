@@ -44,6 +44,12 @@
                 <x-textarea name="whatsapp_template_pagamento" label="Confirmação de pagamento" :value="$settings['whatsapp_template_pagamento']" rows="2" required />
             </div>
         </div>
+        <div class="panel mt-3">
+            <div class="panel-header"><h2 class="panel-title">Cláusulas do comprovante de venda</h2></div>
+            <div class="panel-body">
+                <x-textarea name="receipt_terms" label="Uma cláusula por linha" :value="$settings['receipt_terms']" rows="7" help="Aparecem numeradas no comprovante, antes das assinaturas." />
+            </div>
+        </div>
     </div>
     <div class="col-12 text-end">
         <button class="btn btn-primary">Salvar configurações</button>

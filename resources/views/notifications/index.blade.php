@@ -16,7 +16,7 @@
         </ul>
         <form method="GET" data-no-lock>
             <input type="hidden" name="filtro" value="{{ request('filtro') }}">
-            <select name="tipo" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Tipo">
+            <select name="tipo" class="form-select" onchange="this.form.submit()" aria-label="Tipo">
                 <option value="">Todos os tipos</option>
                 @foreach ($types as $key => [$label])
                     <option value="{{ $key }}" @selected(request('tipo') === $key)>{{ $label }}</option>

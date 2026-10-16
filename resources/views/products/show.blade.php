@@ -125,13 +125,13 @@
         <div class="panel">
             <div class="panel-header"><h2 class="panel-title">Vendas deste produto</h2></div>
             <div class="table-responsive">
-                <table class="table align-middle">
+                <table class="table table-compact align-middle">
                     <thead><tr><th>Data</th><th>Venda</th><th>Cliente</th><th class="num">Qtd.</th><th class="num">Total</th><th class="num">Lucro</th></tr></thead>
                     <tbody>
                         @forelse ($product->saleItems as $item)
                             <tr>
                                 <td>{{ $item->sale->sale_date->format('d/m/Y') }}</td>
-                                <td><a href="{{ route('sales.show', $item->sale) }}">{{ $item->sale->code }}</a> <x-status :value="$item->sale->status" /></td>
+                                <td><a href="{{ route('sales.show', $item->sale) }}" class="fw-semibold">{{ $item->sale->code }}</a>@if ($item->sale->status->value !== 'concluida') <x-status :value="$item->sale->status" />@endif</td>
                                 <td>{{ $item->sale->customerName() }}</td>
                                 <td class="num">{{ $item->quantity }}</td>
                                 <td class="num">{{ money($item->total) }}</td>

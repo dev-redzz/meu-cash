@@ -70,15 +70,6 @@
         @endforeach
     </nav>
 
-    <div class="sidebar-foot">
-        <div class="company-card">
-            <span class="company-mark">{{ mb_strtoupper(mb_substr($companyName, 0, 1)) }}</span>
-            <div class="min-w-0">
-                <div class="company-name text-truncate">{{ $companyName }}</div>
-                <div class="company-role">{{ $user->role->label() }}</div>
-            </div>
-        </div>
-    </div>
 </aside>
 
 <div class="app-main">
@@ -118,6 +109,7 @@
                             <div class="min-w-0">
                                 <div class="fw-semibold text-truncate">{{ $user->name }}</div>
                                 <div class="small text-muted-2 text-truncate">{{ $user->email }}</div>
+                                <div class="small text-muted-2 text-truncate">{{ $user->role->label() }} · {{ $companyName }}</div>
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>

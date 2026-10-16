@@ -9,19 +9,19 @@
         <x-period :period="$period" :keep="['user_id', 'action']" />
         <form method="GET" class="d-flex flex-wrap gap-2" data-no-lock>
             @foreach ($period->query() as $k => $v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endforeach
-            <select name="user_id" class="form-select form-select-sm w-auto" aria-label="Usuário">
+            <select name="user_id" class="form-select w-auto" aria-label="Usuário">
                 <option value="">Todos os usuários</option>
                 @foreach ($users as $u)
                     <option value="{{ $u->id }}" @selected(request('user_id') == $u->id)>{{ $u->name }}</option>
                 @endforeach
             </select>
-            <select name="action" class="form-select form-select-sm w-auto" aria-label="Ação">
+            <select name="action" class="form-select w-auto" aria-label="Ação">
                 <option value="">Todas as ações</option>
                 @foreach ($actions as $key => $label)
                     <option value="{{ $key }}" @selected(request('action') === $key)>{{ $label }}</option>
                 @endforeach
             </select>
-            <button class="btn btn-sm btn-outline-secondary">Filtrar</button>
+            <button class="btn btn-primary">Filtrar</button>
         </form>
     </div>
     <div class="table-responsive">

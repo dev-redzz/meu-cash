@@ -16,13 +16,16 @@
     <div class="panel-header flex-wrap">
         <h2 class="panel-title">Empresas cadastradas</h2>
         <form method="GET" class="d-flex flex-wrap gap-2" data-no-lock>
-            <input type="search" name="q" value="{{ request('q') }}" class="form-control form-control-sm w-auto" placeholder="Empresa, CNPJ ou e-mail">
-            <select name="situacao" class="form-select form-select-sm w-auto" aria-label="Situação">
+            <div class="input-icon toolbar-search">
+                <x-icon name="search" width="16" height="16" />
+                <input type="search" name="q" value="{{ request('q') }}" class="form-control" placeholder="Empresa, CNPJ ou e-mail">
+            </div>
+            <select name="situacao" class="form-select w-auto" aria-label="Situação">
                 <option value="">Todas</option>
                 <option value="ativas" @selected(request('situacao') === 'ativas')>Ativas</option>
                 <option value="suspensas" @selected(request('situacao') === 'suspensas')>Suspensas</option>
             </select>
-            <button class="btn btn-sm btn-light">Filtrar</button>
+            <button class="btn btn-primary">Filtrar</button>
         </form>
     </div>
     <div class="table-responsive">
@@ -63,7 +66,7 @@
                                     <button class="btn btn-sm {{ $company->active ? 'btn-outline-danger' : 'btn-outline-primary' }}">{{ $company->active ? 'Suspender' : 'Reativar' }}</button>
                                 </form>
                             @else
-                                <span class="small text-muted-2">Sua empresa</span>
+                                <span class="small text-muted-2">Você</span>
                             @endif
                         </td>
                     </tr>

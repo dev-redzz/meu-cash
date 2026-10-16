@@ -10,8 +10,11 @@
 <div class="panel">
     <div class="panel-header">
         <form method="GET" class="d-flex gap-2 flex-grow-1" style="max-width: 420px;" data-no-lock>
-            <input type="search" name="q" value="{{ request('q') }}" class="form-control form-control-sm" placeholder="Buscar por nome, CPF/CNPJ, telefone ou e-mail">
-            <button class="btn btn-sm btn-outline-secondary">Buscar</button>
+            <div class="input-icon toolbar-search">
+                <x-icon name="search" width="16" height="16" />
+                <input type="search" name="q" value="{{ request('q') }}" class="form-control" placeholder="Buscar por nome, CPF/CNPJ, telefone ou e-mail">
+            </div>
+            <button class="btn btn-primary">Buscar</button>
         </form>
         <span class="small text-muted-2">{{ $customers->total() }} clientes</span>
     </div>

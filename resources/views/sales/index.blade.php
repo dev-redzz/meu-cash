@@ -18,20 +18,23 @@
         <x-period :period="$period" :keep="['q', 'status', 'payment_method']" />
         <form method="GET" class="d-flex flex-wrap gap-2" data-no-lock>
             @foreach ($period->query() as $k => $v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endforeach
-            <input type="search" name="q" value="{{ request('q') }}" class="form-control form-control-sm w-auto" placeholder="Código, cliente ou item">
-            <select name="status" class="form-select form-select-sm w-auto" aria-label="Status">
+            <div class="input-icon toolbar-search">
+                <x-icon name="search" width="16" height="16" />
+                <input type="search" name="q" value="{{ request('q') }}" class="form-control" placeholder="Código, cliente ou item">
+            </div>
+            <select name="status" class="form-select w-auto" aria-label="Status">
                 <option value="">Todos os status</option>
                 @foreach (\App\Enums\SaleStatus::options() as $value => $label)
                     <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
                 @endforeach
             </select>
-            <select name="payment_method" class="form-select form-select-sm w-auto" aria-label="Forma de pagamento">
+            <select name="payment_method" class="form-select w-auto" aria-label="Forma de pagamento">
                 <option value="">Todas as formas</option>
                 @foreach (\App\Enums\PaymentMethod::options() as $value => $label)
                     <option value="{{ $value }}" @selected(request('payment_method') === $value)>{{ $label }}</option>
                 @endforeach
             </select>
-            <button class="btn btn-sm btn-outline-secondary">Filtrar</button>
+            <button class="btn btn-primary">Filtrar</button>
         </form>
     </div>
     <div class="table-responsive">

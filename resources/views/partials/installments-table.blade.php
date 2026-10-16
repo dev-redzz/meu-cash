@@ -1,4 +1,4 @@
-@php $showOrigin = $showOrigin ?? false; $showCustomer = $showCustomer ?? false; @endphp
+@php $showOrigin = $showOrigin ?? false; $showCustomer = $showCustomer ?? false; $showPaid = $showPaid ?? true; @endphp
 <div class="table-responsive">
     <table class="table align-middle">
         <thead>
@@ -8,7 +8,7 @@
                 @if ($showOrigin)<th>Origem</th>@endif
                 <th>Vencimento</th>
                 <th>Status</th>
-                <th>Pago em</th>
+                @if ($showPaid)<th>Pago em</th>@endif
                 <th class="num">Valor</th>
                 <th class="text-end no-print"><span class="visually-hidden">Ações</span></th>
             </tr>
@@ -31,10 +31,12 @@
                     @endif
                     <td>{{ $installment->due_date->format('d/m/Y') }}</td>
                     <td><x-status :value="$installment->status" /></td>
+                    @if ($showPaid)
                     <td>
                         {{ date_br($installment->paid_at) }}
                         @if ($installment->payment_method)<span class="small text-muted-2">· {{ $installment->payment_method->label() }}</span>@endif
                     </td>
+                    @endif
                     <td class="num">{{ money($installment->amount) }}</td>
                     <td class="text-end no-print">
                         <div class="d-inline-flex align-items-center gap-1">

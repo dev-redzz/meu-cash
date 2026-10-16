@@ -55,19 +55,22 @@
         <h2 class="panel-title">Fluxo de caixa</h2>
         <form method="GET" class="d-flex flex-wrap gap-2" data-no-lock>
             @foreach ($period->query() as $k => $v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endforeach
-            <input type="search" name="q" value="{{ request('q') }}" class="form-control form-control-sm w-auto" placeholder="Descrição">
-            <select name="tipo" class="form-select form-select-sm w-auto" aria-label="Tipo">
+            <div class="input-icon toolbar-search">
+                <x-icon name="search" width="16" height="16" />
+                <input type="search" name="q" value="{{ request('q') }}" class="form-control" placeholder="Descrição">
+            </div>
+            <select name="tipo" class="form-select w-auto" aria-label="Tipo">
                 <option value="">Entradas e saídas</option>
                 <option value="entrada" @selected(request('tipo') === 'entrada')>Só entradas</option>
                 <option value="saida" @selected(request('tipo') === 'saida')>Só saídas</option>
             </select>
-            <select name="origem" class="form-select form-select-sm w-auto" aria-label="Origem">
+            <select name="origem" class="form-select w-auto" aria-label="Origem">
                 <option value="">Todas as origens</option>
                 @foreach ($origins as $key => $label)
                     <option value="{{ $key }}" @selected(request('origem') === $key)>{{ $label }}</option>
                 @endforeach
             </select>
-            <button class="btn btn-sm btn-outline-secondary">Filtrar</button>
+            <button class="btn btn-primary">Filtrar</button>
         </form>
     </div>
     <div class="table-responsive">

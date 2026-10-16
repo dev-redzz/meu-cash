@@ -12,7 +12,7 @@
     <div class="panel-body d-flex flex-wrap gap-2 align-items-center">
         <form method="GET" class="d-flex flex-wrap gap-2 align-items-center" data-no-lock>
             @foreach ($period->query() as $k => $v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endforeach
-            <select name="tipo" class="form-select form-select-sm w-auto" onchange="this.form.submit()" aria-label="Relatório">
+            <select name="tipo" class="form-select w-auto" onchange="this.form.submit()" aria-label="Relatório">
                 @foreach ($types as $key => $label)
                     <option value="{{ $key }}" @selected($report['type'] === $key)>{{ $label }}</option>
                 @endforeach

@@ -28,7 +28,7 @@
                             @error('customer_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-4">
-                            <a href="{{ route('customers.create', ['redirect' => 'sale']) }}" class="btn btn-outline-secondary w-100">Cadastrar cliente</a>
+                            <a href="{{ route('customers.create', ['redirect' => 'sale']) }}" class="btn btn-cta btn-cta-light w-100 justify-content-start"><span class="btn-cta-icon"><x-icon name="plus" width="16" height="16" /></span>Cadastrar cliente</a>
                         </div>
                         <div class="col-md-4">
                             <x-input name="sale_date" type="date" label="Data da venda" :value="now()->toDateString()" required class="mb-0" />
@@ -46,7 +46,7 @@
             <div class="panel mb-3">
                 <div class="panel-header">
                     <h2 class="panel-title">Produtos e itens</h2>
-                    <button type="button" class="btn btn-sm btn-outline-primary" @click="addItem()">Adicionar item</button>
+                    <button type="button" class="btn btn-cta btn-cta-light btn-cta-sm" @click="addItem()"><span class="btn-cta-icon"><x-icon name="plus" width="14" height="14" /></span>Adicionar item</button>
                 </div>
                 <div class="panel-body">
                     <div class="scan-bar mb-3">
@@ -64,7 +64,7 @@
                     </div>
                     @error('items')<div class="alert alert-danger py-2 small">{{ $message }}</div>@enderror
                     <template x-for="(item, index) in items" :key="item.key">
-                        <div class="border rounded p-2 mb-2">
+                        <div class="line-item">
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-5">
                                     <label class="form-label">Produto do estoque</label>
@@ -88,10 +88,10 @@
                                     <input type="text" inputmode="decimal" class="form-control form-control-sm" :name="`items[${index}][unit_price]`" x-model="item.unit_price" placeholder="0,00">
                                 </div>
                                 <div class="col-md-1 text-end">
-                                    <button type="button" class="btn btn-sm btn-link text-danger" @click="removeItem(index)" x-show="items.length > 1" aria-label="Remover item">Remover</button>
+                                    <button type="button" class="icon-btn icon-btn-danger line-item-remove" @click="removeItem(index)" x-show="items.length > 1" title="Remover item" aria-label="Remover item"><x-icon name="trash" width="16" height="16" /></button>
                                 </div>
                             </div>
-                            <div class="small text-muted-2 mt-1" x-show="item.product_id">
+                            <div class="line-item-foot" x-show="item.product_id">
                                 Subtotal <span x-text="brl(lineTotal(item))"></span> · lucro estimado <span x-text="brl(lineTotal(item) - costOf(item))"></span>
                             </div>
                             @foreach (array_keys(old('items', [])) as $i)
@@ -122,9 +122,9 @@
                             <label class="form-label" for="down_payment">Valor pago agora (entrada)</label>
                             <input type="text" name="down_payment" id="down_payment" inputmode="decimal" class="form-control @error('down_payment') is-invalid @enderror" x-model="down" placeholder="0,00">
                             @error('down_payment')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            <div class="form-text">
-                                <a href="#" @click.prevent="down = format(total())">Recebi o total</a> ·
-                                <a href="#" @click.prevent="down = '0,00'">Nada agora</a>
+                            <div class="quick-chips">
+                                <button type="button" class="chip" @click="down = format(total())">Recebi o total</button>
+                                <button type="button" class="chip" @click="down = '0,00'">Nada agora</button>
                             </div>
                         </div>
                         <div class="col-md-4" x-show="toNumber(down) > 0 && method === 'parcelado'">
@@ -137,8 +137,8 @@
                         </div>
                     </div>
 
-                    <div class="border rounded p-3 bg-body-tertiary" x-show="remaining() > 0">
-                        <div class="fw-semibold mb-2">Restante de <span x-text="brl(remaining())"></span> em parcelas</div>
+                    <div class="installments-box" x-show="remaining() > 0">
+                        <div class="installments-box-title"><x-icon name="calendar" width="16" height="16" /> Restante de <strong x-text="brl(remaining())"></strong> em parcelas</div>
                         <div class="row g-2">
                             <div class="col-md-3">
                                 <label class="form-label" for="installments_count">Parcelas</label>
@@ -159,10 +159,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="small text-muted-2 mt-2" x-text="`${count}x de ${brl(remaining() / Math.max(1, count || 1))}`"></div>
+                        <div class="installments-box-foot" x-text="`${count}x de ${brl(remaining() / Math.max(1, count || 1))}`"></div>
                     </div>
 
-                    <x-textarea name="notes" label="Observações" rows="2" class="mt-3" />
+                    <div class="mt-3"><x-textarea name="notes" label="Observações" rows="2" /></div>
                 </div>
             </div>
         </div>
@@ -173,14 +173,14 @@
                 <div class="panel-body">
                     <div class="d-flex justify-content-between mb-1"><span>Subtotal</span><span class="num" x-text="brl(subtotal())"></span></div>
                     <div class="d-flex justify-content-between mb-1"><span>Desconto</span><span class="num" x-text="'− ' + brl(toNumber(discount))"></span></div>
-                    <div class="d-flex justify-content-between fs-5 fw-bold border-top pt-2 mt-2"><span>Total</span><span class="num" x-text="brl(total())"></span></div>
+                    <div class="summary-total"><span>Total</span><span class="num" x-text="brl(total())"></span></div>
                     <div class="d-flex justify-content-between mt-2"><span>Recebido agora</span><span class="num text-positive" x-text="brl(Math.min(toNumber(down), total()))"></span></div>
                     <div class="d-flex justify-content-between"><span>A receber</span><span class="num text-negative" x-text="brl(remaining())"></span></div>
                     <div class="d-flex justify-content-between small text-muted-2 mt-2"><span>Lucro estimado</span><span class="num" x-text="brl(total() - totalCost())"></span></div>
                 </div>
-                <div class="panel-header border-top border-bottom-0">
-                    <a href="{{ route('sales.index') }}" class="btn btn-light">Cancelar</a>
-                    <button type="submit" class="btn btn-primary" :disabled="submitting || total() <= 0">Confirmar venda</button>
+                <div class="summary-actions">
+                    <button type="submit" class="btn btn-cta w-100 justify-content-start" :disabled="submitting || total() <= 0"><span class="btn-cta-icon"><x-icon name="check" width="16" height="16" /></span>Confirmar venda</button>
+                    <a href="{{ route('sales.index') }}" class="btn btn-light w-100">Cancelar</a>
                 </div>
             </div>
         </div>

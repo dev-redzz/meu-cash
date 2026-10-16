@@ -78,7 +78,7 @@
     <div class="col-lg-8">
         <div class="panel mb-3">
             <div class="panel-header"><h2 class="panel-title">Parcelas pendentes e vencidas</h2></div>
-            @include('partials.installments-table', ['installments' => $installments, 'showOrigin' => true])
+            @include('partials.installments-table', ['installments' => $installments, 'showOrigin' => true, 'showPaid' => false])
         </div>
 
         <div class="panel mb-3">

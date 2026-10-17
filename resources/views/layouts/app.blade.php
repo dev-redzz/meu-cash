@@ -170,7 +170,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
-<script src="{{ asset('js/app.js') }}?v=10"></script>
+<script src="{{ asset('js/app.js') }}?v=12"></script>
 @stack('scripts')
 @include('partials.cookie-notice')
 </body>

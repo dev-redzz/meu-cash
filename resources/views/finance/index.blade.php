@@ -108,7 +108,7 @@
         <form method="POST" action="{{ route('finance.store') }}" class="modal-content">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="transactionTitle">Novo lançamento</h5>
+                <div class="modal-head"><span class="stat-icon accent-blue"><x-icon name="wallet" width="18" height="18" /></span><h5 class="modal-title" id="transactionTitle">Novo lançamento</h5></div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">

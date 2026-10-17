@@ -3,7 +3,7 @@
         <form method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="payModalTitle">Registrar pagamento</h5>
+                <div class="modal-head"><span class="stat-icon accent-green"><x-icon name="check" width="18" height="18" /></span><h5 class="modal-title" id="payModalTitle">Registrar pagamento</h5></div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">
@@ -29,7 +29,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Voltar</button>
-                <button type="submit" class="btn btn-primary">Confirmar pagamento</button>
+                <button type="submit" class="btn btn-cta btn-cta-green"><span class="btn-cta-icon"><x-icon name="check" width="16" height="16" /></span>Confirmar pagamento</button>
             </div>
         </form>
     </div>

@@ -14,7 +14,7 @@
     <div class="row g-3">
         <div class="col-xl-8">
             <div class="panel mb-3">
-                <div class="panel-header"><h2 class="panel-title">Cliente</h2></div>
+                <div class="form-section-head"><span class="stat-icon accent-blue"><x-icon name="user" width="18" height="18" /></span><div class="min-w-0"><h2 class="panel-title">Cliente</h2><p class="form-section-desc">Quem está comprando e quando.</p></div></div>
                 <div class="panel-body">
                     <div class="row g-2 align-items-end">
                         <div class="col-md-8">
@@ -44,9 +44,10 @@
             </div>
 
             <div class="panel mb-3">
-                <div class="panel-header">
-                    <h2 class="panel-title">Produtos e itens</h2>
+                <div class="form-section-head"><span class="stat-icon accent-violet"><x-icon name="box" width="18" height="18" /></span><div class="min-w-0"><h2 class="panel-title">Produtos e itens</h2><p class="form-section-desc">Bipe o código de barras ou escolha da lista.</p></div>
+                    <div class="ms-auto">
                     <button type="button" class="btn btn-cta btn-cta-light btn-cta-sm" @click="addItem()"><span class="btn-cta-icon"><x-icon name="plus" width="14" height="14" /></span>Adicionar item</button>
+                    </div>
                 </div>
                 <div class="panel-body">
                     <div class="scan-bar mb-3">
@@ -104,7 +105,7 @@
             </div>
 
             <div class="panel">
-                <div class="panel-header"><h2 class="panel-title">Pagamento</h2></div>
+                <div class="form-section-head"><span class="stat-icon accent-green"><x-icon name="wallet" width="18" height="18" /></span><div class="min-w-0"><h2 class="panel-title">Pagamento</h2><p class="form-section-desc">Forma de pagamento, entrada e parcelas.</p></div></div>
                 <div class="panel-body">
                     <div class="row gx-3">
                         <div class="col-md-4">
@@ -169,7 +170,7 @@
 
         <div class="col-xl-4">
             <div class="panel position-sticky" style="top: 80px;">
-                <div class="panel-header"><h2 class="panel-title">Resumo</h2></div>
+                <div class="form-section-head"><span class="stat-icon accent-amber"><x-icon name="receipt" width="18" height="18" /></span><div class="min-w-0"><h2 class="panel-title">Resumo</h2></div></div>
                 <div class="panel-body">
                     <div class="d-flex justify-content-between mb-1"><span>Subtotal</span><span class="num" x-text="brl(subtotal())"></span></div>
                     <div class="d-flex justify-content-between mb-1"><span>Desconto</span><span class="num" x-text="'− ' + brl(toNumber(discount))"></span></div>

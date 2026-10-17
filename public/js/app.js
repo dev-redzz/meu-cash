@@ -1,8 +1,54 @@
+/* Janela de confirmação no visual do sistema (substitui a caixa cinza do navegador) */
+window.mcConfirm = function (message, form) {
+    return new Promise(function (resolve) {
+        var button = form && form.querySelector('[type="submit"], button:not([type])');
+        var label = button ? button.textContent.trim() : 'Confirmar';
+        var danger = /excluir|cancelar|remover|desativar|suspender|apagar/i.test(label + ' ' + message);
+        var overlay = document.createElement('div');
+        overlay.className = 'confirm-overlay';
+        overlay.innerHTML =
+            '<div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">' +
+            '<span class="confirm-icon ' + (danger ? 'is-danger' : '') + '">' +
+            (danger ? '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>'
+                    : '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>') +
+            '</span><h3 id="confirm-title" class="confirm-title"></h3><p class="confirm-text"></p>' +
+            '<div class="confirm-actions"><button type="button" class="btn btn-light" data-no>Voltar</button>' +
+            '<button type="button" class="btn ' + (danger ? 'btn-danger' : 'btn-primary') + '" data-yes></button></div></div>';
+        var parts = message.split(/\?\s+/);
+        var title = message.indexOf('?') > 0 ? message.slice(0, message.indexOf('?') + 1) : 'Confirmar ação';
+        var text = message.indexOf('?') > 0 ? message.slice(message.indexOf('?') + 1).trim() : message;
+        overlay.querySelector('.confirm-title').textContent = title;
+        overlay.querySelector('.confirm-text').textContent = text;
+        overlay.querySelector('[data-yes]').textContent = label.length > 2 && label.length < 30 ? label : 'Confirmar';
+        if (!text) overlay.querySelector('.confirm-text').remove();
+        document.body.appendChild(overlay);
+        requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+        var done = function (value) {
+            overlay.classList.remove('is-open');
+            document.removeEventListener('keydown', onKey);
+            setTimeout(function () { overlay.remove(); }, 150);
+            resolve(value);
+        };
+        var onKey = function (e) { if (e.key === 'Escape') done(false); };
+        document.addEventListener('keydown', onKey);
+        overlay.addEventListener('mousedown', function (e) { if (e.target === overlay) done(false); });
+        overlay.querySelector('[data-no]').addEventListener('click', function () { done(false); });
+        overlay.querySelector('[data-yes]').addEventListener('click', function () { done(true); });
+        setTimeout(function () { overlay.querySelector('[data-yes]').focus(); }, 30);
+    });
+};
+
 document.addEventListener('submit', function (event) {
     const form = event.target;
     const message = form.getAttribute('data-confirm');
-    if (message && !window.confirm(message)) {
+    if (message && form.dataset.confirmed !== '1') {
         event.preventDefault();
+        window.mcConfirm(message, form).then(function (ok) {
+            if (!ok) return;
+            form.dataset.confirmed = '1';
+            if (form.requestSubmit) form.requestSubmit(); else form.submit();
+            setTimeout(function () { delete form.dataset.confirmed; }, 0);
+        });
         return;
     }
     const button = form.querySelector('[type="submit"]');
@@ -456,3 +502,79 @@ document.addEventListener('click', function (event) {
 
     window.mcEnhanceSelects = enhance;
 })();
+
+/* Campos de dinheiro ganham o "R$" na frente */
+(function () {
+    var wrap = function (input) {
+        if (input.closest('.input-group, .money-field, .range-field') || input.hasAttribute('data-no-prefix')) return;
+        if ((input.getAttribute('placeholder') || '').indexOf('R$') >= 0) return;
+        var box = document.createElement('div');
+        box.className = 'money-field' + (input.classList.contains('form-control-sm') ? ' money-field-sm' : '');
+        input.parentNode.insertBefore(box, input);
+        box.appendChild(input);
+        var prefix = document.createElement('span');
+        prefix.className = 'money-prefix';
+        prefix.textContent = 'R$';
+        box.insertBefore(prefix, input);
+    };
+    var run = function (root) {
+        (root.querySelectorAll ? root : document).querySelectorAll('input.form-control[inputmode="decimal"]').forEach(function (input) {
+            if (!input.closest('template')) wrap(input);
+        });
+    };
+    run(document);
+    new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+            m.addedNodes.forEach(function (node) {
+                if (node.nodeType === 1 && node.querySelector && node.querySelector('input[inputmode="decimal"]')) run(node);
+            });
+        });
+    }).observe(document.body, { childList: true, subtree: true });
+})();
+
+/* Avisos de sucesso somem sozinhos */
+document.querySelectorAll('.toast-note[data-autohide]').forEach(function (note) {
+    setTimeout(function () { note.classList.add('is-leaving'); setTimeout(function () { note.remove(); }, 300); }, 5000);
+});
+document.addEventListener('click', function (e) {
+    var close = e.target.closest('[data-toast-close]');
+    if (close) close.closest('.toast-note').remove();
+});
+
+/* Máscaras de telefone e CPF/CNPJ */
+(function () {
+    var digits = function (v) { return (v || '').replace(/\D/g, ''); };
+    var phone = function (v) {
+        var d = digits(v).slice(0, 11);
+        if (d.length <= 2) return d.length ? '(' + d : '';
+        if (d.length <= 6) return '(' + d.slice(0, 2) + ') ' + d.slice(2);
+        if (d.length <= 10) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6);
+        return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
+    };
+    var doc = function (v) {
+        var d = digits(v).slice(0, 14);
+        if (d.length <= 11) {
+            return d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+        }
+        return d.replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2');
+    };
+    document.querySelectorAll('[data-mask]').forEach(function (input) {
+        var fn = input.getAttribute('data-mask') === 'phone' ? phone : doc;
+        if (input.value) input.value = fn(input.value);
+        input.addEventListener('input', function () { input.value = fn(input.value); });
+    });
+})();
+
+/* Área de envio de fotos mostra quantos arquivos foram escolhidos */
+document.querySelectorAll('[data-dropzone]').forEach(function (input) {
+    var zone = input.closest('.dropzone');
+    var label = zone.querySelector('[data-dropzone-label]');
+    var original = label.textContent;
+    input.addEventListener('change', function () {
+        var n = input.files.length;
+        label.textContent = n ? (n === 1 ? input.files[0].name : n + ' fotos escolhidas') : original;
+        zone.classList.toggle('has-files', n > 0);
+    });
+    ['dragenter', 'dragover'].forEach(function (t) { zone.addEventListener(t, function () { zone.classList.add('is-drag'); }); });
+    ['dragleave', 'drop'].forEach(function (t) { zone.addEventListener(t, function () { zone.classList.remove('is-drag'); }); });
+});

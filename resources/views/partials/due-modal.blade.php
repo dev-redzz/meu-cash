@@ -4,7 +4,7 @@
             @csrf
             @method('PATCH')
             <div class="modal-header">
-                <h5 class="modal-title" id="dueModalTitle">Alterar vencimento</h5>
+                <div class="modal-head"><span class="stat-icon accent-amber"><x-icon name="calendar" width="18" height="18" /></span><h5 class="modal-title" id="dueModalTitle">Alterar vencimento</h5></div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <div class="modal-body">

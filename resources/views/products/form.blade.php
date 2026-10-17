@@ -70,14 +70,15 @@
                         <label class="form-check-label" for="register_purchase">Lançar a compra como saída no caixa</label>
                     </div>
                 @endunless
+
+                <div class="aside-actions">
+                    <button type="submit" class="btn btn-cta w-100"><span class="btn-cta-icon"><x-icon name="check" width="16" height="16" /></span>{{ $product->exists ? 'Salvar alterações' : 'Cadastrar produto' }}</button>
+                    <a href="{{ $product->exists ? route('products.show', $product) : route('products.index') }}" class="btn btn-light w-100">Cancelar</a>
+                </div>
             </x-form-section>
         </aside>
     </div>
 
-    <div class="form-footer">
-        <a href="{{ $product->exists ? route('products.show', $product) : route('products.index') }}" class="btn btn-light">Cancelar</a>
-        <button type="submit" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="check" width="16" height="16" /></span>{{ $product->exists ? 'Salvar alterações' : 'Cadastrar produto' }}</button>
-    </div>
 </form>
 <datalist id="brands">
     @foreach (\App\Models\Product::whereNotNull('brand')->distinct()->orderBy('brand')->pluck('brand') as $brand)

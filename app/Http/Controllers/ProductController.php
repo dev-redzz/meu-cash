@@ -22,11 +22,26 @@ class ProductController extends Controller
     {
         $filters = $request->only(['q', 'category_id', 'brand', 'status', 'min_price', 'max_price', 'date_from', 'date_to']);
 
-        $products = Product::with('category')->filter($filters)->latest('id')->paginate(20)->withQueryString();
+        $view = $request->query('view') === 'grade' ? 'grade' : 'lista';
+
+        $products = Product::with('category')->filter($filters)->latest('id')->paginate($view === 'grade' ? 24 : 20)->withQueryString();
+
+        $statusCounts = Product::filter(collect($filters)->except('status')->all())
+            ->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+
+        $inStock = Product::inStock()->get(['purchase_price', 'expenses_total', 'sale_price', 'initial_quantity', 'quantity']);
 
         return view('products.index', [
             'products' => $products,
             'filters' => $filters,
+            'view' => $view,
+            'statusCounts' => $statusCounts,
+            'stats' => [
+                'products' => Product::count(),
+                'units' => (int) $inStock->sum('quantity'),
+                'invested' => $inStock->sum(fn ($p) => $p->stockInvested()),
+                'sale_value' => $inStock->sum(fn ($p) => $p->stockSaleValue()),
+            ],
             'categories' => Category::ofType(CategoryType::Produto)->get(),
             'brands' => Product::whereNotNull('brand')->distinct()->orderBy('brand')->pluck('brand'),
         ]);

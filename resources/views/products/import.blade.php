@@ -2,63 +2,99 @@
 
 @section('title', 'Importar produtos')
 
-@section('actions')
-    <a href="{{ route('products.index') }}" class="btn btn-light">Voltar para produtos</a>
+@section('subtitle')
+    <a href="{{ route('products.index') }}" class="back-link"><x-icon name="arrow-left" width="15" height="15" /> Produtos</a>
 @endsection
 
 @section('content')
-<div class="row g-3">
-    <div class="col-lg-7">
-        <form method="POST" action="{{ route('products.import.store') }}" enctype="multipart/form-data" class="panel">
-            @csrf
-            <div class="panel-header"><h2 class="panel-title">Enviar planilha</h2></div>
-            <div class="panel-body">
-                <ol class="small ps-3 mb-4">
-                    <li class="mb-1">Baixe o <a href="{{ route('products.import.template') }}">modelo de planilha</a> e abra no Excel ou Google Planilhas.</li>
-                    <li class="mb-1">Preencha um produto por linha, a partir da segunda linha.</li>
-                    <li>Salve como <strong>CSV</strong> (Excel: <em>Arquivo &gt; Salvar como &gt; CSV</em>; Google: <em>Arquivo &gt; Fazer download &gt; CSV</em>) e envie abaixo.</li>
-                </ol>
-                <label class="form-label" for="file">Planilha (.csv)</label>
-                <input type="file" name="file" id="file" accept=".csv,text/csv" class="form-control @error('file') is-invalid @enderror" required>
-                @error('file')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                <div class="form-check mt-3">
-                    <input class="form-check-input" type="checkbox" name="register_purchase" id="register_purchase" value="1">
-                    <label class="form-check-label" for="register_purchase">Lançar o valor de compra como saída no caixa</label>
+<div class="form-grid has-aside">
+    <div class="form-main">
+        <ol class="import-steps">
+            <li>
+                <span class="import-step-num">1</span>
+                <div>
+                    <strong>Baixe o modelo</strong>
+                    <p>Abra no Excel ou no Google Planilhas.</p>
+                    <a href="{{ route('products.import.template') }}" class="btn btn-cta btn-cta-light btn-cta-sm"><span class="btn-cta-icon"><x-icon name="download" width="14" height="14" /></span>Modelo .csv</a>
                 </div>
-            </div>
-            <div class="panel-footer text-end"><button type="submit" class="btn btn-primary">Importar produtos</button></div>
+            </li>
+            <li>
+                <span class="import-step-num">2</span>
+                <div>
+                    <strong>Preencha</strong>
+                    <p>Um produto por linha, a partir da segunda linha.</p>
+                </div>
+            </li>
+            <li>
+                <span class="import-step-num">3</span>
+                <div>
+                    <strong>Salve como CSV</strong>
+                    <p>Excel: <em>Salvar como › CSV</em>. Google: <em>Fazer download › CSV</em>.</p>
+                </div>
+            </li>
+        </ol>
+
+        <form method="POST" action="{{ route('products.import.store') }}" enctype="multipart/form-data">
+            @csrf
+            <x-form-section title="Enviar planilha" icon="upload" description="Arquivo .csv de até 5 MB.">
+                <label class="dropzone @error('file') is-invalid @enderror">
+                    <span class="stat-icon accent-blue"><x-icon name="upload" width="18" height="18" /></span>
+                    <span class="dropzone-text"><strong>Escolher planilha</strong><span data-dropzone-label>Clique aqui ou arraste o arquivo .csv</span></span>
+                    <input type="file" name="file" accept=".csv,text/csv" required data-dropzone>
+                </label>
+                @error('file')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+
+                <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+                    <div class="form-check form-switch mb-0 me-auto">
+                        <input class="form-check-input" type="checkbox" role="switch" name="register_purchase" id="register_purchase" value="1">
+                        <label class="form-check-label" for="register_purchase">Lançar o valor de compra como saída no caixa</label>
+                    </div>
+                    <a href="{{ route('products.index') }}" class="btn btn-light">Cancelar</a>
+                    <button type="submit" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="check" width="16" height="16" /></span>Importar produtos</button>
+                </div>
+            </x-form-section>
         </form>
 
         @if (session('import_errors'))
-            <div class="panel mt-3">
-                <div class="panel-header"><h2 class="panel-title">Linhas com problema</h2><span class="pill pill-danger">{{ count(session('import_errors')) }}</span></div>
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead><tr><th>Linha</th><th>Problema</th></tr></thead>
-                        <tbody>
-                            @foreach (array_slice(session('import_errors'), 0, 100, true) as $line => $problem)
-                                <tr><td>{{ $line }}</td><td class="wrap">{{ $problem }}</td></tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <section class="panel">
+                <header class="form-section-head">
+                    <span class="stat-icon accent-rose"><x-icon name="alert" width="18" height="18" /></span>
+                    <div class="min-w-0">
+                        <h2 class="panel-title">Linhas com problema</h2>
+                        <p class="form-section-desc">Corrija e envie de novo. Nada foi importado.</p>
+                    </div>
+                    <span class="pill pill-danger ms-auto">{{ count(session('import_errors')) }}</span>
+                </header>
+                <ul class="entry-list">
+                    @foreach (array_slice(session('import_errors'), 0, 100, true) as $line => $problem)
+                        <li><span class="entry-date"><strong>{{ $line }}</strong>linha</span><div class="wrap">{{ $problem }}</div></li>
+                    @endforeach
+                </ul>
+            </section>
         @endif
     </div>
-    <div class="col-lg-5">
-        <div class="panel">
-            <div class="panel-header"><h2 class="panel-title">Colunas da planilha</h2></div>
-            <div class="list-row"><code>nome</code><span class="small text-muted-2">obrigatório</span></div>
-            <div class="list-row"><code>preco_venda</code><span class="small text-muted-2">obrigatório · ex.: 89,90</span></div>
-            <div class="list-row"><code>preco_compra</code><span class="small text-muted-2">ex.: 45,00</span></div>
-            <div class="list-row"><code>quantidade</code><span class="small text-muted-2">padrão 1</span></div>
-            <div class="list-row"><code>categoria</code><span class="small text-muted-2">criada se não existir</span></div>
-            <div class="list-row"><code>marca</code> · <code>modelo</code><span class="small text-muted-2">opcionais</span></div>
-            <div class="list-row"><code>codigo_barras</code><span class="small text-muted-2">não pode repetir</span></div>
-            <div class="list-row"><code>data_compra</code><span class="small text-muted-2">dd/mm/aaaa</span></div>
-            <div class="list-row"><code>observacoes</code><span class="small text-muted-2">opcional</span></div>
-            <div class="panel-body border-top small text-muted-2">Se qualquer linha tiver erro, nada é importado. Assim você nunca fica com metade da planilha cadastrada.</div>
-        </div>
-    </div>
+
+    <aside class="form-aside">
+        <section class="panel">
+            <header class="form-section-head">
+                <span class="stat-icon accent-violet"><x-icon name="list" width="18" height="18" /></span>
+                <div class="min-w-0"><h2 class="panel-title">Colunas da planilha</h2></div>
+            </header>
+            <ul class="column-list">
+                <li><code>nome</code><span class="pill pill-danger pill-plain">obrigatório</span></li>
+                <li><code>preco_venda</code><span class="pill pill-danger pill-plain">obrigatório</span></li>
+                <li><code>preco_compra</code><span>ex.: 45,00</span></li>
+                <li><code>quantidade</code><span>padrão 1</span></li>
+                <li><code>categoria</code><span>criada se não existir</span></li>
+                <li><code>marca</code> <code>modelo</code><span>opcionais</span></li>
+                <li><code>codigo_barras</code><span>não pode repetir</span></li>
+                <li><code>data_compra</code><span>dd/mm/aaaa</span></li>
+                <li><code>observacoes</code><span>opcional</span></li>
+            </ul>
+            <div class="panel-body border-top">
+                <div class="callout mb-0"><x-icon name="info" width="18" height="18" /><div>Se qualquer linha tiver erro, nada é importado. Você nunca fica com metade da planilha cadastrada.</div></div>
+            </div>
+        </section>
+    </aside>
 </div>
 @endsection

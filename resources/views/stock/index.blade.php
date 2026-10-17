@@ -14,16 +14,18 @@
     <div class="col-6 col-lg-3"><x-stat label="Lucro potencial" icon="trend-up" accent="violet" :value="money($totals['potential'])" tone="positive" /></div>
 </div>
 
-<div class="d-flex flex-wrap gap-2 mb-3">
-    @foreach ($byStatus as $value => $info)
-        <a href="{{ route('stock.index', ['status' => $value]) }}" class="btn btn-sm {{ ($filters['status'] ?? '') === $value ? 'btn-dark' : 'btn-light' }}">
-            {{ $info['status']->label() }} <span class="badge text-bg-{{ $info['status']->color() }} ms-1">{{ $info['units'] }}</span>
-        </a>
-    @endforeach
-</div>
-
 <div class="panel">
-    @include('products._filters')
+    <div class="panel-toolbar">
+        <nav class="status-chips" aria-label="Filtrar por status">
+            <a href="{{ route('stock.index', collect(request()->query())->except(['status', 'page'])->all()) }}" @class(['status-chip', 'active' => ($filters['status'] ?? '') === ''])>Todos</a>
+            @foreach ($byStatus as $value => $info)
+                <a href="{{ route('stock.index', collect(request()->query())->except(['status', 'page'])->all() + ['status' => $value]) }}" @class(['status-chip', 'dot-'.$info['status']->color(), 'active' => ($filters['status'] ?? '') === $value])>
+                    {{ $info['status']->label() }} <span>{{ $info['units'] }}</span>
+                </a>
+            @endforeach
+        </nav>
+    </div>
+    @include('products._filters', ['withStatus' => false])
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead>

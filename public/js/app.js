@@ -578,3 +578,25 @@ document.querySelectorAll('[data-dropzone]').forEach(function (input) {
     ['dragenter', 'dragover'].forEach(function (t) { zone.addEventListener(t, function () { zone.classList.add('is-drag'); }); });
     ['dragleave', 'drop'].forEach(function (t) { zone.addEventListener(t, function () { zone.classList.remove('is-drag'); }); });
 });
+
+// Galeria de fotos do produto
+document.querySelectorAll('[data-gallery]').forEach(function (gallery) {
+    var items = gallery.querySelectorAll('[data-gallery-item]');
+    var thumbs = gallery.querySelectorAll('[data-gallery-thumb]');
+    thumbs.forEach(function (thumb) {
+        thumb.addEventListener('click', function () {
+            var index = Number(thumb.dataset.galleryThumb);
+            items.forEach(function (item, i) { item.hidden = i !== index; });
+            thumbs.forEach(function (t) { t.classList.toggle('active', t === thumb); });
+        });
+    });
+});
+
+// Botão "Filtros" marca quando está aberto
+document.querySelectorAll('.filter-toggle').forEach(function (btn) {
+    var target = document.querySelector(btn.dataset.bsTarget);
+    if (!target) return;
+    target.addEventListener('shown.bs.collapse', function () { btn.classList.add('is-open'); });
+    target.addEventListener('hidden.bs.collapse', function () { btn.classList.remove('is-open'); });
+    if (target.classList.contains('show')) btn.classList.add('is-open');
+});

@@ -90,8 +90,9 @@ class ProductController extends Controller
             return back()->with('error', 'Este produto já aparece em vendas. Altere o status para "Cancelado" em vez de excluir.');
         }
 
-        $this->products->delete($product);
+        $snapshot = $this->products->delete($product);
+        app(\App\Services\UndoService::class)->flash($snapshot, 'Produto excluído.');
 
-        return redirect()->route('products.index')->with('success', 'Produto excluído.');
+        return redirect()->route('products.index');
     }
 }

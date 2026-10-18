@@ -122,6 +122,7 @@
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#shortcutsModal"><x-icon name="monitor" width="16" height="16" /> Atalhos do teclado <kbd class="ms-auto">?</kbd></button></li>
                         @can('admin')
                             <li><a class="dropdown-item" href="{{ route('users.index') }}"><x-icon name="team" width="16" height="16" /> Equipe</a></li>
                         @endcan
@@ -167,10 +168,63 @@
     </button>
 </nav>
 
+@php
+    $isAdmin = $user->isAdmin();
+    $shortcutGo = array_filter([
+        'd' => ['Dashboard', route('dashboard')],
+        'v' => ['Vendas', route('sales.index')],
+        'c' => ['Clientes', route('customers.index')],
+        'p' => ['Produtos', route('products.index')],
+        'e' => ['Estoque', route('stock.index')],
+        'f' => $isAdmin ? ['Financeiro', route('finance.index')] : null,
+        'r' => $isAdmin ? ['Relatórios', route('reports.index')] : null,
+        'n' => ['Notificações', route('notifications.index')],
+        'o' => $isAdmin ? ['Configurações', route('settings.edit')] : null,
+    ]);
+    $shortcutNew = [
+        'n' => ['Nova venda', route('sales.create')],
+        'c' => ['Novo cliente', route('customers.create')],
+        'p' => ['Novo produto', route('products.create')],
+    ];
+@endphp
+<script type="application/json" id="shortcuts-data">{!! json_encode(['search' => route('search'), 'go' => array_map(fn ($i) => $i[1], $shortcutGo), 'new' => array_map(fn ($i) => $i[1], $shortcutNew)], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES) !!}</script>
+<div class="modal fade" id="shortcutsModal" tabindex="-1" aria-labelledby="shortcutsTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-head">
+                <span class="stat-icon accent-blue"><x-icon name="monitor" width="18" height="18" /></span>
+                <div class="min-w-0">
+                    <h2 class="panel-title mb-0" id="shortcutsTitle">Atalhos do teclado</h2>
+                    <p class="form-section-desc mb-0">Funcionam quando você não está digitando em um campo.</p>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body shortcuts-body">
+                <section>
+                    <h3>Criar</h3>
+                    @foreach ($shortcutNew as $key => [$label])
+                        <div class="shortcut-row"><span>{{ $label }}</span><span><kbd>{{ strtoupper($key) }}</kbd></span></div>
+                    @endforeach
+                    <h3 class="mt-4">Geral</h3>
+                    <div class="shortcut-row"><span>Buscar</span><span><kbd>/</kbd> ou <kbd>Ctrl</kbd> <kbd>K</kbd></span></div>
+                    <div class="shortcut-row"><span>Desfazer exclusão</span><span><kbd>Ctrl</kbd> <kbd>Z</kbd></span></div>
+                    <div class="shortcut-row"><span>Fechar janela</span><span><kbd>Esc</kbd></span></div>
+                    <div class="shortcut-row"><span>Ver esta lista</span><span><kbd>?</kbd></span></div>
+                </section>
+                <section>
+                    <h3>Ir para</h3>
+                    @foreach ($shortcutGo as $key => [$label])
+                        <div class="shortcut-row"><span>{{ $label }}</span><span><kbd>G</kbd> <kbd>{{ strtoupper($key) }}</kbd></span></div>
+                    @endforeach
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
-<script src="{{ asset('js/app.js') }}?v=13"></script>
+<script src="{{ asset('js/app.js') }}?v=14"></script>
 @stack('scripts')
 @include('partials.cookie-notice')
 </body>

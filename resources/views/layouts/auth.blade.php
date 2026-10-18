@@ -30,6 +30,7 @@
             @yield('content')
         </div>
         <nav class="auth-legal">
+            <a href="{{ route('home') }}">Conheça o Meu Cash</a>
             <a href="{{ route('terms') }}">Termos de uso</a>
             <a href="{{ route('privacy') }}">Privacidade</a>
         </nav>

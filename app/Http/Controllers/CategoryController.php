@@ -40,8 +40,17 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
-        $category->delete();
+        $undo = app(\App\Services\UndoService::class);
+        $snapshot = \Illuminate\Support\Facades\DB::transaction(function () use ($category, $undo) {
+            $snapshot = $undo->capture("Categoria {$category->name}", ['categories' => [$category->id]], [
+                ['table' => 'products', 'column' => 'category_id', 'value' => $category->id],
+            ]);
+            $category->delete();
 
-        return redirect()->route('categories.index')->with('success', 'Categoria excluída. Os itens dessa categoria ficaram sem categoria.');
+            return $snapshot;
+        });
+        $undo->flash($snapshot, 'Categoria excluída. Os produtos dela ficaram sem categoria.');
+
+        return redirect()->route('categories.index');
     }
 }

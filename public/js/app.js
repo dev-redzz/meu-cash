@@ -145,17 +145,74 @@ document.querySelectorAll('.panel table.table:not(.no-stack)').forEach(function 
     });
 });
 
-/* Atalho "/" para buscar */
-document.addEventListener('keydown', function (event) {
-    if (event.key !== '/' || event.ctrlKey || event.metaKey) return;
-    var tag = (document.activeElement && document.activeElement.tagName) || '';
-    if (/INPUT|TEXTAREA|SELECT/.test(tag) || (document.activeElement && document.activeElement.isContentEditable)) return;
-    var input = document.querySelector('.topbar-search input');
-    if (input && input.offsetParent !== null) {
-        event.preventDefault();
-        input.focus();
-    }
-});
+/* Atalhos de teclado (lista em #shortcuts-data, ajuda com "?") */
+(function () {
+    var data = {};
+    try { data = JSON.parse((document.getElementById('shortcuts-data') || {}).textContent || '{}'); } catch (e) {}
+    var pendingG = null;
+    var typing = function () {
+        var el = document.activeElement;
+        if (!el) return false;
+        return /INPUT|TEXTAREA|SELECT/.test(el.tagName) || el.isContentEditable;
+    };
+    var modalOpen = function () { return !!document.querySelector('.modal.show, .confirm-overlay, .mc-select-menu.is-open'); };
+    var focusSearch = function () {
+        var input = document.querySelector('.topbar-search input');
+        if (input && input.offsetParent !== null) { input.focus(); input.select(); return true; }
+        if (data.search) { window.location.href = data.search; return true; }
+        return false;
+    };
+    var openHelp = function () {
+        var el = document.getElementById('shortcutsModal');
+        if (el && window.bootstrap) bootstrap.Modal.getOrCreateInstance(el).show();
+    };
+    var flashKey = function (label) {
+        var tip = document.createElement('div');
+        tip.className = 'shortcut-tip';
+        tip.textContent = label;
+        document.body.appendChild(tip);
+        setTimeout(function () { tip.remove(); }, 1200);
+    };
+
+    document.addEventListener('keydown', function (event) {
+        var key = event.key;
+
+        if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && key.toLowerCase() === 'k') {
+            event.preventDefault();
+            focusSearch();
+            return;
+        }
+
+        if ((event.ctrlKey || event.metaKey) && !event.shiftKey && key.toLowerCase() === 'z' && !typing()) {
+            var undoBtn = document.querySelector('.toast-undo-btn');
+            if (undoBtn) { event.preventDefault(); undoBtn.click(); }
+            return;
+        }
+
+        if (event.ctrlKey || event.metaKey || event.altKey || typing() || modalOpen()) return;
+
+        if (key === '/') { if (focusSearch()) event.preventDefault(); return; }
+        if (key === '?') { event.preventDefault(); openHelp(); return; }
+
+        var lower = key.toLowerCase();
+
+        if (pendingG) {
+            clearTimeout(pendingG);
+            pendingG = null;
+            var target = (data.go || {})[lower];
+            if (target) { event.preventDefault(); flashKey('G ' + key.toUpperCase()); window.location.href = target; }
+            return;
+        }
+
+        if (lower === 'g' && data.go) {
+            pendingG = setTimeout(function () { pendingG = null; }, 1200);
+            return;
+        }
+
+        var action = (data.new || {})[lower];
+        if (action && !event.shiftKey) { event.preventDefault(); flashKey(key.toUpperCase()); window.location.href = action; }
+    });
+})();
 
 /* Copiar código */
 document.addEventListener('click', function (event) {
@@ -599,4 +656,12 @@ document.querySelectorAll('.filter-toggle').forEach(function (btn) {
     target.addEventListener('shown.bs.collapse', function () { btn.classList.add('is-open'); });
     target.addEventListener('hidden.bs.collapse', function () { btn.classList.remove('is-open'); });
     if (target.classList.contains('show')) btn.classList.add('is-open');
+});
+
+/* Aviso com "Desfazer": some depois de 12 s; Ctrl+Z desfaz enquanto ele estiver na tela */
+document.querySelectorAll('[data-undo-toast]').forEach(function (note) {
+    var remove = function () { note.classList.add('is-leaving'); setTimeout(function () { note.remove(); }, 300); };
+    var timer = setTimeout(remove, 12000);
+    note.addEventListener('mouseenter', function () { clearTimeout(timer); note.classList.add('is-paused'); });
+    note.addEventListener('mouseleave', function () { timer = setTimeout(remove, 4000); });
 });

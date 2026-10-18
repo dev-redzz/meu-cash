@@ -18,12 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
         $middleware->encryptCookies(except: ['cookie_notice']);
+        $middleware->validateCsrfTokens(except: ['webhooks/*']);
         $middleware->alias([
             'company' => IdentifyCompany::class,
             'role' => EnsureUserHasRole::class,
             'alerts' => SyncAlerts::class,
             'platform' => EnsurePlatformAdmin::class,
             'portal' => \App\Http\Middleware\EnsurePortalCustomer::class,
+            'plan' => \App\Http\Middleware\EnsureActivePlan::class,
         ]);
         $middleware->web(append: [SecurityHeaders::class]);
         $middleware->prependToPriorityList(

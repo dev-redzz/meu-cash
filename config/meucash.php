@@ -3,6 +3,11 @@
 return [
     'support_email' => env('SUPPORT_EMAIL'),
 
+    // Quem responde pelo Meu Cash nas páginas de Termos e Privacidade.
+    'legal_name' => env('LEGAL_NAME', 'Meu Cash'),
+    'legal_document' => env('LEGAL_DOCUMENT'),
+    'legal_city' => env('LEGAL_CITY'),
+
     'platform_admins' => array_values(array_filter(array_map(
         fn ($email) => mb_strtolower(trim($email)),
         explode(',', (string) env('PLATFORM_ADMINS', env('OWNER_EMAIL', '')))

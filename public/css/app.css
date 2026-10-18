@@ -1688,3 +1688,29 @@ a.cat-card-name:hover { color: var(--mc-brand); text-decoration: none; }
 .column-list code { background: var(--mc-soft); color: var(--mc-ink); padding: .12rem .45rem; border-radius: 6px; font-size: .8rem; }
 @media (max-width: 767.98px) { .product-table.table-stack td:nth-child(4) { display: none !important; } .product-cell { min-width: 0; } .product-cell-name, .product-cell-meta { max-width: 100%; } }
 .form-section-head > .btn { white-space: nowrap; flex: none; }
+
+/* ===== Desfazer ===== */
+.toast-undo { position: relative; overflow: hidden; align-items: center; }
+.toast-undo form { flex: none; }
+.toast-undo-btn { display: inline-flex; align-items: center; gap: .35rem; border: 0; border-radius: 999px; padding: .4rem .85rem; background: var(--mc-ink); color: #fff; font-weight: 700; font-size: .82rem; white-space: nowrap; transition: transform .15s ease, background .15s ease; }
+.toast-undo-btn:hover { transform: translateY(-1px); background: var(--mc-brand); }
+[data-bs-theme="dark"] .toast-undo-btn { background: #fff; color: #0b1426; }
+[data-bs-theme="dark"] .toast-undo-btn:hover { background: #8db0ff; }
+.toast-undo-timer { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--mc-brand); transform-origin: left; animation: undo-timer 12s linear forwards; }
+.toast-undo.is-paused .toast-undo-timer { animation-play-state: paused; }
+@keyframes undo-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* ===== Atalhos do teclado ===== */
+.shortcuts-body { display: grid; gap: 1.5rem 2.5rem; padding: 1.25rem 1.5rem 1.5rem; }
+@media (min-width: 768px) { .shortcuts-body { grid-template-columns: 1fr 1fr; } }
+.shortcuts-body h3 { font-size: .74rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--mc-faint); margin: 0 0 .5rem; }
+.shortcut-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .5rem 0; border-bottom: 1px dashed var(--mc-line); font-size: .9rem; color: var(--mc-text); }
+.shortcut-row:last-child { border-bottom: 0; }
+.shortcut-row > span:last-child { white-space: nowrap; color: var(--mc-faint); font-size: .8rem; }
+.shortcut-row kbd, .user-menu kbd { display: inline-block; min-width: 1.6rem; text-align: center; padding: .15rem .45rem; border-radius: 7px; border: 1px solid var(--mc-line-strong); border-bottom-width: 2px; background: var(--mc-surface); color: var(--mc-ink); font: 600 .74rem/1.3 var(--bs-body-font-family); box-shadow: none; }
+.user-menu .dropdown-item { display: flex; align-items: center; gap: .5rem; }
+.shortcut-tip { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 2000; padding: .45rem .9rem; border-radius: 12px; background: var(--mc-ink); color: #fff; font-weight: 700; font-size: .85rem; letter-spacing: .08em; box-shadow: var(--mc-shadow-lg); animation: tip-in .15s ease; pointer-events: none; }
+[data-bs-theme="dark"] .shortcut-tip { background: #fff; color: #0b1426; }
+@keyframes tip-in { from { opacity: 0; transform: translate(-50%, 6px); } }
+@media (hover: none) { .user-menu [data-bs-target="#shortcutsModal"] { display: none !important; } }
+#shortcutsModal .modal-head { padding: 1.25rem 1.5rem .25rem; }

@@ -28,7 +28,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/dashboard');
+Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('home');
 Route::view('/privacidade', 'legal.privacy')->name('privacy');
 Route::view('/termos', 'legal.terms')->name('terms');
 Route::prefix('cliente')->name('portal.')->group(function () {
@@ -38,8 +38,12 @@ Route::prefix('cliente')->name('portal.')->group(function () {
         Route::get('/minha-area', [\App\Http\Controllers\Portal\PortalController::class, 'home'])->name('home');
         Route::get('/compras/{sale}/comprovante', [\App\Http\Controllers\Portal\PortalController::class, 'receipt'])->whereNumber('sale')->middleware('throttle:30,1')->name('receipt');
         Route::post('/sair', [\App\Http\Controllers\Portal\PortalController::class, 'logout'])->name('logout');
+        Route::post('/parcelas/{installment}/pagar', [\App\Http\Controllers\Portal\PortalController::class, 'pay'])->whereNumber('installment')->middleware('throttle:10,1')->name('pay');
+        Route::get('/pagamento/retorno', [\App\Http\Controllers\Portal\PortalController::class, 'paymentReturn'])->middleware('throttle:30,1')->name('payment.return');
     });
 });
+Route::post('/webhooks/mercadopago', [\App\Http\Controllers\MercadoPagoWebhookController::class, 'platform'])->middleware('throttle:120,1')->name('webhooks.mp.platform');
+Route::post('/webhooks/mercadopago/loja/{key}', [\App\Http\Controllers\MercadoPagoWebhookController::class, 'store'])->middleware('throttle:120,1')->name('webhooks.mp.store');
 Route::get('/recibo/{sale}', [ReceiptController::class, 'public'])->middleware(['signed', 'throttle:30,1'])->whereNumber('sale')->name('receipts.public');
 
 Route::middleware('guest')->group(function () {
@@ -59,7 +63,8 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
-Route::middleware(['auth', 'company', 'alerts'])->group(function () {
+Route::middleware(['auth', 'company', 'plan', 'alerts'])->group(function () {
+    Route::post('/desfazer/{token}', \App\Http\Controllers\UndoController::class)->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:20,1')->name('undo');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/fotos/{path}', PhotoController::class)->where('path', '.*')->name('photos.show');
 
@@ -91,6 +96,7 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
     Route::middleware('platform')->group(function () {
         Route::get('/plataforma', [PlatformController::class, 'index'])->name('platform.index');
         Route::patch('/plataforma/empresas/{company}', [PlatformController::class, 'toggle'])->name('platform.toggle');
+        Route::patch('/plataforma/empresas/{company}/plano', [PlatformController::class, 'plan'])->name('platform.plan');
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -109,6 +115,14 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
 
         Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/relatorios/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
+
+        Route::get('/plano', [\App\Http\Controllers\BillingController::class, 'index'])->name('billing.index');
+        Route::post('/plano/pagar', [\App\Http\Controllers\BillingController::class, 'checkout'])->middleware('throttle:10,1')->name('billing.checkout');
+        Route::get('/plano/retorno', [\App\Http\Controllers\BillingController::class, 'return'])->name('billing.return');
+
+        Route::get('/configuracoes/pagamentos', [\App\Http\Controllers\Settings\PaymentSettingController::class, 'edit'])->name('settings.payments');
+        Route::put('/configuracoes/pagamentos', [\App\Http\Controllers\Settings\PaymentSettingController::class, 'update'])->middleware('throttle:10,1')->name('settings.payments.update');
+        Route::delete('/configuracoes/pagamentos', [\App\Http\Controllers\Settings\PaymentSettingController::class, 'destroy'])->name('settings.payments.destroy');
 
         Route::get('/configuracoes', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/configuracoes', [SettingController::class, 'update'])->name('settings.update');

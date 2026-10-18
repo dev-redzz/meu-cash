@@ -7,6 +7,11 @@ use App\Enums\SaleStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ReceiptController;
 use App\Models\Customer;
+use App\Models\Installment;
+use App\Models\Setting;
+use App\Services\OnlinePaymentService;
+use Illuminate\Support\Facades\Log;
+use RuntimeException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -77,6 +82,7 @@ class PortalController extends Controller
         return view('portal.home', [
             'customer' => $customer,
             'company' => $customer->company,
+            'canPay' => self::canPayOnline($customer),
             'sales' => $sales,
             'next' => $open->sortBy('due_date')->first(),
             'totals' => [
@@ -97,6 +103,57 @@ class PortalController extends Controller
         $sale = $customer->sales()->findOrFail($sale);
 
         return $receipts->stream($sale);
+    }
+
+    public static function canPayOnline(Customer $customer): bool
+    {
+        return $customer->company->acceptsOnlinePayments() && Setting::get('portal_payments', '1') === '1';
+    }
+
+    public function pay(Request $request, int $installment, OnlinePaymentService $payments): RedirectResponse
+    {
+        /** @var Customer $customer */
+        $customer = $request->attributes->get('portalCustomer');
+        $installment = Installment::where('customer_id', $customer->id)->findOrFail($installment);
+
+        if (! self::canPayOnline($customer)) {
+            return back()->with('error', 'Esta loja não recebe pagamentos pela internet. Fale com a loja.');
+        }
+
+        try {
+            $url = $payments->startInstallmentCheckout($installment, $customer);
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->away($url);
+    }
+
+    public function paymentReturn(Request $request, OnlinePaymentService $payments): RedirectResponse
+    {
+        /** @var Customer $customer */
+        $customer = $request->attributes->get('portalCustomer');
+        $id = (string) ($request->query('payment_id') ?: $request->query('collection_id'));
+        $payment = null;
+
+        if ($id !== '' && $id !== 'null' && $customer->company->acceptsOnlinePayments()) {
+            try {
+                $payment = $payments->handleStoreNotification($customer->company, $id);
+            } catch (RuntimeException $e) {
+                Log::warning('Retorno do portal: '.$e->getMessage());
+            }
+        }
+
+        if ($payment && (int) $payment->customer_id !== (int) $customer->id) {
+            $payment = null;
+        }
+
+        return redirect()->route('portal.home')->with(...match ($payment?->status) {
+            'aprovado' => ['success', 'Pagamento aprovado! Sua parcela já aparece como paga.'],
+            'pendente' => ['success', 'Pagamento em processamento. Assim que for confirmado, a parcela é baixada sozinha.'],
+            'recusado' => ['error', 'O pagamento não foi aprovado. Tente de novo ou use outra forma de pagamento.'],
+            default => ['success', 'Se você concluiu o pagamento, ele aparece aqui em instantes.'],
+        });
     }
 
     public function logout(Request $request): RedirectResponse

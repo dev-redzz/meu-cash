@@ -83,14 +83,21 @@ class ProductService
         return $product;
     }
 
-    public function delete(Product $product): void
+    /** Exclui o produto e devolve a cópia para o botão Desfazer. As fotos só são apagadas quando a cópia vence. */
+    public function delete(Product $product): \App\Models\UndoSnapshot
     {
-        foreach ($product->photos ?? [] as $path) {
-            Storage::disk('public')->delete($path);
-        }
+        return DB::transaction(function () use ($product) {
+            $snapshot = app(UndoService::class)->capture(
+                "Produto {$product->fullName()}",
+                ['products' => [$product->id], 'product_expenses' => $product->expenses()->pluck('id')->all()],
+                files: $product->photos ?? [],
+            );
 
-        AuditService::log('produto_excluido', "Produto {$product->fullName()} excluído");
-        $product->delete();
+            AuditService::log('produto_excluido', "Produto {$product->fullName()} excluído");
+            $product->delete();
+
+            return $snapshot;
+        });
     }
 
     public function addExpense(Product $product, array $data, bool $registerCash = true): ProductExpense
@@ -118,14 +125,24 @@ class ProductService
         });
     }
 
-    public function removeExpense(ProductExpense $expense): void
+    public function removeExpense(ProductExpense $expense): \App\Models\UndoSnapshot
     {
-        DB::transaction(function () use ($expense) {
+        return DB::transaction(function () use ($expense) {
             $product = $expense->product;
+            $snapshot = app(UndoService::class)->capture(
+                "Despesa {$expense->description}",
+                [
+                    'product_expenses' => [$expense->id],
+                    'financial_transactions' => \App\Models\FinancialTransaction::where('source_type', $expense->getMorphClass())->where('source_id', $expense->id)->pluck('id')->all(),
+                ],
+                after: [['recalc_product', $product->id]],
+            );
             $this->finance->removeFor($expense);
             $expense->delete();
             $this->recalculate($product);
             AuditService::log('despesa_removida', "Despesa {$expense->description} removida do produto {$product->fullName()}", $product);
+
+            return $snapshot;
         });
     }
 

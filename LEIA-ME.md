@@ -164,3 +164,20 @@ app/Http/Middleware/IdentifyCompany.php    identifica a empresa em cada acesso
 app/Services/GoogleAuthService.php         login com Google (OAuth)
 app/Services/CompanyProvisioner.php        cria empresa, dono, configurações e categorias
 ```
+
+## Site, termos e privacidade
+
+- A página inicial (`/`) é o site de apresentação. Quem já está logado vai direto para o painel.
+- Termos de uso em `/termos` e Política de privacidade em `/privacidade`. Preencha no Railway para aparecerem nos textos:
+
+```
+LEGAL_NAME="Seu nome ou razão social"
+LEGAL_DOCUMENT="CPF ou CNPJ"
+LEGAL_CITY="Sua cidade - UF"
+SUPPORT_EMAIL=seu@email.com
+```
+
+## Desfazer e atalhos
+
+- Ao excluir produto, cliente, categoria, despesa de produto ou lançamento manual do caixa, aparece **Desfazer** por alguns segundos (ou Ctrl+Z). Dá para desfazer em até 10 minutos.
+- Atalhos: aperte `?` dentro do sistema para ver a lista (N nova venda, C novo cliente, P novo produto, G + letra para navegar, / ou Ctrl+K para buscar).

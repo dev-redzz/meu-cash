@@ -68,9 +68,16 @@ class FinanceController extends Controller
     {
         abort_unless($transaction->isManual(), 403, 'Somente lançamentos manuais podem ser excluídos por aqui.');
 
-        AuditService::log('lancamento_excluido', $transaction->type->label().": {$transaction->description} (".money($transaction->amount).')');
-        $transaction->delete();
+        $undo = app(\App\Services\UndoService::class);
+        $snapshot = \Illuminate\Support\Facades\DB::transaction(function () use ($transaction, $undo) {
+            $snapshot = $undo->capture('Lançamento '.$transaction->description, ['financial_transactions' => [$transaction->id]]);
+            AuditService::log('lancamento_excluido', $transaction->type->label().": {$transaction->description} (".money($transaction->amount).')');
+            $transaction->delete();
 
-        return back()->with('success', 'Lançamento excluído.');
+            return $snapshot;
+        });
+        $undo->flash($snapshot, 'Lançamento excluído.');
+
+        return back();
     }
 }

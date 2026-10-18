@@ -1,25 +1,43 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    @include('partials.theme-head')
-    <title>@yield('title') · Meu Cash</title>
-    @include('partials.head-assets')
-</head>
-<body>
-<main class="container py-5" style="max-width: 760px;">
-    <a href="{{ url('/') }}" class="d-inline-flex align-items-center gap-2 mb-4 text-body fw-bold text-decoration-none">
-        <img src="{{ asset('img/logo.png') }}" alt="" width="40" height="40" style="border-radius: 10px;"> Meu Cash
-    </a>
-    <h1 class="page-title mb-1">@yield('title')</h1>
-    <p class="text-muted-2 small mb-4">Última atualização: 11/10/2026</p>
-    <div class="panel"><div class="panel-body legal-text">@yield('content')</div></div>
-    <nav class="small mt-3 d-flex gap-3">
-        <a href="{{ route('privacy') }}">Política de Privacidade</a>
-        <a href="{{ route('terms') }}">Termos de Uso</a>
-    </nav>
-</main>
-@include('partials.cookie-notice')
-</body>
-</html>
+@extends('layouts.site')
+
+@section('title')@yield('legal_title') · Meu Cash @endsection
+
+@section('content')
+<section class="legal-hero">
+    <div class="site-container">
+        <span class="eyebrow">Legal</span>
+        <h1>@yield('legal_title')</h1>
+        <p>@yield('legal_lead')</p>
+        <div class="legal-meta">
+            <span><x-icon name="calendar" width="15" height="15" /> Atualizado em {{ $updated ?? '17/10/2026' }}</span>
+            <nav class="legal-switch" aria-label="Documentos">
+                <a href="{{ route('terms') }}" @class(['active' => request()->routeIs('terms')])>Termos de uso</a>
+                <a href="{{ route('privacy') }}" @class(['active' => request()->routeIs('privacy')])>Privacidade</a>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<div class="site-container legal-grid">
+    <aside class="legal-toc" aria-label="Neste documento">
+        <div class="legal-toc-title">Neste documento</div>
+        @yield('toc')
+    </aside>
+    <article class="legal-text">
+        @yield('legal_content')
+        <div class="legal-contact">
+            <span class="stat-icon accent-blue"><x-icon name="info" width="18" height="18" /></span>
+            <div>
+                <strong>Ficou com alguma dúvida?</strong>
+                <p>
+                    @if (config('meucash.support_email'))
+                        Escreva para <a href="mailto:{{ config('meucash.support_email') }}">{{ config('meucash.support_email') }}</a>. Respondemos em até 15 dias.
+                    @else
+                        Fale com a gente pelo e-mail de suporte do Meu Cash.
+                    @endif
+                </p>
+            </div>
+        </div>
+    </article>
+</div>
+@endsection

@@ -78,9 +78,17 @@ class CustomerController extends Controller
             return back()->with('error', 'Este cliente tem vendas registradas e não pode ser excluído.');
         }
 
-        AuditService::log('cliente_excluido', "Cliente {$customer->name} excluído");
-        $customer->delete();
+        $undo = app(\App\Services\UndoService::class);
+        $snapshot = \Illuminate\Support\Facades\DB::transaction(function () use ($customer, $undo) {
+            $snapshot = $undo->capture("Cliente {$customer->name}", ['customers' => [$customer->id]], collect(['installments', 'payments', 'online_payments', 'whatsapp_messages'])
+                ->map(fn ($table) => ['table' => $table, 'column' => 'customer_id', 'value' => $customer->id])->all());
+            AuditService::log('cliente_excluido', "Cliente {$customer->name} excluído");
+            $customer->delete();
 
-        return redirect()->route('customers.index')->with('success', 'Cliente excluído.');
+            return $snapshot;
+        });
+        $undo->flash($snapshot, 'Cliente excluído.');
+
+        return redirect()->route('customers.index');
     }
 }

@@ -25,8 +25,9 @@ class ProductExpenseController extends Controller
     public function destroy(Product $product, ProductExpense $expense): RedirectResponse
     {
         abort_unless($expense->product_id === $product->id, 404);
-        $this->products->removeExpense($expense);
+        $snapshot = $this->products->removeExpense($expense);
+        app(\App\Services\UndoService::class)->flash($snapshot, 'Despesa removida.');
 
-        return redirect()->route('products.show', $product)->with('success', 'Despesa removida.');
+        return redirect()->route('products.show', $product);
     }
 }

@@ -4,8 +4,7 @@
 
 @section('content')
 <section class="legal-hero">
-    <div class="site-container">
-        <span class="eyebrow">Legal</span>
+    <div class="wrap">
         <h1>@yield('legal_title')</h1>
         <p>@yield('legal_lead')</p>
         <div class="legal-meta">
@@ -18,7 +17,7 @@
     </div>
 </section>
 
-<div class="site-container legal-grid">
+<div class="wrap legal-grid">
     <aside class="legal-toc" aria-label="Neste documento">
         <div class="legal-toc-title">Neste documento</div>
         @yield('toc')
@@ -26,7 +25,7 @@
     <article class="legal-text">
         @yield('legal_content')
         <div class="legal-contact">
-            <span class="stat-icon accent-blue"><x-icon name="info" width="18" height="18" /></span>
+            
             <div>
                 <strong>Ficou com alguma dúvida?</strong>
                 <p>

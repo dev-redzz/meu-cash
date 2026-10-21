@@ -50,12 +50,4 @@
         Object.keys(links).forEach(function (id) { var el = document.getElementById(id); if (el) observer.observe(el); });
     }
 
-    var reveal = document.querySelectorAll('[data-reveal]');
-    if (reveal.length && 'IntersectionObserver' in window && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) {
-        root.classList.add('reveal-ready');
-        var ro = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); ro.unobserve(entry.target); } });
-        }, { rootMargin: '0px 0px -8% 0px' });
-        reveal.forEach(function (el) { ro.observe(el); });
-    }
 })();

@@ -1,0 +1,61 @@
+/* Abertura do login: contorno do logo desenhado, cor, nome, zoom e entrada do formulário */
+.intro { display: none; }
+html.intro-run { overflow: hidden; }
+html.intro-run .intro { display: block; position: fixed; inset: 0; z-index: 3000; background: #070d18; color: #fff; cursor: default; transition: opacity .6s ease .15s; }
+html.intro-run .auth-split { visibility: hidden; }
+html.intro-out .auth-split, html.intro-skip-now .auth-split { visibility: visible; }
+
+.intro-grid { position: absolute; inset: 0; opacity: 0; background-image: linear-gradient(rgba(141, 176, 255, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(141, 176, 255, .07) 1px, transparent 1px); background-size: 36px 36px; background-position: center; -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 100%); mask-image: radial-gradient(closest-side, #000 20%, transparent 100%); animation: intro-fade .6s ease .05s forwards; }
+.intro-stage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 6vh; }
+.intro-mark { position: relative; width: 132px; height: 132px; }
+@media (max-width: 575.98px) { .intro-mark { width: 112px; height: 112px; } }
+
+.intro-outline { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; animation: intro-fade-out .35s ease 1.55s forwards; }
+.intro-outline path, .intro-outline circle { stroke: #8db0ff; stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: intro-draw .85s cubic-bezier(.65, 0, .35, 1) .25s forwards; }
+.intro-outline .d2 { animation-delay: .5s; }
+.intro-outline .d3 { animation-delay: .62s; }
+.intro-outline .d4 { animation-delay: .78s; }
+.intro-outline .d5 { animation-delay: .95s; }
+
+.intro-nodes { position: absolute; inset: 0; animation: intro-fade-out .3s ease 1.5s forwards; }
+.intro-nodes i { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #070d18; border: 1.5px solid #8db0ff; opacity: 0; scale: .2; animation: intro-node .3s ease forwards; }
+.intro-nodes i:nth-child(1) { animation-delay: .3s; } .intro-nodes i:nth-child(2) { animation-delay: .45s; } .intro-nodes i:nth-child(3) { animation-delay: .6s; }
+.intro-nodes i:nth-child(4) { animation-delay: .55s; } .intro-nodes i:nth-child(5) { animation-delay: .7s; } .intro-nodes i:nth-child(6) { animation-delay: .85s; }
+.intro-nodes i:nth-child(7) { animation-delay: .95s; } .intro-nodes i:nth-child(8) { animation-delay: 1.05s; } .intro-nodes i:nth-child(9) { animation-delay: 1.15s; }
+
+.intro-logo { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; scale: .94; filter: drop-shadow(0 10px 30px rgba(21, 94, 239, .45)); animation: intro-logo .55s cubic-bezier(.2, .8, .2, 1) 1.45s forwards; }
+
+.intro-word { margin-top: 26px; text-align: center; }
+.intro-word strong { display: block; font-weight: 800; font-size: 2rem; letter-spacing: -.02em; line-height: 1; opacity: 0; filter: blur(12px); animation: intro-blur .6s ease 1.8s forwards; }
+.intro-word strong span { color: #5b8cff; }
+.intro-rule { display: block; height: 2px; width: 0; margin: 12px auto 10px; border-radius: 2px; background: #5b8cff; animation: intro-rule .5s ease 2.15s forwards; }
+.intro-word small { display: block; color: #8e9bb3; font-size: .9rem; opacity: 0; animation: intro-fade .5s ease 2.25s forwards; }
+
+.intro-skip { position: absolute; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom)); border: 1px solid rgba(255, 255, 255, .16); background: transparent; color: #b4c0d6; border-radius: 999px; padding: .35rem .9rem; font-size: .82rem; font-weight: 600; opacity: 0; animation: intro-fade .4s ease .8s forwards; }
+.intro-skip:hover { color: #fff; border-color: rgba(255, 255, 255, .4); }
+
+/* Saída: o nome some, o logo cresce até sair da tela e o login aparece por trás */
+html.intro-out .intro { opacity: 0; }
+html.intro-out .intro-word, html.intro-out .intro-grid, html.intro-out .intro-skip { transition: opacity .25s ease; opacity: 0 !important; }
+html.intro-out .intro-mark { transition: transform .7s cubic-bezier(.7, 0, .3, 1), opacity .45s ease .25s; transform: scale(14); opacity: 0; }
+html.intro-skip-now .intro { transition: opacity .25s ease; opacity: 0; }
+
+/* Entrada do login depois da abertura */
+html.intro-enter .auth-brand-inner { animation: intro-rise .7s cubic-bezier(.2, .8, .2, 1) .2s both; }
+html.intro-enter .auth-box > * { animation: intro-rise .6s cubic-bezier(.2, .8, .2, 1) .25s both; }
+html.intro-enter .auth-box > :nth-child(2) { animation-delay: .31s; }
+html.intro-enter .auth-box > :nth-child(3) { animation-delay: .37s; }
+html.intro-enter .auth-box > :nth-child(4) { animation-delay: .43s; }
+html.intro-enter .auth-box > :nth-child(5) { animation-delay: .49s; }
+html.intro-enter .auth-box > :nth-child(n+6) { animation-delay: .55s; }
+
+@keyframes intro-draw { to { stroke-dashoffset: 0; } }
+@keyframes intro-fade { to { opacity: 1; } }
+@keyframes intro-fade-out { to { opacity: 0; } }
+@keyframes intro-node { to { opacity: 1; scale: 1; } }
+@keyframes intro-logo { to { opacity: 1; scale: 1; } }
+@keyframes intro-blur { to { opacity: 1; filter: blur(0); } }
+@keyframes intro-rule { to { width: 56px; } }
+@keyframes intro-rise { from { opacity: 0; transform: translateY(18px); } }
+
+@media (prefers-reduced-motion: reduce) { .intro { display: none !important; } html.intro-run .auth-split { visibility: visible; } }

@@ -6,8 +6,11 @@
     @include('partials.theme-head')
     <title>@yield('title', 'Entrar') · Meu Cash</title>
     @include('partials.head-assets')
+    <link href="{{ asset('css/intro.css') }}?v=2" rel="stylesheet">
+    <script>try{if(sessionStorage.getItem('mc-intro')==='1'){sessionStorage.removeItem('mc-intro');if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){document.documentElement.classList.add('intro-run')}}}catch(e){}</script>
 </head>
 <body>
+@include('partials.intro')
 <div class="auth-split">
     <section class="auth-brand">
         <div class="auth-brand-inner">

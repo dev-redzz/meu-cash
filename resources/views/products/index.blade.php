@@ -12,7 +12,8 @@
 
 @php
     $statusValue = $filters['status'] ?? '';
-    $baseQuery = collect(request()->query())->except(['status', 'page'])->all();
+    $baseQuery = collect(request()->query())->except(['status', 'page', 'repor'])->all();
+    $restock = (bool) ($filters['repor'] ?? false);
     $allCount = $statusCounts->sum();
     $viewUrl = fn ($v) => request()->fullUrlWithQuery(['view' => $v === 'lista' ? null : $v, 'page' => null]);
 @endphp
@@ -28,7 +29,10 @@
 <div class="panel">
     <div class="panel-toolbar">
         <nav class="status-chips" aria-label="Filtrar por status">
-            <a href="{{ route('products.index', $baseQuery) }}" @class(['status-chip', 'active' => $statusValue === ''])>Todos <span>{{ $allCount }}</span></a>
+            <a href="{{ route('products.index', $baseQuery) }}" @class(['status-chip', 'active' => $statusValue === '' && ! $restock])>Todos <span>{{ $allCount }}</span></a>
+            @if ($lowStockCount > 0 || $restock)
+                <a href="{{ route('products.index', $restock ? $baseQuery : $baseQuery + ['repor' => 1]) }}" @class(['status-chip', 'dot-warning', 'active' => $restock])>Repor <span>{{ $lowStockCount }}</span></a>
+            @endif
             @foreach (\App\Enums\ProductStatus::cases() as $status)
                 <a href="{{ route('products.index', $baseQuery + ['status' => $status->value]) }}" @class(['status-chip', 'dot-'.$status->color(), 'active' => $statusValue === $status->value])>
                     {{ $status->label() }} <span>{{ $statusCounts[$status->value] ?? 0 }}</span>
@@ -67,7 +71,7 @@
                         <div class="product-card-name">{{ $product->fullName() }}</div>
                         <div class="product-card-price">{{ money($product->sale_price) }}</div>
                         <div class="product-card-foot">
-                            <span>{{ $product->quantity }} {{ $product->quantity === 1 ? 'unidade' : 'unidades' }}</span>
+                            <span @class(['text-warning-strong' => $product->isLowStock()])>{{ $product->quantity }} {{ $product->quantity === 1 ? 'unidade' : 'unidades' }}@if ($product->isLowStock()) · repor @endif</span>
                             <span class="{{ $profit >= 0 ? 'text-positive' : 'text-negative' }}">{{ $profit >= 0 ? '+' : '' }}{{ money($profit) }}</span>
                         </div>
                     </div>
@@ -106,7 +110,7 @@
                                 </a>
                             </td>
                             <td><x-status :value="$product->status" /></td>
-                            <td class="num"><span @class(['qty-badge', 'is-empty' => $product->quantity < 1])>{{ $product->quantity }} un.</span></td>
+                            <td class="num"><span @class(['qty-badge', 'is-empty' => $product->quantity < 1, 'is-low' => $product->isLowStock()]) @if ($product->isLowStock()) title="Estoque mínimo: {{ $product->min_stock }}" @endif>{{ $product->quantity }} un.</span></td>
                             <td class="num">{{ money($product->totalInvested()) }}</td>
                             <td class="num fw-semibold">{{ money($product->sale_price) }}</td>
                             <td class="num {{ $profit >= 0 ? 'text-positive' : 'text-negative' }}">{{ money($profit) }}</td>

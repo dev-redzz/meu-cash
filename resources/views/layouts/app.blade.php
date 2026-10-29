@@ -17,7 +17,8 @@
     $groups = [
         'Operação' => [
             ['Dashboard', 'dashboard', 'dashboard', 'home', false],
-            ['Vendas', 'sales.index', 'sales.*', 'cart', false],
+            ['Venda rápida', 'sales.pos', 'sales.pos', 'bolt', false],
+            ['Vendas', 'sales.index', 'sales.index|sales.create|sales.show|sales.edit', 'cart', false],
             ['Clientes', 'customers.index', 'customers.*', 'users', false],
         ],
         'Estoque' => [
@@ -182,6 +183,7 @@
         'o' => $isAdmin ? ['Configurações', route('settings.edit')] : null,
     ]);
     $shortcutNew = [
+        'r' => ['Venda rápida', route('sales.pos')],
         'n' => ['Nova venda', route('sales.create')],
         'c' => ['Novo cliente', route('customers.create')],
         'p' => ['Novo produto', route('products.create')],

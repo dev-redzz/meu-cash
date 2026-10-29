@@ -4,7 +4,6 @@
     $name = config('meucash.legal_name') !== 'Meu Cash' ? config('meucash.legal_name') : null;
     $doc = config('meucash.legal_document');
     $city = config('meucash.legal_city');
-    $billing = \App\Models\Company::billingEnabled();
     $toc = [
         'aceite' => 'Aceite',
         'servico' => 'O serviço',
@@ -13,8 +12,6 @@
         'area-cliente' => 'Área do cliente',
         'responsabilidades' => 'Responsabilidades da empresa',
         'proibido' => 'Uso proibido',
-        'planos' => 'Planos e pagamentos',
-        'pagamentos-online' => 'Pagamentos online',
         'disponibilidade' => 'Disponibilidade e dados',
         'propriedade' => 'Propriedade intelectual',
         'limites' => 'Limites de responsabilidade',
@@ -89,36 +86,23 @@
     <li>revender ou copiar o sistema.</li>
 </ul>
 
-<h2 id="planos">8. Planos e pagamentos</h2>
-@if ($billing)
-    <p>Novas empresas têm {{ config('billing.trial_days') }} dias de teste grátis. Depois disso, o uso depende de um plano pago, com os valores mostrados na página inicial e na tela <em>Plano</em> do sistema. O pagamento é processado pelo Mercado Pago e libera o uso pelo período contratado.</p>
-    <p>Se o plano vencer, há uma tolerância de {{ config('billing.grace_days') }} dias. Depois dela, a empresa continua vendo e exportando seus dados, mas não consegue cadastrar, editar ou excluir até renovar.</p>
-    <p>Na primeira contratação, você pode desistir em até 7 dias e receber o valor de volta, conforme o Código de Defesa do Consumidor. Os valores dos planos podem mudar; a mudança vale a partir da renovação seguinte e será avisada antes.</p>
-@else
-    <p>No momento, o uso do Meu Cash não tem cobrança. Se passarmos a cobrar, avisaremos todas as empresas com antecedência, dentro do sistema e por e-mail, informando valores e condições. Ninguém será cobrado sem contratar um plano.</p>
-@endif
-
-<h2 id="pagamentos-online">9. Pagamentos online dos clientes</h2>
-<p>Quando a empresa ativa os pagamentos online, o cliente final pode pagar parcelas pela área do cliente. Esses pagamentos são processados pelo Mercado Pago, na conta da própria empresa, e seguem os termos e as taxas do Mercado Pago. O Meu Cash não recebe esse dinheiro, não guarda dados de cartão e apenas registra a baixa da parcela quando o Mercado Pago confirma o pagamento.</p>
-<p>Estornos, contestações e devoluções desses pagamentos são tratados entre a empresa, o cliente final e o Mercado Pago.</p>
-
-<h2 id="disponibilidade">10. Disponibilidade e dados</h2>
+<h2 id="disponibilidade">8. Disponibilidade e dados</h2>
 <p>Trabalhamos para manter o Meu Cash disponível e seguro, mas o serviço pode ficar fora do ar por manutenções, atualizações ou falhas de fornecedores de hospedagem, internet e e-mail. Sempre que possível, manutenções programadas serão feitas em horários de pouco movimento.</p>
 <p>Os dados cadastrados pela empresa pertencem a ela. Em Configurações, o administrador pode exportar clientes, produtos, vendas, parcelas e caixa a qualquer momento. Recomendamos exportar periodicamente as informações importantes.</p>
 
-<h2 id="propriedade">11. Propriedade intelectual</h2>
+<h2 id="propriedade">9. Propriedade intelectual</h2>
 <p>O sistema, a marca Meu Cash, o layout e o código pertencem {{ $name ? 'a '.$name : 'ao responsável pelo Meu Cash' }}. O uso do serviço não transfere nenhum desses direitos. Os dados, fotos e textos cadastrados pela empresa continuam sendo dela.</p>
 
-<h2 id="limites">12. Limites de responsabilidade</h2>
-<p>O Meu Cash é uma ferramenta de apoio à gestão. Não respondemos por decisões tomadas com base nos relatórios, por dados cadastrados de forma errada, por perdas causadas por uso indevido das senhas ou códigos de acesso, nem por falhas de serviços de terceiros como provedores de internet, Google, WhatsApp e Mercado Pago. Nada nestes termos afasta direitos garantidos por lei ao consumidor.</p>
+<h2 id="limites">10. Limites de responsabilidade</h2>
+<p>O Meu Cash é uma ferramenta de apoio à gestão. Não respondemos por decisões tomadas com base nos relatórios, por dados cadastrados de forma errada, por perdas causadas por uso indevido das senhas ou códigos de acesso, nem por falhas de serviços de terceiros como provedores de internet, Google e WhatsApp. Nada nestes termos afasta direitos garantidos por lei ao consumidor.</p>
 
-<h2 id="encerramento">13. Suspensão e encerramento</h2>
+<h2 id="encerramento">11. Suspensão e encerramento</h2>
 <p>Podemos suspender o acesso de uma empresa ou usuário que descumpra estes termos, use o serviço de forma ilegal ou coloque em risco a segurança de outras empresas. Sempre que possível, avisaremos antes e explicaremos o motivo.</p>
 <p>A empresa pode encerrar o uso quando quiser, pedindo a exclusão da conta pelo contato de suporte. Antes de excluir, recomendamos exportar os dados. Depois do pedido, os dados são apagados conforme a <a href="{{ route('privacy') }}#retencao">Política de Privacidade</a>.</p>
 
-<h2 id="alteracoes">14. Alterações</h2>
+<h2 id="alteracoes">12. Alterações</h2>
 <p>Estes termos podem ser atualizados para refletir mudanças no serviço ou na lei. A data da última atualização aparece no topo da página. Mudanças importantes serão avisadas dentro do sistema antes de valerem.</p>
 
-<h2 id="foro">15. Lei aplicável e foro</h2>
+<h2 id="foro">13. Lei aplicável e foro</h2>
 <p>Estes termos seguem as leis brasileiras. Eventuais conflitos serão resolvidos no foro da comarca de {{ $city ?: 'domicílio do responsável pelo Meu Cash' }}, ressalvado o direito do consumidor de propor a ação no foro do próprio domicílio.</p>
 @endsection

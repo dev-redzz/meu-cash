@@ -20,7 +20,7 @@ class ProductController extends Controller
 
     public function index(Request $request): View
     {
-        $filters = $request->only(['q', 'category_id', 'brand', 'status', 'min_price', 'max_price', 'date_from', 'date_to']);
+        $filters = $request->only(['q', 'category_id', 'brand', 'status', 'min_price', 'max_price', 'date_from', 'date_to', 'repor']);
 
         $view = $request->query('view') === 'grade' ? 'grade' : 'lista';
 
@@ -36,6 +36,7 @@ class ProductController extends Controller
             'filters' => $filters,
             'view' => $view,
             'statusCounts' => $statusCounts,
+            'lowStockCount' => Product::lowStock()->count(),
             'stats' => [
                 'products' => Product::count(),
                 'units' => (int) $inStock->sum('quantity'),
@@ -82,6 +83,20 @@ class ProductController extends Controller
         $this->products->update($product, $request->validated(), $request->file('photos', []), $request->input('remove_photos', []));
 
         return redirect()->route('products.show', $product)->with('success', 'Produto atualizado.');
+    }
+
+    public function restock(Request $request, Product $product): RedirectResponse
+    {
+        $request->merge(['unit_cost' => to_decimal($request->input('unit_cost'))]);
+        $data = $request->validate([
+            'quantity' => ['required', 'integer', 'min:1', 'max:100000'],
+            'unit_cost' => ['required', 'numeric', 'min:0', 'max:9999999'],
+            'register_cash' => ['nullable', 'boolean'],
+        ], [], ['quantity' => 'quantidade', 'unit_cost' => 'custo por unidade']);
+
+        $this->products->restock($product, (int) $data['quantity'], (float) $data['unit_cost'], $request->boolean('register_cash'));
+
+        return redirect()->route('products.show', $product)->with('success', "Entrada de {$data['quantity']} un. registrada.");
     }
 
     public function destroy(Product $product): RedirectResponse

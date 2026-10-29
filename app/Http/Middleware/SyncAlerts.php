@@ -21,6 +21,7 @@ class SyncAlerts
         if ($request->isMethod('GET')) {
             try {
                 $this->notifications->syncIfDue();
+                app(\App\Services\BackupService::class)->runIfDue();
 
                 if ($this->weeklySummary->isDue()) {
                     $company = tenant()->company();

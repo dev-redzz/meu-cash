@@ -21,6 +21,7 @@ class ProductRequest extends MoneyRequest
             'purchase_price' => ['required', 'numeric', 'min:0', 'max:9999999'],
             'sale_price' => ['required', 'numeric', 'min:0', 'max:9999999'],
             'quantity' => ['required', 'integer', 'min:0', 'max:100000'],
+            'min_stock' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'status' => ['required', Rule::enum(ProductStatus::class)],
             'notes' => ['nullable', 'string', 'max:5000'],
             'register_purchase' => ['nullable', 'boolean'],

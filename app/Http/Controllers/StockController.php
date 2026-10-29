@@ -13,7 +13,7 @@ class StockController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $filters = $request->only(['q', 'category_id', 'brand', 'status', 'min_price', 'max_price', 'date_from', 'date_to']);
+        $filters = $request->only(['q', 'category_id', 'brand', 'status', 'min_price', 'max_price', 'date_from', 'date_to', 'repor']);
 
         $products = Product::with('category')->filter($filters)
             ->when(empty($filters['status']), fn ($q) => $q->where('status', '!=', ProductStatus::Cancelado->value))

@@ -214,7 +214,15 @@ class SaleService
             $product->update(['status' => ProductStatus::Vendido]);
         }
 
-        $this->notifications->notify('produto_vendido', "Produto vendido · {$product->fullName()}", "Venda {$sale->code} · {$quantity} un.", route('products.show', $product));
+        if ($product->quantity <= 0 || $product->isLowStock()) {
+            $this->notifications->notify(
+                'estoque_baixo',
+                $product->quantity <= 0 ? "Esgotado · {$product->fullName()}" : "Estoque baixo · {$product->fullName()}",
+                $product->quantity <= 0 ? "Vendeu a última unidade na venda {$sale->code}." : "Restam {$product->quantity} un. (mínimo {$product->min_stock}).",
+                route('products.show', $product),
+                'estoque_baixo_'.$product->id.'_'.$product->quantity,
+            );
+        }
         AuditService::log('produto_vendido', "{$quantity}x {$product->fullName()} na venda {$sale->code}", $product);
     }
 }

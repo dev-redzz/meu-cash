@@ -80,7 +80,7 @@ class CustomerController extends Controller
 
         $undo = app(\App\Services\UndoService::class);
         $snapshot = \Illuminate\Support\Facades\DB::transaction(function () use ($customer, $undo) {
-            $snapshot = $undo->capture("Cliente {$customer->name}", ['customers' => [$customer->id]], collect(['installments', 'payments', 'online_payments', 'whatsapp_messages'])
+            $snapshot = $undo->capture("Cliente {$customer->name}", ['customers' => [$customer->id]], collect(['installments', 'payments', 'whatsapp_messages'])
                 ->map(fn ($table) => ['table' => $table, 'column' => 'customer_id', 'value' => $customer->id])->all());
             AuditService::log('cliente_excluido', "Cliente {$customer->name} excluído");
             $customer->delete();

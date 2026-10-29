@@ -24,9 +24,10 @@
 
             <x-form-section title="Estoque" icon="layers" accent="violet" description="Situação e quantidade disponível para venda.">
                 <div class="row gx-3">
-                    <div class="col-md-4"><x-input name="purchase_date" type="date" label="Data da compra" :value="$product->purchase_date?->toDateString()" /></div>
-                    <div class="col-md-4"><x-select name="status" label="Status" :options="\App\Enums\ProductStatus::options()" :value="$product->status" required /></div>
-                    <div class="col-md-4"><x-input name="quantity" type="number" min="0" label="Quantidade" :value="$product->quantity ?? 1" required /></div>
+                    <div class="col-md-6 col-xl-3"><x-input name="purchase_date" type="date" label="Data da compra" :value="$product->purchase_date?->toDateString()" /></div>
+                    <div class="col-md-6 col-xl-3"><x-select name="status" label="Status" :options="\App\Enums\ProductStatus::options()" :value="$product->status" required /></div>
+                    <div class="col-6 col-xl-3"><x-input name="quantity" type="number" min="0" label="Quantidade" :value="$product->quantity ?? 1" required /></div>
+                    <div class="col-6 col-xl-3"><x-input name="min_stock" type="number" min="0" label="Estoque mínimo" :value="$product->min_stock" placeholder="Ex.: 3" help="Avisamos quando chegar nisso." /></div>
                     <div class="col-12"><x-textarea name="notes" label="Observações" :value="$product->notes" rows="3" placeholder="Estado, saúde da bateria, IMEI, detalhes..." /></div>
                 </div>
             </x-form-section>

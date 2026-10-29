@@ -83,6 +83,36 @@ class ProductService
         return $product;
     }
 
+    /**
+     * Entrada de mercadoria: soma unidades ao estoque, recalcula o custo médio por unidade
+     * e, se pedido, lança a compra como saída no caixa.
+     */
+    public function restock(Product $product, int $quantity, float $unitCost, bool $registerCash, mixed $date = null): Product
+    {
+        return DB::transaction(function () use ($product, $quantity, $unitCost, $registerCash, $date) {
+            $product = Product::query()->lockForUpdate()->findOrFail($product->id);
+            $oldUnits = max(0, (int) $product->initial_quantity);
+            $average = $oldUnits + $quantity > 0
+                ? round(((float) $product->purchase_price * $oldUnits + $unitCost * $quantity) / ($oldUnits + $quantity), 2)
+                : $unitCost;
+
+            $product->update([
+                'quantity' => $product->quantity + $quantity,
+                'initial_quantity' => $oldUnits + $quantity,
+                'purchase_price' => $average,
+                'status' => $product->status === ProductStatus::Vendido ? ProductStatus::Disponivel : $product->status,
+            ]);
+
+            if ($registerCash) {
+                $this->finance->record(TransactionType::Saida, 'compra_produto', "Reposição: {$quantity}x {$product->fullName()}", $unitCost * $quantity, $date ?? now(), null, 'compras', $product);
+            }
+
+            AuditService::log('produto_editado', "Reposição de {$quantity} un. de {$product->fullName()} a ".money($unitCost).'/un.', $product);
+
+            return $product;
+        });
+    }
+
     /** Exclui o produto e devolve a cópia para o botão Desfazer. As fotos só são apagadas quando a cópia vence. */
     public function delete(Product $product): \App\Models\UndoSnapshot
     {

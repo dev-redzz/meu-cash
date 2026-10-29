@@ -58,7 +58,6 @@
             <tr><td>Entrada com Google</td><td>Nome, e-mail e foto de perfil. Não temos acesso à sua senha, aos seus e-mails nem aos seus arquivos do Google.</td></tr>
             <tr><td>Cadastrados pela empresa</td><td>Dados dos clientes da loja (nome, CPF ou CNPJ, telefone, WhatsApp, e-mail e endereço), produtos e fotos, vendas, parcelas, pagamentos e lançamentos de caixa.</td></tr>
             <tr><td>Área do cliente</td><td>Código de acesso do cliente final e as informações das compras dele na loja.</td></tr>
-            <tr><td>Pagamentos online</td><td>Identificador, valor, forma e situação do pagamento enviados pelo Mercado Pago. Não recebemos nem guardamos dados de cartão.</td></tr>
             <tr><td>Registros de uso</td><td>Endereço IP, data e hora de acesso, navegador e ações importantes feitas no sistema, como vendas, pagamentos e exclusões.</td></tr>
         </tbody>
     </table>
@@ -72,7 +71,6 @@
             <tr><td>Criar a conta, permitir o acesso e prestar o serviço</td><td>Execução de contrato (art. 7º, V)</td></tr>
             <tr><td>Enviar e-mails da conta, como recuperação de senha e resumo semanal</td><td>Execução de contrato (art. 7º, V)</td></tr>
             <tr><td>Registrar ações e acessos para segurança e auditoria</td><td>Legítimo interesse (art. 7º, IX) e Marco Civil da Internet (art. 15)</td></tr>
-            <tr><td>Processar a cobrança do plano, quando houver</td><td>Execução de contrato (art. 7º, V)</td></tr>
             <tr><td>Cumprir obrigações legais e ordens de autoridades</td><td>Obrigação legal (art. 7º, II)</td></tr>
         </tbody>
     </table>
@@ -85,7 +83,6 @@
     <li><strong>Hospedagem e banco de dados</strong> (Railway): onde o sistema e os dados ficam armazenados;</li>
     <li><strong>Envio de e-mails</strong> (Brevo ou outro provedor de e-mail): para recuperação de senha e avisos da conta;</li>
     <li><strong>Google</strong>: apenas quando você escolhe entrar com a conta Google;</li>
-    <li><strong>Mercado Pago</strong>: quando há pagamento do plano ou pagamento de parcelas pela área do cliente.</li>
 </ul>
 <p>Quando você usa os botões de WhatsApp, a mensagem é aberta no aplicativo do WhatsApp do seu aparelho e o envio acontece por lá. Também podemos compartilhar dados quando a lei exigir ou por ordem judicial.</p>
 
@@ -115,7 +112,8 @@
     <li>separação automática dos dados de cada empresa;</li>
     <li>permissões diferentes para administrador e funcionário;</li>
     <li>códigos de acesso individuais e com limite de tentativas na área do cliente;</li>
-    <li>registro das ações importantes, consultável pelo administrador.</li>
+    <li>registro das ações importantes, consultável pelo administrador;</li>
+    <li>cópia de segurança diária do banco de dados, enviada apenas ao responsável pelo Meu Cash, para recuperar os dados em caso de falha.</li>
 </ul>
 <p>Nenhum sistema é totalmente imune a falhas. Se ocorrer um incidente de segurança que possa trazer risco aos titulares, avisaremos as empresas afetadas e a Autoridade Nacional de Proteção de Dados (ANPD), como manda a lei.</p>
 

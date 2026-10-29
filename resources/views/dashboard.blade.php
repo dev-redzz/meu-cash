@@ -58,6 +58,16 @@
     </div>
 @endif
 
+@if ($lowStockCount > 0)
+    <div class="notice-bar is-warning mb-3" role="status">
+        <x-icon name="box" width="18" height="18" />
+        <span>
+            <strong>{{ $lowStockCount === 1 ? '1 produto precisa' : $lowStockCount.' produtos precisam' }} de reposição:</strong>
+            {{ $lowStock->map(fn ($p) => $p->fullName().' ('.$p->quantity.')')->join(', ') }}{{ $lowStockCount > $lowStock->count() ? '…' : '' }}
+        </span>
+        <a href="{{ route('products.index', ['repor' => 1]) }}" class="btn btn-sm btn-light">Ver lista</a>
+    </div>
+@endif
 <div class="row g-3 mb-3">
     <div class="col-12">
         <div class="panel h-100">

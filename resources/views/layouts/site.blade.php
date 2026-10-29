@@ -23,7 +23,6 @@
             <a href="{{ route('home') }}#recursos">Recursos</a>
             <a href="{{ route('home') }}#como-funciona">Como funciona</a>
             <a href="{{ route('home') }}#area-do-cliente">Área do cliente</a>
-            @if (\App\Models\Company::billingEnabled())<a href="{{ route('home') }}#planos">Planos</a>@endif
             <a href="{{ route('home') }}#duvidas">Dúvidas</a>
             <div class="site-nav-actions">
                 @auth
@@ -53,7 +52,7 @@
                 <div class="site-footer-title">Produto</div>
                 <a href="{{ route('home') }}#recursos">Recursos</a>
                 <a href="{{ route('home') }}#como-funciona">Como funciona</a>
-                <a href="{{ route('home') }}#duvidas">Dúvidas</a>
+                    <a href="{{ route('home') }}#duvidas">Dúvidas</a>
             </div>
             <div>
                 <div class="site-footer-title">Acesso</div>

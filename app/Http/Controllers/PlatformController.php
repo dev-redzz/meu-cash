@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\ErrorReport;
+use App\Services\BackupService;
 use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PlatformController extends Controller
 {
@@ -39,6 +42,10 @@ class PlatformController extends Controller
 
         return view('platform.index', [
             'companies' => $companies,
+            'backup' => app(BackupService::class)->lastStatus(),
+            'backupRecipients' => app(BackupService::class)->recipients(),
+            'openErrors' => ErrorReport::whereNull('resolved_at')->count(),
+            'errorsToday' => ErrorReport::where('last_seen_at', '>=', today())->sum('count'),
             'stats' => [
                 'companies' => Company::count(),
                 'active' => Company::where('active', true)->count(),
@@ -60,5 +67,52 @@ class PlatformController extends Controller
         AuditService::log('configuracoes', ($company->active ? 'Reativou' : 'Suspendeu')." a empresa {$company->name} (#{$company->id}) pela plataforma");
 
         return back()->with('success', "Empresa {$company->name} ".($company->active ? 'reativada.' : 'suspensa.'));
+    }
+
+    /* ---------- Backup ---------- */
+
+    public function backupNow(BackupService $backup): RedirectResponse
+    {
+        $status = $backup->run();
+        AuditService::log('configuracoes', 'Backup manual pela plataforma: '.$status['message']);
+
+        return back()->with($status['ok'] ? 'success' : 'error', $status['message']);
+    }
+
+    public function backupDownload(BackupService $backup): BinaryFileResponse
+    {
+        AuditService::log('configuracoes', 'Baixou o backup completo do banco pela plataforma');
+
+        return response()->download($backup->dump())->deleteFileAfterSend();
+    }
+
+    /* ---------- Erros ---------- */
+
+    public function errors(Request $request): View
+    {
+        $resolved = $request->input('ver') === 'resolvidos';
+
+        return view('platform.errors', [
+            'reports' => ErrorReport::with(['company', 'user'])
+                ->when($resolved, fn ($q) => $q->whereNotNull('resolved_at'), fn ($q) => $q->whereNull('resolved_at'))
+                ->latest('last_seen_at')->paginate(30)->withQueryString(),
+            'resolved' => $resolved,
+            'openCount' => ErrorReport::whereNull('resolved_at')->count(),
+            'resolvedCount' => ErrorReport::whereNotNull('resolved_at')->count(),
+        ]);
+    }
+
+    public function resolveError(ErrorReport $report): RedirectResponse
+    {
+        $report->update(['resolved_at' => now()]);
+
+        return back()->with('success', 'Erro marcado como resolvido. Se acontecer de novo, ele volta para a lista.');
+    }
+
+    public function clearResolved(): RedirectResponse
+    {
+        $count = ErrorReport::whereNotNull('resolved_at')->delete();
+
+        return back()->with('success', $count.' erros resolvidos apagados.');
     }
 }

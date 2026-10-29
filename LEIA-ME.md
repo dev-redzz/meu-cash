@@ -1,93 +1,114 @@
 # Meu Cash
 
-Sistema de vendas e controle financeiro para várias empresas (SaaS), em Laravel 12.
-Cada empresa entra com conta Google e só enxerga os próprios dados.
+Sistema de vendas, estoque, parcelas e caixa para lojas, no formato SaaS (várias empresas no mesmo sistema), em Laravel 12.
+Cada empresa só enxerga os próprios dados.
 
-## Como funciona o acesso
+## O que o sistema faz
 
-- **E-mail e senha:** em *Criar conta*, a pessoa informa nome, empresa, e-mail e senha. Quem foi convidado pode deixar a empresa em branco e entra direto na empresa que convidou.
-- **Esqueci minha senha:** envia um link por e-mail (vale 60 minutos). Também serve para quem só entrava com Google criar uma senha.
-- **Google:** continua funcionando igual.
+- **Venda rápida (PDV):** tela de balcão para bipar ou buscar o produto, escolher a forma de pagamento, calcular o troco e finalizar.
+- **Vendas parceladas:** entrada, parcelas, vencimentos, comprovante em PDF e cobrança pelo WhatsApp.
+- **Estoque:** lucro de cada produto, despesas (peças, frete), estoque mínimo com aviso de reposição e entrada de mercadoria com custo médio.
+- **Clientes e área do cliente:** cada cliente consulta as próprias compras e parcelas com um código de acesso.
+- **Caixa, relatórios, metas e comissão de vendedores.**
+- **Equipe:** administrador e funcionário, com permissões diferentes.
+- **Backup diário** do banco por e-mail e **monitoramento de erros**, no Painel da plataforma.
+- **Painel da plataforma** (`/plataforma`): todas as empresas, uso, suspender e reativar.
 
-- **Primeiro acesso:** a pessoa clica em *Entrar com Google*, escolhe a conta e cadastra a empresa. Ela vira **Administrador** dessa empresa.
-- **Equipe:** o administrador vai em **Configurações > Equipe** e libera o e-mail Google do funcionário. No primeiro login, a pessoa já cai na empresa certa.
-- **Separação dos dados:** todas as tabelas têm `company_id`. O sistema filtra tudo automaticamente pela empresa de quem está logado; um registro de outra empresa responde "não encontrado".
-- Um e-mail Google pertence a uma única empresa.
+## Acesso
 
-## 1. Criar as credenciais do Google (uma vez)
+- **Criar conta:** nome, empresa, e-mail e senha. Quem cria vira **Administrador** da empresa.
+- **Google:** também dá para entrar com a conta Google.
+- **Esqueci minha senha:** envia um link por e-mail (vale 60 minutos).
+- **Equipe:** o administrador convida o funcionário pelo e-mail em **Configurações > Equipe**.
+- **Separação dos dados:** todas as tabelas têm `company_id` e o sistema filtra tudo pela empresa de quem está logado.
 
-1. Acesse https://console.cloud.google.com e crie um projeto (ex.: "Meu Cash").
-2. **APIs e serviços > Tela de consentimento OAuth**: tipo **Externo**, preencha nome do app, e-mail de suporte e logo. Publique o app (status "Em produção") para qualquer conta Google poder entrar.
-3. **APIs e serviços > Credenciais > Criar credenciais > ID do cliente OAuth**:
-   - Tipo: **Aplicativo da Web**
-   - **URIs de redirecionamento autorizados**, adicione:
-     - `https://SEU-DOMINIO/auth/google/callback` (produção, ex.: Railway)
-     - `http://localhost:8000/auth/google/callback` (uso local)
-4. Copie o **ID do cliente** e a **Chave secreta**.
-
-O Google só aceita `http://` para `localhost`. Por isso, localmente use `php artisan serve` (porta 8000) em vez do endereço `meucash.test`.
-
-## 2. Variáveis de ambiente
+## Variáveis no Railway
 
 ```
+APP_URL=https://SEU-DOMINIO
+OWNER_EMAIL=seu@gmail.com              # dono da plataforma: vê /plataforma, recebe backup e avisos de erro
+
 GOOGLE_CLIENT_ID=...apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=...
-APP_URL=https://SEU-DOMINIO
-```
 
-`GOOGLE_REDIRECT_URI` é opcional. Se ficar vazio, o sistema usa `APP_URL/auth/google/callback`.
-
-## 3. Atualizar quem já usava a versão anterior
-
-A migração cria uma empresa com todos os dados que já existiam e mantém os usuários antigos nela.
-Como o login agora é só pelo Google, o administrador antigo precisa ter o e-mail da sua conta Google:
-
-- Antes de publicar, coloque `OWNER_EMAIL=seu@gmail.com` nas variáveis. A migração troca o e-mail do primeiro administrador para esse.
-- Se o e-mail do administrador já for o seu Gmail, não precisa fazer nada.
-
-O módulo **Serviços** foi removido: serviços, despesas de serviço e as parcelas/pagamentos ligados a eles são apagados na migração. As entradas e saídas já lançadas no caixa continuam no fluxo de caixa.
-
-## E-mail (Esqueci minha senha e resumo semanal)
-
-O Railway bloqueia SMTP (Gmail) nos planos Free/Hobby, então use a **Brevo**, que envia por HTTPS (grátis até 300 e-mails/dia):
-
-1. Crie conta em https://www.brevo.com
-2. **Senders, Domains & Dedicated IPs > Senders**: adicione e confirme o e-mail remetente (ex.: seu Gmail).
-3. **SMTP & API > API Keys**: gere uma chave.
-4. Variáveis no Railway:
-
-```
 MAIL_MAILER=brevo
 BREVO_API_KEY=xkeysib-...
 MAIL_FROM_ADDRESS=seu@gmail.com
 MAIL_FROM_NAME="Meu Cash"
+
+BACKUP_EMAIL=                          # opcional: outro e-mail para o backup (vários, separados por vírgula)
+ERROR_EMAIL=                           # opcional: outro e-mail para os avisos de erro
+
+LEGAL_NAME="Seu nome ou razão social"
+LEGAL_DOCUMENT="CPF ou CNPJ"
+LEGAL_CITY="Cidade - UF"
+SUPPORT_EMAIL=seu@email.com
 ```
 
-Pode apagar MAIL_HOST, MAIL_PORT, MAIL_USERNAME e MAIL_PASSWORD. No computador (XAMPP), o SMTP do Gmail continua funcionando.
+O **Pre-deploy Command** continua `php artisan migrate --force`. O deploy é pelo `git push`.
 
-## 4. Railway
+## Backup diário
 
-Variáveis do serviço (além das que já existiam):
+- Todo dia, depois das 3h, o sistema gera uma cópia completa do banco (`.sql.gz`) e manda por e-mail para o `OWNER_EMAIL` (ou `BACKUP_EMAIL`).
+- Se o arquivo passar de 8 MB, o e-mail avisa e você baixa pelo painel.
+- No **Painel da plataforma**: data do último backup, **Fazer backup agora** e **Baixar backup**.
+- Para restaurar: descompacte o arquivo e importe o `.sql` no MySQL (phpMyAdmin, ou `mysql -u ... nome_do_banco < arquivo.sql`).
+- O backup roda quando alguém usa o sistema depois das 3h. Para rodar mesmo sem ninguém usar, crie um Cron no Railway com `php artisan meucash:backup` e horário `0 6 * * *` (3h de Brasília).
+- Precisa do e-mail configurado (Brevo).
 
-```
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-OWNER_EMAIL=seu@gmail.com
-```
+## Monitoramento de erros
 
-Pode remover `ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD`, que não são mais usadas.
+- Todo erro do sistema fica registrado em **Painel da plataforma > Ver erros**, agrupado (o mesmo erro vira uma linha só, com a contagem).
+- Quando aparece um erro novo, você recebe um e-mail com a página, a empresa e o usuário. O mesmo erro avisa no máximo uma vez por hora.
+- Depois de corrigir, clique em **Marcar como resolvido**. Se o erro voltar, ele reaparece na lista e você é avisado de novo.
+- Erros comuns (página não encontrada, formulário com campo faltando, sessão expirada) não entram.
 
-O **Pre-deploy Command** continua:
+## E-mail
 
-```
-php artisan migrate --force
-```
+O Railway bloqueia SMTP nos planos Free/Hobby, por isso o sistema usa a **Brevo** por HTTPS (grátis até 300 e-mails por dia):
 
-Faça o deploy pelo `git push` normalmente.
+1. Crie conta em https://www.brevo.com e confirme o e-mail remetente em **Senders**.
+2. Em **SMTP & API > API Keys**, gere uma chave (começa com `xkeysib-`) e coloque em `BREVO_API_KEY`.
 
-Para os avisos de vencimento rodarem mesmo sem ninguém usar o sistema, crie um Cron no Railway com `php artisan meucash:alertas` uma vez por dia (opcional: eles também rodam quando alguém abre o sistema).
+## Google (login opcional)
 
-## 5. Uso local (XAMPP)
+1. Em https://console.cloud.google.com, crie um projeto e configure a **Tela de consentimento OAuth** (Externo, publicada).
+2. Em **Credenciais**, crie um **ID do cliente OAuth** (Aplicativo da Web) com o redirecionamento `https://SEU-DOMINIO/auth/google/callback`.
+3. Copie o ID e a chave para `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`.
+
+## Tarefas automáticas (opcional)
+
+Os avisos de parcelas e de estoque e o backup também rodam quando alguém abre o sistema. Para rodarem sozinhos, crie Crons no Railway:
+
+- `php artisan meucash:alertas`, uma vez por dia;
+- `php artisan meucash:resumo-semanal`, com horário `0 11 * * 1` (segunda, 8h de Brasília);
+- `php artisan meucash:backup`, com horário `0 6 * * *` (3h de Brasília).
+
+## No dia a dia
+
+- **Venda rápida:** menu **Venda rápida** (atalho `R`). Bipe com leitor USB ou busque pelo nome; `F2` vai para a busca e `F9` finaliza.
+- **Estoque mínimo:** no cadastro do produto. Quando chega no mínimo, o produto aparece no filtro **Repor**, no Dashboard e nas notificações.
+- **Repor estoque:** na página do produto, **Repor estoque** soma as unidades, recalcula o custo médio e lança a compra no caixa.
+- **Desfazer:** depois de excluir produto, cliente, categoria, despesa ou lançamento, aparece **Desfazer** (ou `Ctrl+Z`), por até 10 minutos.
+- **Atalhos:** aperte `?` dentro do sistema para ver todos.
+- **Área do cliente:** o cliente entra em `SEU-DOMINIO/cliente` com o código que sai no comprovante. Na ficha do cliente dá para copiar, enviar pelo WhatsApp ou gerar outro código.
+- **Exportar dados:** Configurações > Exportar dados (CSV de cada tabela ou tudo em .zip).
+- **Importar produtos:** Produtos > Importar (CSV; baixe o modelo na própria tela).
+
+## Perfis
+
+- **Administrador:** acesso total à empresa, inclusive Financeiro, Relatórios, Configurações e Equipe.
+- **Funcionário:** vendas, venda rápida, clientes, produtos, estoque e recebimentos. Não vê Financeiro, Relatórios e Configurações, e não exclui nem cancela registros.
+
+## Regras financeiras
+
+- **Faturamento:** total das vendas concluídas no período.
+- **Recebido:** entradas reais no caixa.
+- **A receber:** parcelas pendentes e vencidas.
+- **Saldo:** saldo inicial (Configurações) + entradas − saídas.
+- **Lucro:** valor da venda − custo dos produtos (compra + despesas).
+
+## Uso local (XAMPP)
 
 ```
 composer install
@@ -97,55 +118,7 @@ php artisan meucash:instalar
 php artisan serve
 ```
 
-Acesse `http://localhost:8000`. O MySQL do XAMPP precisa estar iniciado.
-
-## Recursos extras
-
-- **Painel da plataforma** (`/plataforma`): lista todas as empresas, uso e permite suspender. Só aparece para os e-mails em `PLATFORM_ADMINS` (separados por vírgula; se vazio, usa `OWNER_EMAIL`).
-- **Recibo da venda:** na venda, *Recibo PDF* e *Enviar recibo* (WhatsApp com link do PDF válido por 60 dias).
-- **Exportar dados:** Configurações > Exportar dados (CSV de cada tabela ou tudo em .zip).
-- **Importar produtos:** Produtos > Importar planilha (CSV; baixe o modelo na própria tela).
-- **Código de barras:** cadastre no produto; na nova venda, bipe com leitor USB ou use a câmera (Chrome/Android).
-- **Vendedores, comissão e metas:** em Configurações > Equipe defina % de comissão e meta mensal de cada um; meta da empresa em Configurações > Empresa; acompanhamento em *Vendedores*.
-
-- **Modo escuro:** no menu do usuário (canto superior direito), escolha Claro, Escuro ou Auto (segue o celular/computador).
-- **Resumo semanal por e-mail:** toda segunda os administradores recebem o resumo da semana anterior. Liga/desliga e prévia em Configurações > Empresa. O envio acontece quando alguém da empresa abre o sistema na semana; para sair às 8h em ponto mesmo sem ninguém entrar, crie no Railway um Cron com `php artisan meucash:resumo-semanal` e horário `0 11 * * 1` (segunda, 8h de Brasília). Precisa do e-mail configurado.
-
-## Área do cliente
-
-- Cada cliente tem um código de acesso único (ex.: `K7QM-4XPA`), criado no cadastro e impresso no comprovante de venda.
-- O cliente entra em `SEU-DOMINIO/cliente`, digita o código e vê só as próprias compras, parcelas, pagamentos e comprovantes.
-- Na ficha do cliente: copiar o código, enviar o acesso pelo WhatsApp e gerar um código novo (o antigo para de funcionar na hora).
-- Proteções: limite de 5 tentativas por minuto, código não reaproveitável entre empresas e empresa suspensa não acessa.
-- As cláusulas do comprovante ficam em Configurações > Empresa.
-
-## Trazer os dados do Meu Cash antigo (localhost)
-
-Rode no seu computador, com o MySQL do XAMPP ligado:
-
-1. No `.env` do projeto local, adicione:
-   ```
-   DB_URL="(MYSQL_PUBLIC_URL do MySQL no Railway)"
-   LEGACY_DB_DATABASE=meu_cash
-   ```
-2. `php artisan config:clear`
-3. `php artisan meucash:importar-antigo seu@gmail.com`
-4. Depois, **apague a linha DB_URL** do `.env` local.
-
-Copia categorias, clientes, produtos, despesas, vendas, parcelas, pagamentos, caixa e saldo inicial. Fotos não são copiadas. Só roda uma vez por empresa (use `--repetir` para forçar).
-
-## Perfis
-
-- **Administrador**: acesso total à empresa, inclusive Financeiro, Relatórios, Configurações e Equipe.
-- **Funcionário**: vendas, clientes, produtos, estoque e recebimentos. Não vê Financeiro, Relatórios e Configurações, e não exclui nem cancela registros.
-
-## Regras financeiras
-
-- **Faturamento**: total das vendas concluídas no período.
-- **Recebido**: entradas reais no caixa.
-- **A receber**: parcelas pendentes e vencidas.
-- **Saldo**: saldo inicial (Configurações) + entradas − saídas.
-- **Lucro**: valor da venda − custo dos produtos (compra + despesas).
+Acesse `http://localhost:8000` com o MySQL do XAMPP ligado. No Windows, o `instalar.bat` faz esses passos.
 
 ## Testes
 
@@ -153,31 +126,14 @@ Copia categorias, clientes, produtos, despesas, vendas, parcelas, pagamentos, ca
 php artisan test
 ```
 
-Cobrem login Google (simulado), cadastro de empresa, convite de funcionário, isolamento entre empresas, venda parcelada e permissões.
-
 ## Estrutura
 
 ```
 app/Models/Concerns/BelongsToCompany.php   filtro automático por empresa
 app/Support/Tenant.php                     empresa do usuário logado
 app/Http/Middleware/IdentifyCompany.php    identifica a empresa em cada acesso
-app/Services/GoogleAuthService.php         login com Google (OAuth)
-app/Services/CompanyProvisioner.php        cria empresa, dono, configurações e categorias
+app/Services/BackupService.php             backup diário do banco
+app/Services/ErrorMonitor.php              registro e aviso de erros
+app/Services/SaleService.php               vendas, estoque e caixa
+app/Services/UndoService.php               botão Desfazer
 ```
-
-## Site, termos e privacidade
-
-- A página inicial (`/`) é o site de apresentação. Quem já está logado vai direto para o painel.
-- Termos de uso em `/termos` e Política de privacidade em `/privacidade`. Preencha no Railway para aparecerem nos textos:
-
-```
-LEGAL_NAME="Seu nome ou razão social"
-LEGAL_DOCUMENT="CPF ou CNPJ"
-LEGAL_CITY="Sua cidade - UF"
-SUPPORT_EMAIL=seu@email.com
-```
-
-## Desfazer e atalhos
-
-- Ao excluir produto, cliente, categoria, despesa de produto ou lançamento manual do caixa, aparece **Desfazer** por alguns segundos (ou Ctrl+Z). Dá para desfazer em até 10 minutos.
-- Atalhos: aperte `?` dentro do sistema para ver a lista (N nova venda, C novo cliente, P novo produto, G + letra para navegar, / ou Ctrl+K para buscar).

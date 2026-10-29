@@ -4,11 +4,11 @@
 
 @php
     $features = [
-        ['cart', 'blue', 'Vendas à vista e parceladas', 'Registre a venda em segundos, com entrada, parcelas e vencimentos calculados sozinhos.'],
-        ['box', 'violet', 'Estoque com lucro real', 'Custo de compra, despesas como peças e frete e o lucro esperado de cada produto.'],
-        ['users', 'green', 'Clientes e cobrança', 'Histórico de compras de cada cliente e lembrete de parcela pronto para enviar no WhatsApp.'],
-        ['wallet', 'amber', 'Caixa e financeiro', 'Entradas e saídas, saldo do caixa e o que ainda falta receber, sem planilha.'],
-        ['receipt', 'rose', 'Comprovante em PDF', 'Comprovante de venda completo, com parcelas, cláusulas e assinaturas, pronto para imprimir.'],
+        ['bolt', 'blue', 'Venda rápida no balcão', 'Bipe o código de barras, escolha a forma de pagamento e veja o troco. A venda fica pronta em segundos.'],
+        ['cart', 'violet', 'Vendas parceladas', 'Entrada, parcelas e vencimentos calculados sozinhos, com comprovante para o cliente assinar.'],
+        ['box', 'green', 'Estoque com reposição', 'Lucro de cada produto, estoque mínimo e aviso quando é hora de comprar de novo.'],
+        ['users', 'amber', 'Clientes e cobrança', 'Histórico de compras de cada cliente e lembrete de parcela pronto para enviar no WhatsApp.'],
+        ['wallet', 'rose', 'Caixa e financeiro', 'Entradas e saídas, saldo do caixa e o que ainda falta receber, sem planilha.'],
         ['chart', 'slate', 'Relatórios e metas', 'Faturamento, lucro, produtos mais vendidos e meta do mês para a loja e para cada vendedor.'],
         ['team', 'blue', 'Equipe com permissões', 'Funcionários vendem e cadastram; só o administrador vê o financeiro e exclui registros.'],
         ['upload', 'violet', 'Importação de planilha', 'Já tem tudo no Excel? Envie a planilha e cadastre todos os produtos de uma vez.'],
@@ -19,9 +19,8 @@
         ['Os dados da minha loja ficam separados?', 'Sim. Cada empresa só enxerga os próprios dados. O sistema separa as informações automaticamente em todas as telas, relatórios e exportações.'],
         ['Como o meu cliente acompanha as parcelas?', 'Cada cliente recebe um código de acesso, que sai no comprovante. Na área do cliente ele vê as compras, as parcelas e baixa o comprovante, sem ver nada de outros clientes.'],
         ['Consigo levar meus dados embora?', 'Sim. Em Configurações você exporta clientes, produtos, vendas, parcelas e caixa em planilhas quando quiser.'],
-        ['Funciona no modo escuro?', 'Funciona. Escolha claro, escuro ou automático no menu da sua conta.'],
+        ['Funciona com leitor de código de barras?', 'Funciona. Na venda rápida, é só bipar o produto com um leitor USB comum. Também dá para digitar o código.'],
     ];
-    $billing = \App\Models\Company::billingEnabled();
 @endphp
 
 @section('content')
@@ -190,36 +189,7 @@
     </div>
 </section>
 
-@if ($billing)
-    <section class="site-section" id="planos">
-        <div class="site-container">
-            <div class="section-head" data-reveal>
-                <span class="eyebrow">Planos</span>
-                <h2>Um preço simples, com tudo incluído</h2>
-                <p>Teste grátis por {{ config('billing.trial_days') }} dias. Sem cartão para começar.</p>
-            </div>
-            <div class="price-grid">
-                @foreach (config('billing.plans') as $key => $plan)
-                    @php $perMonth = $plan['price'] / max(1, $plan['months']); @endphp
-                    <article @class(['price-card', 'is-featured' => $plan['months'] > 1]) data-reveal>
-                        @if ($plan['months'] > 1)<span class="price-badge">Mais econômico</span>@endif
-                        <h3>{{ $plan['label'] }}</h3>
-                        <div class="price-value">{{ money($perMonth) }}<small>/mês</small></div>
-                        <p class="price-note">{{ $plan['months'] > 1 ? money($plan['price']).' cobrados a cada '.$plan['months'].' meses' : 'Cobrado todo mês' }}</p>
-                        <ul class="check-list check-list-sm">
-                            <li><x-icon name="check" width="16" height="16" /> Vendas, estoque e caixa sem limite</li>
-                            <li><x-icon name="check" width="16" height="16" /> Equipe e área do cliente</li>
-                            <li><x-icon name="check" width="16" height="16" /> Relatórios e exportação</li>
-                        </ul>
-                        <a href="{{ route('register') }}" @class(['btn btn-cta w-100', 'btn-cta-light' => $plan['months'] <= 1])><span class="btn-cta-icon"><x-icon name="chevron-right" width="16" height="16" /></span>Começar o teste</a>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-    </section>
-@endif
-
-<section class="site-section {{ $billing ? 'site-section-soft' : '' }}" id="duvidas">
+<section class="site-section" id="duvidas">
     <div class="site-container faq-wrap">
         <div class="section-head section-head-left" data-reveal>
             <span class="eyebrow">Dúvidas</span>

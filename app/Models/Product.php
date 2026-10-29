@@ -15,7 +15,7 @@ class Product extends Model
 
     protected $fillable = [
         'category_id', 'name', 'brand', 'model', 'barcode', 'purchase_date', 'purchase_price', 'expenses_total',
-        'sale_price', 'initial_quantity', 'quantity', 'status', 'notes', 'photos',
+        'sale_price', 'initial_quantity', 'quantity', 'min_stock', 'status', 'notes', 'photos',
     ];
 
     protected function casts(): array
@@ -27,6 +27,7 @@ class Product extends Model
             'sale_price' => 'decimal:2',
             'status' => ProductStatus::class,
             'photos' => 'array',
+            'min_stock' => 'integer',
         ];
     }
 
@@ -90,9 +91,21 @@ class Product extends Model
         return $query->whereIn('status', [ProductStatus::Disponivel->value, ProductStatus::Reservado->value])->where('quantity', '>', 0);
     }
 
+    /** Chegou no estoque mínimo e precisa repor. */
+    public function isLowStock(): bool
+    {
+        return $this->min_stock !== null && $this->quantity <= $this->min_stock && $this->status !== ProductStatus::Cancelado;
+    }
+
+    public function scopeLowStock(Builder $query): Builder
+    {
+        return $query->whereNotNull('min_stock')->whereColumn('quantity', '<=', 'min_stock')->where('status', '!=', ProductStatus::Cancelado->value);
+    }
+
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return $query
+            ->when($filters['repor'] ?? null, fn ($q) => $q->lowStock())
             ->when($filters['q'] ?? null, fn ($q, $term) => $q->where(fn ($w) => $w->where('name', 'like', "%{$term}%")->orWhere('model', 'like', "%{$term}%")->orWhere('brand', 'like', "%{$term}%")->orWhere('barcode', $term)))
             ->when($filters['category_id'] ?? null, fn ($q, $v) => $q->where('category_id', $v))
             ->when($filters['brand'] ?? null, fn ($q, $v) => $q->where('brand', $v))

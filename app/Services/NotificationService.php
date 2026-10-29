@@ -51,5 +51,6 @@ class NotificationService
                     ($overdue ? 'parcela_vencida_' : 'parcela_proxima_').$installment->id,
                 );
             });
+
     }
 }

@@ -3,6 +3,19 @@
 return [
     'support_email' => env('SUPPORT_EMAIL'),
 
+    // Backup diário do banco: vai por e-mail para BACKUP_EMAIL (ou para os donos da plataforma).
+    'backup' => [
+        'enabled' => (bool) env('BACKUP_ENABLED', true),
+        'email' => env('BACKUP_EMAIL'),
+        'max_attachment_mb' => (int) env('BACKUP_MAX_ATTACHMENT_MB', 8),
+    ],
+
+    // Monitoramento de erros: avisa por e-mail quando aparece um erro novo.
+    'errors' => [
+        'email' => env('ERROR_EMAIL'),
+        'notify' => (bool) env('ERROR_NOTIFY', true),
+    ],
+
     // Quem responde pelo Meu Cash nas páginas de Termos e Privacidade.
     'legal_name' => env('LEGAL_NAME', 'Meu Cash'),
     'legal_document' => env('LEGAL_DOCUMENT'),

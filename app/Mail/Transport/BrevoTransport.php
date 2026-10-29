@@ -43,7 +43,7 @@ class BrevoTransport extends AbstractTransport
             ], $email->getAttachments()) ?: null,
         ]);
 
-        $response = Http::timeout(15)
+        $response = Http::timeout(empty($payload['attachment']) ? 15 : 90)
             ->withHeaders(['api-key' => $this->key, 'accept' => 'application/json'])
             ->post('https://api.brevo.com/v3/smtp/email', $payload);
 

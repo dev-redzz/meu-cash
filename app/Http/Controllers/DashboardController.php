@@ -49,6 +49,8 @@ class DashboardController extends Controller
                 'profit' => $finance->compare($summary['profit'], $before['profit']),
             ],
             'topExpenses' => $finance->topExpenses($period),
+            'lowStock' => \App\Models\Product::lowStock()->orderBy('quantity')->limit(4)->get(['id', 'name', 'model', 'quantity', 'min_stock']),
+            'lowStockCount' => \App\Models\Product::lowStock()->count(),
             'recentSales' => Sale::with('customer')->withSum('items as units', 'quantity')->latest('sale_date')->latest('id')->limit(5)->get(),
             'overdue' => Installment::with(['customer', 'sale'])->open()->where('due_date', '<', $today)->orderBy('due_date')->limit(5)->get(),
             'upcoming' => Installment::with(['customer', 'sale'])->open()->where('due_date', '>=', $today)->orderBy('due_date')->limit(5)->get(),

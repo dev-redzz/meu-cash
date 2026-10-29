@@ -10,6 +10,7 @@
     @if (in_array($product->status->value, ['disponivel', 'reservado']) && $product->quantity > 0)
         <a href="{{ route('sales.create', ['product_id' => $product->id]) }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="cart" width="16" height="16" /></span>Vender</a>
     @endif
+    <button type="button" class="btn btn-cta btn-cta-light" data-bs-toggle="modal" data-bs-target="#restockModal"><span class="btn-cta-icon"><x-icon name="box" width="16" height="16" /></span>Repor estoque</button>
     <a href="{{ route('products.edit', $product) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="pencil" width="16" height="16" /></span>Editar</a>
     @can('admin')
         <form method="POST" action="{{ route('products.destroy', $product) }}" data-confirm="Excluir este produto e suas despesas?">
@@ -66,9 +67,17 @@
             @if ($product->initial_quantity > 1)<small>por unidade</small>@endif
         </div>
 
-        <div class="stock-meter">
+        <div @class(['stock-meter', 'is-low' => $product->isLowStock()])>
             <div class="d-flex justify-content-between small mb-1">
-                <span><strong>{{ $product->quantity }}</strong> em estoque</span>
+                <span>
+                    <strong>{{ $product->quantity }}</strong> em estoque
+                    @if ($product->min_stock !== null)
+                        <span class="text-muted-2">· mínimo {{ $product->min_stock }}</span>
+                    @endif
+                    @if ($product->isLowStock())
+                        <span class="pill pill-warning ms-1">Repor</span>
+                    @endif
+                </span>
                 <span class="text-muted-2">{{ $sold }} de {{ $product->initial_quantity }} vendidas</span>
             </div>
             <div class="goal-track goal-track-sm"><div class="goal-fill is-good" style="width: {{ $soldPct }}%"></div></div>
@@ -213,4 +222,46 @@
         </section>
     </div>
 </div>
+<div class="modal fade" id="restockModal" tabindex="-1" aria-labelledby="restockTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" action="{{ route('products.restock', $product) }}" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <div class="modal-head"><span class="stat-icon accent-green"><x-icon name="box" width="18" height="18" /></span><h5 class="modal-title" id="restockTitle">Repor estoque</h5></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted-2">Some as unidades que chegaram. O custo médio do produto é recalculado sozinho.</p>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label" for="r_qty">Quantidade que chegou</label>
+                        <input type="number" name="quantity" id="r_qty" min="1" value="{{ old('quantity', max(1, (int) ($product->min_stock ?? 1))) }}" class="form-control @error('quantity') is-invalid @enderror" required>
+                        @error('quantity')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="r_cost">Custo por unidade</label>
+                        <input type="text" name="unit_cost" id="r_cost" inputmode="decimal" value="{{ old('unit_cost', number_format((float) $product->purchase_price, 2, ',', '.')) }}" class="form-control @error('unit_cost') is-invalid @enderror" required>
+                        @error('unit_cost')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-12 mt-3">
+                        <div class="form-check form-switch">
+                            <input type="hidden" name="register_cash" value="0">
+                            <input class="form-check-input" type="checkbox" role="switch" name="register_cash" id="r_cash" value="1" checked>
+                            <label class="form-check-label" for="r_cash">Lançar a compra como saída no caixa</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="check" width="16" height="16" /></span>Registrar entrada</button>
+            </div>
+        </form>
+    </div>
+</div>
+@if ($errors->hasAny(['quantity', 'unit_cost']))
+    @push('scripts')
+        <script>document.addEventListener('DOMContentLoaded', function () { bootstrap.Modal.getOrCreateInstance(document.getElementById('restockModal')).show(); });</script>
+    @endpush
+@endif
 @endsection

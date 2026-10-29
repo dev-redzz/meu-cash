@@ -22,12 +22,11 @@ class AppNotification extends Model
     public const TYPES = [
         'parcela_proxima' => ['Parcela próxima', 'warning'],
         'parcela_vencida' => ['Parcela vencida', 'danger'],
-        'conta_proxima' => ['Conta próxima', 'warning'],
-        'conta_vencida' => ['Conta vencida', 'danger'],
         'pagamento_recebido' => ['Pagamento recebido', 'success'],
         'venda_concluida' => ['Venda concluída', 'success'],
         'produto_vendido' => ['Produto vendido', 'info'],
         'produto_manutencao' => ['Produto em manutenção', 'secondary'],
+        'estoque_baixo' => ['Estoque baixo', 'warning'],
     ];
 
     public function typeLabel(): string

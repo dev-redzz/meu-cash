@@ -12,7 +12,7 @@ class SiteTest extends TestCase
 
     public function test_site_de_apresentacao_e_paginas_legais(): void
     {
-        $this->get('/')->assertOk()->assertSee('Criar minha conta')->assertSee('sob seu controle')->assertSee(route('terms'), false);
+        $this->get('/')->assertOk()->assertSee('Criar minha conta')->assertDontSee('id="planos"', false)->assertSee('sob&nbsp;seu&nbsp;controle', false)->assertSee(route('terms'), false);
         $this->get('/termos')->assertOk()->assertSee('Termos de Uso')->assertSee('Lei aplicável');
         $this->get('/privacidade')->assertOk()->assertSee('Política de Privacidade')->assertSee('Encarregado');
 

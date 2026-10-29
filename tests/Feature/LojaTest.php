@@ -21,19 +21,15 @@ class LojaTest extends TestCase
         ]));
     }
 
-    public function test_venda_rapida_volta_para_o_pdv_e_avisa_estoque_baixo(): void
+    public function test_venda_baixa_estoque_e_avisa_estoque_baixo(): void
     {
         $func = User::factory()->create();
         $product = $this->product($func);
 
-        $this->actingAs($func)->get('/pdv')->assertOk()->assertSee('Capinha')->assertSee('Finalizar venda', false);
-
         $this->actingAs($func)->post('/sales', [
-            'origin' => 'pdv', 'sale_date' => now()->toDateString(), 'payment_method' => 'pix', 'discount' => '0',
+            'sale_date' => now()->toDateString(), 'payment_method' => 'pix', 'discount' => '0',
             'items' => [['product_id' => $product->id, 'quantity' => 2, 'unit_price' => '30.00', 'unit_cost' => '10.00']],
-        ])->assertRedirect('/pdv')->assertSessionHas('pos_sale');
-
-        $this->actingAs($func)->get('/pdv')->assertSee('V00001 registrada');
+        ])->assertSessionHasNoErrors()->assertSessionHas('success');
 
         tenant()->run($func->company, function () use ($product) {
             $this->assertSame(3, $product->fresh()->quantity);

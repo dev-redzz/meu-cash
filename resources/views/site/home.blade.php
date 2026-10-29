@@ -4,8 +4,8 @@
 
 @php
     $features = [
-        ['bolt', 'blue', 'Venda rápida no balcão', 'Bipe o código de barras, escolha a forma de pagamento e veja o troco. A venda fica pronta em segundos.'],
-        ['cart', 'violet', 'Vendas parceladas', 'Entrada, parcelas e vencimentos calculados sozinhos, com comprovante para o cliente assinar.'],
+        ['cart', 'blue', 'Vendas à vista e parceladas', 'Registre a venda em segundos, com entrada, parcelas e vencimentos calculados sozinhos.'],
+        ['receipt', 'violet', 'Comprovante em PDF', 'Comprovante de venda completo, com parcelas, cláusulas e assinaturas, pronto para imprimir.'],
         ['box', 'green', 'Estoque com reposição', 'Lucro de cada produto, estoque mínimo e aviso quando é hora de comprar de novo.'],
         ['users', 'amber', 'Clientes e cobrança', 'Histórico de compras de cada cliente e lembrete de parcela pronto para enviar no WhatsApp.'],
         ['wallet', 'rose', 'Caixa e financeiro', 'Entradas e saídas, saldo do caixa e o que ainda falta receber, sem planilha.'],
@@ -19,7 +19,7 @@
         ['Os dados da minha loja ficam separados?', 'Sim. Cada empresa só enxerga os próprios dados. O sistema separa as informações automaticamente em todas as telas, relatórios e exportações.'],
         ['Como o meu cliente acompanha as parcelas?', 'Cada cliente recebe um código de acesso, que sai no comprovante. Na área do cliente ele vê as compras, as parcelas e baixa o comprovante, sem ver nada de outros clientes.'],
         ['Consigo levar meus dados embora?', 'Sim. Em Configurações você exporta clientes, produtos, vendas, parcelas e caixa em planilhas quando quiser.'],
-        ['Funciona com leitor de código de barras?', 'Funciona. Na venda rápida, é só bipar o produto com um leitor USB comum. Também dá para digitar o código.'],
+        ['Funciona com leitor de código de barras?', 'Funciona. Na tela de venda, é só bipar o produto com um leitor USB comum. Também dá para digitar o código ou usar a câmera do celular.'],
     ];
 @endphp
 

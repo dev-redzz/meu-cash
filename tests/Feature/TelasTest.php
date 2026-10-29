@@ -57,7 +57,7 @@ class TelasTest extends TestCase
 
         $this->actingAs($admin)->get('/dashboard?periodo=personalizado&inicio='.now()->subDays(60)->toDateString().'&fim='.now()->toDateString())
             ->assertSee('Loja Teste')
-            ->assertSee('Parcelas vencidas')
+            ->assertSee('Cobranças')->assertSee('data-dash-chart', false)
             ->assertSee('Fone')
             ->assertDontSee('Serviços');
 

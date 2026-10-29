@@ -17,8 +17,7 @@
     $groups = [
         'Operação' => [
             ['Dashboard', 'dashboard', 'dashboard', 'home', false],
-            ['Venda rápida', 'sales.pos', 'sales.pos', 'bolt', false],
-            ['Vendas', 'sales.index', 'sales.index|sales.create|sales.show|sales.edit', 'cart', false],
+            ['Vendas', 'sales.index', 'sales.*', 'cart', false],
             ['Clientes', 'customers.index', 'customers.*', 'users', false],
         ],
         'Estoque' => [
@@ -183,7 +182,6 @@
         'o' => $isAdmin ? ['Configurações', route('settings.edit')] : null,
     ]);
     $shortcutNew = [
-        'r' => ['Venda rápida', route('sales.pos')],
         'n' => ['Nova venda', route('sales.create')],
         'c' => ['Novo cliente', route('customers.create')],
         'p' => ['Novo produto', route('products.create')],
@@ -226,7 +224,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
-<script src="{{ asset('js/app.js') }}?v=14"></script>
+<script src="{{ asset('js/app.js') }}?v=15"></script>
 @stack('scripts')
 @include('partials.cookie-notice')
 </body>

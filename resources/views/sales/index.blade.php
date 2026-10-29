@@ -3,7 +3,6 @@
 @section('title', 'Vendas')
 
 @section('actions')
-    <a href="{{ route('sales.pos') }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="bolt" width="16" height="16" /></span>Venda rápida</a>
     <a href="{{ route('sales.create') }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="plus" width="16" height="16" /></span>Nova venda</a>
 @endsection
 

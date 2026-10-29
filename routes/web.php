@@ -77,7 +77,6 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
     Route::get('/estoque', StockController::class)->name('stock.index');
 
     Route::get('/buscar', \App\Http\Controllers\SearchController::class)->name('search');
-    Route::get('/pdv', [SaleController::class, 'pos'])->name('sales.pos');
     Route::resource('sales', SaleController::class)->except('destroy');
     Route::get('/sales/{sale}/recibo', [ReceiptController::class, 'show'])->name('receipts.show');
     Route::get('/sales/{sale}/recibo/whatsapp', [ReceiptController::class, 'whatsapp'])->name('receipts.whatsapp');

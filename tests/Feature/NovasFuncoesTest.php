@@ -153,7 +153,7 @@ class NovasFuncoesTest extends TestCase
         $this->assertEquals(2000, $vendedor->monthly_goal);
         $this->assertEquals(20, $sale->fresh()->commission);
 
-        $this->actingAs($vendedor)->get('/dashboard')->assertOk()->assertSee('Sua meta neste mês');
+        $this->actingAs($vendedor)->get('/dashboard')->assertOk()->assertSee('Sua meta no mês');
         $this->actingAs($vendedor)->get('/vendedores')->assertForbidden();
     }
 

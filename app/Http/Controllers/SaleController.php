@@ -71,29 +71,6 @@ class SaleController extends Controller
         ]);
     }
 
-    /** Venda rápida de balcão: busca ou bipa, escolhe a forma de pagamento e finaliza. */
-    public function pos(): View
-    {
-        $products = Product::sellable()->with('category')->orderBy('name')->get()->map(fn (Product $p) => [
-            'id' => $p->id,
-            'name' => $p->fullName(),
-            'brand' => $p->brand,
-            'category' => $p->category?->name,
-            'price' => (float) $p->sale_price,
-            'stock' => $p->quantity,
-            'cost' => $p->unitCost(),
-            'barcode' => $p->barcode,
-            'photo' => $p->photoUrls()[0] ?? null,
-        ]);
-
-        return view('sales.pos', [
-            'products' => $products,
-            'customers' => Customer::orderBy('name')->get(['id', 'name']),
-            'methods' => collect(PaymentMethod::receiving())->only(['dinheiro', 'pix', 'debito', 'credito'])->all(),
-            'lastSale' => session('pos_sale') ? Sale::find(session('pos_sale')) : null,
-        ]);
-    }
-
     public function store(SaleRequest $request): RedirectResponse
     {
         $data = $request->validated();
@@ -103,10 +80,6 @@ class SaleController extends Controller
         }
 
         $sale = $this->sales->create($data);
-
-        if ($request->input('origin') === 'pdv') {
-            return redirect()->route('sales.pos')->with('pos_sale', $sale->id);
-        }
 
         return redirect()->route('sales.show', $sale)->with('success', "Venda {$sale->code} registrada.");
     }

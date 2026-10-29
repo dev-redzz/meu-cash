@@ -54,8 +54,6 @@ $paths = [
     'download' => '<path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
     'barcode' => '<path d="M4 5v14M7 5v14M11 5v14M14 5v14M18 5v14M20 5v14"/>',
     'x' => '<path d="M6 6l12 12M18 6 6 18"/>',
-    'bolt' => '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
-    'minus' => '<path d="M5 12h14"/>',
     'arrow-left' => '<path d="M19 12H5M11 6l-6 6 6 6"/>',
 ];
 @endphp

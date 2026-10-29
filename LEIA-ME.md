@@ -5,8 +5,7 @@ Cada empresa só enxerga os próprios dados.
 
 ## O que o sistema faz
 
-- **Venda rápida (PDV):** tela de balcão para bipar ou buscar o produto, escolher a forma de pagamento, calcular o troco e finalizar.
-- **Vendas parceladas:** entrada, parcelas, vencimentos, comprovante em PDF e cobrança pelo WhatsApp.
+- **Vendas à vista e parceladas:** entrada, parcelas, vencimentos, comprovante em PDF e cobrança pelo WhatsApp.
 - **Estoque:** lucro de cada produto, despesas (peças, frete), estoque mínimo com aviso de reposição e entrada de mercadoria com custo médio.
 - **Clientes e área do cliente:** cada cliente consulta as próprias compras e parcelas com um código de acesso.
 - **Caixa, relatórios, metas e comissão de vendedores.**
@@ -86,7 +85,6 @@ Os avisos de parcelas e de estoque e o backup também rodam quando alguém abre 
 
 ## No dia a dia
 
-- **Venda rápida:** menu **Venda rápida** (atalho `R`). Bipe com leitor USB ou busque pelo nome; `F2` vai para a busca e `F9` finaliza.
 - **Estoque mínimo:** no cadastro do produto. Quando chega no mínimo, o produto aparece no filtro **Repor**, no Dashboard e nas notificações.
 - **Repor estoque:** na página do produto, **Repor estoque** soma as unidades, recalcula o custo médio e lança a compra no caixa.
 - **Desfazer:** depois de excluir produto, cliente, categoria, despesa ou lançamento, aparece **Desfazer** (ou `Ctrl+Z`), por até 10 minutos.
@@ -98,7 +96,7 @@ Os avisos de parcelas e de estoque e o backup também rodam quando alguém abre 
 ## Perfis
 
 - **Administrador:** acesso total à empresa, inclusive Financeiro, Relatórios, Configurações e Equipe.
-- **Funcionário:** vendas, venda rápida, clientes, produtos, estoque e recebimentos. Não vê Financeiro, Relatórios e Configurações, e não exclui nem cancela registros.
+- **Funcionário:** vendas, clientes, produtos, estoque e recebimentos. Não vê Financeiro, Relatórios e Configurações, e não exclui nem cancela registros.
 
 ## Regras financeiras
 

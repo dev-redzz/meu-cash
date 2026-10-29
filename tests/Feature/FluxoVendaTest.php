@@ -60,7 +60,7 @@ class FluxoVendaTest extends TestCase
         $this->assertSame('Loja do João', $user->company->name);
         $this->assertAuthenticatedAs($user);
 
-        $this->get('/dashboard')->assertOk()->assertSee('Saldo atual')->assertSee('Loja do João');
+        $this->get('/dashboard')->assertOk()->assertSee('Saldo em caixa')->assertSee('Loja do João');
     }
 
     public function test_estado_invalido_bloqueia_login(): void

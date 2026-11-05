@@ -5,7 +5,7 @@
 @php
     $features = [
         ['cart', 'blue', 'Vendas à vista e parceladas', 'Registre a venda em segundos, com entrada, parcelas e vencimentos calculados sozinhos.'],
-        ['receipt', 'violet', 'Comprovante em PDF', 'Comprovante de venda completo, com parcelas, cláusulas e assinaturas, pronto para imprimir.'],
+        ['tag', 'violet', 'Preço sugerido', 'Informe quanto pagou e quanto quer lucrar: o sistema sugere um preço de venda justo, já arredondado.'],
         ['box', 'green', 'Estoque com reposição', 'Lucro de cada produto, estoque mínimo e aviso quando é hora de comprar de novo.'],
         ['users', 'amber', 'Clientes e cobrança', 'Histórico de compras de cada cliente e lembrete de parcela pronto para enviar no WhatsApp.'],
         ['wallet', 'rose', 'Caixa e financeiro', 'Entradas e saídas, saldo do caixa e o que ainda falta receber, sem planilha.'],
@@ -14,6 +14,7 @@
         ['upload', 'violet', 'Importação de planilha', 'Já tem tudo no Excel? Envie a planilha e cadastre todos os produtos de uma vez.'],
     ];
     $faq = [
+        ['O que quer dizer versão beta?', 'Que o sistema já está pronto para o dia a dia da loja e segue recebendo melhorias toda semana. Durante o beta o uso é grátis, e dentro do sistema tem o botão Enviar sugestão para você contar o que falta.'],
         ['Preciso instalar alguma coisa?', 'Não. O Meu Cash funciona no navegador do celular, do tablet ou do computador. É só entrar com seu e-mail ou com a conta Google.'],
         ['Meus funcionários podem usar?', 'Sim. O administrador convida a equipe pelo e-mail. Cada pessoa tem seu próprio acesso, e funcionários não veem o financeiro nem excluem registros.'],
         ['Os dados da minha loja ficam separados?', 'Sim. Cada empresa só enxerga os próprios dados. O sistema separa as informações automaticamente em todas as telas, relatórios e exportações.'],
@@ -27,7 +28,7 @@
 <section class="hero">
     <div class="site-container hero-grid">
         <div class="hero-copy">
-            <span class="eyebrow"><span class="eyebrow-dot"></span> Feito para lojas e revendedores</span>
+            <span class="eyebrow"><span class="eyebrow-dot"></span> Versão beta aberta · use grátis</span>
             <h1>Tudo o que você&nbsp;vende, <span class="text-gradient">sob&nbsp;seu&nbsp;controle.</span></h1>
             <p class="hero-lead">O Meu Cash reúne vendas, estoque, clientes, parcelas e caixa em um só lugar. Você sabe na hora quanto vendeu, quanto lucrou e quem está devendo.</p>
             <div class="hero-actions">
@@ -184,7 +185,7 @@
             <div data-reveal><x-icon name="layers" width="22" height="22" /><h3>Empresas separadas</h3><p>Cada empresa só acessa as próprias informações, em todas as telas e relatórios.</p></div>
             <div data-reveal><x-icon name="key" width="22" height="22" /><h3>Acesso por perfil</h3><p>Administrador e funcionário têm permissões diferentes. Você decide quem entra.</p></div>
             <div data-reveal><x-icon name="note" width="22" height="22" /><h3>Histórico de ações</h3><p>Vendas, pagamentos e exclusões ficam registrados com data, hora e usuário.</p></div>
-            <div data-reveal><x-icon name="arrow-out" width="22" height="22" /><h3>Seus dados, sempre</h3><p>Exporte tudo em planilha quando quiser. Nada fica preso no sistema.</p></div>
+            <div data-reveal><x-icon name="download" width="22" height="22" /><h3>Backup todo dia</h3><p>Uma cópia completa dos dados é feita automaticamente todos os dias, e você exporta tudo em planilha quando quiser.</p></div>
         </div>
     </div>
 </section>
@@ -212,7 +213,7 @@
         <div class="cta-band" data-reveal>
             <div>
                 <h2>Pronto para organizar a sua loja?</h2>
-                <p>Crie a conta agora e registre a primeira venda em poucos minutos.</p>
+                <p>O Meu Cash está em versão beta: crie a conta, use grátis e ajude a decidir as próximas novidades.</p>
             </div>
             @auth
                 <a href="{{ route('dashboard') }}" class="btn btn-cta btn-cta-white btn-cta-lg"><span class="btn-cta-icon"><x-icon name="home" width="18" height="18" /></span>Abrir o painel</a>

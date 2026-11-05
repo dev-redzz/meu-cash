@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\ErrorReport;
+use App\Models\Feedback;
 use App\Services\BackupService;
 use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
@@ -45,6 +46,8 @@ class PlatformController extends Controller
             'backup' => app(BackupService::class)->lastStatus(),
             'backupRecipients' => app(BackupService::class)->recipients(),
             'openErrors' => ErrorReport::whereNull('resolved_at')->count(),
+            'unreadFeedback' => Feedback::whereNull('read_at')->count(),
+            'totalFeedback' => Feedback::count(),
             'errorsToday' => ErrorReport::where('last_seen_at', '>=', today())->sum('count'),
             'stats' => [
                 'companies' => Company::count(),
@@ -114,5 +117,22 @@ class PlatformController extends Controller
         $count = ErrorReport::whereNotNull('resolved_at')->delete();
 
         return back()->with('success', $count.' erros resolvidos apagados.');
+    }
+
+    /* ---------- Sugestões (versão beta) ---------- */
+
+    public function feedback(): View
+    {
+        return view('platform.feedback', [
+            'items' => Feedback::with(['company', 'user'])->latest()->paginate(30),
+            'unread' => Feedback::whereNull('read_at')->count(),
+        ]);
+    }
+
+    public function feedbackRead(): RedirectResponse
+    {
+        Feedback::whereNull('read_at')->update(['read_at' => now()]);
+
+        return back()->with('success', 'Tudo marcado como lido.');
     }
 }

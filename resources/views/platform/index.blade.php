@@ -50,8 +50,8 @@
             <header class="form-section-head">
                 <span class="stat-icon accent-{{ $openErrors ? 'rose' : 'green' }}"><x-icon name="alert" width="18" height="18" /></span>
                 <div class="min-w-0">
-                    <h2 class="panel-title">Monitoramento de erros</h2>
-                    <p class="form-section-desc">Todo erro do sistema fica registrado aqui, e você recebe um e-mail quando aparece um novo.</p>
+                    <h2 class="panel-title">Erros e sugestões</h2>
+                    <p class="form-section-desc">Erros do sistema e mensagens enviadas pelos usuários da versão beta.</p>
                 </div>
             </header>
             <div class="panel-body">
@@ -64,8 +64,9 @@
                         <span>Tudo funcionando.</span>
                     @endif
                 </div>
-                <div class="mt-3">
+                <div class="d-flex flex-wrap gap-2 mt-3">
                     <a href="{{ route('platform.errors') }}" class="btn btn-cta btn-cta-light btn-cta-sm"><span class="btn-cta-icon"><x-icon name="eye" width="14" height="14" /></span>Ver erros</a>
+                    <a href="{{ route('platform.feedback') }}" class="btn btn-cta btn-cta-light btn-cta-sm"><span class="btn-cta-icon"><x-icon name="note" width="14" height="14" /></span>Sugestões @if ($unreadFeedback)<span class="pill pill-danger ms-1">{{ $unreadFeedback }} novas</span>@else ({{ $totalFeedback }}) @endif</a>
                 </div>
             </div>
         </section>

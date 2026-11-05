@@ -21,7 +21,7 @@ class DashboardController extends Controller
     public function __invoke(Request $request, FinanceService $finance, SellerPerformanceService $performance): View
     {
         $period = Period::fromRequest($request);
-        $previous = $period->previous();
+        $previous = $period->comparable();
 
         $summary = $finance->summary($period);
         $before = $finance->summary($previous);
@@ -55,6 +55,7 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'period' => $period,
+            'compare' => $previous,
             'summary' => $summary,
             'changes' => [
                 'revenue' => $finance->compare($summary['revenue'], $before['revenue']),
@@ -71,7 +72,7 @@ class DashboardController extends Controller
             'overdueTotal' => (float) Installment::open()->where('due_date', '<', $today->toDateString())->sum('amount'),
             'upcoming' => Installment::with(['customer', 'sale'])->open()->where('due_date', '>=', $today->toDateString())->orderBy('due_date')->limit(6)->get(),
             'methods' => $methods,
-            'series' => $this->series($period),
+            'series' => $this->withPrevious($this->series($period), $this->series($previous)),
             'today' => ['total' => (float) (clone $todaySales)->sum('total'), 'count' => (clone $todaySales)->count()],
             'transactions' => FinancialTransaction::latest('date')->latest('id')->limit(6)->get(),
             'sold' => $sold->map(fn ($row) => (object) [
@@ -84,6 +85,17 @@ class DashboardController extends Controller
             'companyGoal' => $request->user()->isAdmin() ? $performance->companyGoal() : null,
             'myGoal' => $performance->userGoal($request->user()),
         ]);
+    }
+
+    /** Junta a cada ponto o faturamento do mesmo dia (ou mês) do período anterior. */
+    private function withPrevious(array $current, array $previous): array
+    {
+        foreach ($current as $i => $point) {
+            $current[$i]['previous'] = isset($previous[$i]) ? $previous[$i]['revenue'] : null;
+            $current[$i]['previous_title'] = $previous[$i]['title'] ?? null;
+        }
+
+        return $current;
     }
 
     /**

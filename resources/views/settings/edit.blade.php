@@ -18,6 +18,7 @@
                 <x-input name="initial_balance" label="Saldo inicial do caixa" :value="number_format((float) $settings['initial_balance'], 2, ',', '.')" inputmode="decimal" help="Dinheiro que você já tinha antes de começar a usar o Meu Cash." required />
                 <x-input name="monthly_goal" label="Meta de vendas da empresa por mês" :value="number_format((float) $settings['monthly_goal'], 2, ',', '.')" inputmode="decimal" help="Deixe 0 para não usar meta." required />
                 <x-input name="due_reminder_days" type="number" min="0" max="30" label="Avisar vencimentos com quantos dias de antecedência" :value="$settings['due_reminder_days']" required />
+                <x-input name="target_markup" type="number" min="0" max="1000" label="Lucro desejado sobre o custo (%)" :value="$settings['target_markup']" help="Usado para sugerir o preço de venda no cadastro de produtos. Ex.: 40% sobre um custo de R$ 100 sugere R$ 140." />
             </div>
         </div>
         <div class="panel mt-3">

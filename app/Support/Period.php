@@ -78,11 +78,35 @@ class Period
         return $this->end->toDateString();
     }
 
-    public function previous(): self
+    /**
+     * Período justo para comparar: o mesmo trecho do período anterior.
+     * Ex.: dia 3 de novembro compara com 1 a 3 de outubro, e não com outubro inteiro.
+     */
+    public function comparable(): self
     {
-        $days = (int) $this->start->copy()->startOfDay()->diffInDays($this->end->copy()->startOfDay()) + 1;
-        $end = $this->start->copy()->subDay()->endOfDay();
+        $today = Carbon::today();
+        $end = $this->start->lte($today) && $this->end->gte($today) ? $today->copy()->endOfDay() : $this->end->copy();
+        $elapsed = (int) $this->start->copy()->startOfDay()->diffInDays($end->copy()->startOfDay());
 
-        return new self($end->copy()->subDays($days - 1)->startOfDay(), $end, 'personalizado');
+        if (in_array($this->key, ['mes', 'mes_anterior'], true)) {
+            $start = $this->start->copy()->subMonthNoOverflow()->startOfMonth();
+
+            return new self($start, $start->copy()->addDays($elapsed)->endOfDay()->min($start->copy()->endOfMonth()), 'personalizado');
+        }
+
+        if ($this->key === 'ano') {
+            return new self($this->start->copy()->subYear()->startOfDay(), $end->copy()->subYear()->endOfDay(), 'personalizado');
+        }
+
+        $previousEnd = $this->start->copy()->subDay()->endOfDay();
+
+        return new self($previousEnd->copy()->subDays($elapsed)->startOfDay(), $previousEnd, 'personalizado');
+    }
+
+    public function shortLabel(): string
+    {
+        return $this->start->isSameDay($this->end)
+            ? $this->start->format('d/m/Y')
+            : $this->start->format('d/m').' a '.$this->end->format('d/m/Y');
     }
 }

@@ -19,7 +19,8 @@
         return node;
     };
 
-    function draw(box, data) {
+    function draw(box, data, show) {
+        show = show || { revenue: true, profit: true, previous: true };
         box.innerHTML = '';
         var W = box.clientWidth, H = box.clientHeight || 240;
         if (W < 50) return;
@@ -27,7 +28,11 @@
         var iw = W - M.l - M.r, ih = H - M.t - M.b;
 
         var max = 0, min = 0;
-        data.forEach(function (d) { max = Math.max(max, d.revenue, d.profit); min = Math.min(min, d.profit); });
+        data.forEach(function (d) {
+            if (show.revenue) max = Math.max(max, d.revenue);
+            if (show.profit) { max = Math.max(max, d.profit); min = Math.min(min, d.profit); }
+            if (show.previous && d.previous !== null) max = Math.max(max, d.previous);
+        });
         if (max <= 0) max = 1;
         var step = niceStep(max - min, 4);
         max = Math.ceil(max / step) * step;
@@ -57,7 +62,7 @@
 
         var bw = Math.max(2, Math.min(28, band * 0.62)), r = Math.min(4, bw / 2);
         var bars = data.map(function (d, i) {
-            if (d.revenue <= 0) return null;
+            if (!show.revenue || d.revenue <= 0) return null;
             var top = y(d.revenue), base = y(0), left = x(i) - bw / 2;
             var h = Math.max(1, base - top), rr = Math.min(r, h);
             var path = 'M' + left + ',' + base + 'V' + (top + rr) + 'Q' + left + ',' + top + ' ' + (left + rr) + ',' + top +
@@ -65,8 +70,14 @@
             return el('path', { d: path, class: 'bar' }, svg);
         });
 
-        var pts = data.map(function (d, i) { return x(i) + ',' + y(d.profit); }).join(' ');
-        el('polyline', { points: pts, class: 'line' }, svg);
+        if (show.previous) {
+            var prev = data.map(function (d, i) { return d.previous === null ? null : x(i) + ',' + y(d.previous); }).filter(Boolean).join(' ');
+            if (prev) el('polyline', { points: prev, class: 'line-previous' }, svg);
+        }
+        if (show.profit) {
+            var pts = data.map(function (d, i) { return x(i) + ',' + y(d.profit); }).join(' ');
+            el('polyline', { points: pts, class: 'line' }, svg);
+        }
 
         var cross = el('line', { y1: M.t, y2: M.t + ih, class: 'cross', visibility: 'hidden' }, svg);
         var dot = el('circle', { r: 5, class: 'dot', visibility: 'hidden' }, svg);
@@ -76,14 +87,20 @@
         tip.hidden = true;
         box.appendChild(tip);
 
-        var show = function (i) {
+        var showAt = function (i) {
             var d = data[i];
             cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('visibility', 'visible');
-            dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(d.profit)); dot.setAttribute('visibility', 'visible');
+            if (show.profit) { dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(d.profit)); dot.setAttribute('visibility', 'visible'); }
             bars.forEach(function (b, j) { if (b) b.classList.toggle('is-dim', j !== i); });
+            var diff = '';
+            if (d.previous !== null && d.previous > 0 && d.revenue > 0) {
+                var pct = (d.revenue - d.previous) / d.previous * 100;
+                diff = ' <em class="' + (pct >= 0 ? 'is-up' : 'is-down') + '">' + (pct >= 0 ? '+' : '') + pct.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + '%</em>';
+            }
             tip.innerHTML = '<strong>' + d.title + '</strong>' +
-                '<span><i class="is-revenue"></i>Faturamento <b>' + money(d.revenue) + '</b></span>' +
+                '<span><i class="is-revenue"></i>Faturamento <b>' + money(d.revenue) + diff + '</b></span>' +
                 '<span><i class="is-profit"></i>Lucro <b>' + money(d.profit) + '</b></span>' +
+                (d.previous !== null ? '<span><i class="is-previous"></i>' + (d.previous_title || 'Antes') + ' <b>' + money(d.previous) + '</b></span>' : '') +
                 '<small>' + d.count + (d.count === 1 ? ' venda' : ' vendas') + '</small>';
             tip.hidden = false;
             var left = x(i) + 14, tw = tip.offsetWidth;
@@ -100,7 +117,7 @@
             var rect = svg.getBoundingClientRect();
             var i = Math.floor((e.clientX - rect.left - M.l) / band);
             if (i < 0 || i >= data.length) { hide(); return; }
-            show(i);
+            showAt(i);
         };
         svg.addEventListener('pointermove', pick);
         svg.addEventListener('pointerdown', pick);
@@ -110,7 +127,21 @@
     document.querySelectorAll('[data-dash-chart]').forEach(function (box) {
         var data = [];
         try { data = JSON.parse(box.getAttribute('data-dash-chart')); } catch (e) { return; }
-        var render = function () { draw(box, data); };
+        var state = { revenue: true, profit: true, previous: true };
+        var render = function () { draw(box, data, state); };
+        var legend = box.closest('.dash2-chart-wrap') && box.closest('.dash2-chart-wrap').querySelector('.dash2-legend');
+        if (legend) {
+            legend.querySelectorAll('[data-series]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var key = btn.getAttribute('data-series');
+                    var on = !state[key];
+                    if (!on && Object.keys(state).filter(function (k) { return state[k]; }).length === 1) return;
+                    state[key] = on;
+                    btn.setAttribute('aria-pressed', on);
+                    render();
+                });
+            });
+        }
         render();
         if ('ResizeObserver' in window) {
             var w = box.clientWidth;

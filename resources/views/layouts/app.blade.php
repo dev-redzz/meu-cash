@@ -43,7 +43,7 @@
 @endphp
 <aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-label="Menu">
     <div class="sidebar-head">
-        <a href="{{ route('dashboard') }}" class="brand"><img src="{{ asset('img/logo-icon.png') }}" alt=""> <span>Meu Cash</span></a>
+        <a href="{{ route('dashboard') }}" class="brand"><img src="{{ asset('img/logo-icon.png') }}" alt=""> <span>Meu Cash</span> <span class="beta-pill">Beta</span></a>
         <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Fechar menu"></button>
     </div>
 
@@ -70,6 +70,11 @@
         @endforeach
     </nav>
 
+    <div class="sidebar-beta">
+        <div class="sidebar-beta-title"><span class="beta-pill">Beta</span> Você está na versão beta</div>
+        <p>Encontrou um problema ou tem uma ideia? Conte para a gente.</p>
+        <button type="button" class="btn btn-sm w-100" data-bs-toggle="modal" data-bs-target="#feedbackModal">Enviar sugestão</button>
+    </div>
 </aside>
 
 <div class="app-main">
@@ -122,6 +127,7 @@
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#feedbackModal"><x-icon name="note" width="16" height="16" /> Enviar sugestão</button></li>
                         <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#shortcutsModal"><x-icon name="monitor" width="16" height="16" /> Atalhos do teclado <kbd class="ms-auto">?</kbd></button></li>
                         @can('admin')
                             <li><a class="dropdown-item" href="{{ route('users.index') }}"><x-icon name="team" width="16" height="16" /> Equipe</a></li>
@@ -188,6 +194,32 @@
     ];
 @endphp
 <script type="application/json" id="shortcuts-data">{!! json_encode(['search' => route('search'), 'go' => array_map(fn ($i) => $i[1], $shortcutGo), 'new' => array_map(fn ($i) => $i[1], $shortcutNew)], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES) !!}</script>
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" action="{{ route('feedback.store') }}" class="modal-content">
+            @csrf
+            <input type="hidden" name="page" value="{{ request()->fullUrl() }}">
+            <div class="modal-header">
+                <div class="modal-head"><span class="stat-icon accent-violet"><x-icon name="note" width="18" height="18" /></span><h5 class="modal-title" id="feedbackTitle">Enviar sugestão</h5></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted-2">O Meu Cash está em versão beta. Sua opinião decide o que melhora primeiro.</p>
+                <div class="feedback-types" role="radiogroup" aria-label="Tipo">
+                    @foreach (\App\Models\Feedback::TYPES as $value => [$label])
+                        <label><input type="radio" name="type" value="{{ $value }}" @checked($loop->first)> <span>{{ $label }}</span></label>
+                    @endforeach
+                </div>
+                <label class="form-label mt-3" for="feedback_message">Mensagem</label>
+                <textarea name="message" id="feedback_message" rows="5" class="form-control" required minlength="5" maxlength="3000" placeholder="Conte o que aconteceu ou o que você gostaria de ver no sistema."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="check" width="16" height="16" /></span>Enviar</button>
+            </div>
+        </form>
+    </div>
+</div>
 <div class="modal fade" id="shortcutsModal" tabindex="-1" aria-labelledby="shortcutsTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">

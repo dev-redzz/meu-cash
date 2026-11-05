@@ -32,7 +32,11 @@ class BackupErrosTest extends TestCase
         tenant()->run($admin->company, fn () => Customer::create(['name' => "Joana D'Arc"]));
 
         $path = app(BackupService::class)->dump();
-        $sql = gzdecode(file_get_contents($path));
+        $this->assertStringEndsWith('.zip', $path);
+        $zip = new \ZipArchive();
+        $zip->open($path);
+        $sql = $zip->getFromIndex(0);
+        $zip->close();
         $this->assertStringContainsString('CREATE TABLE', $sql);
         $this->assertStringContainsString("Joana D''Arc", $sql);
         $this->assertStringNotContainsString('"sessions"', $sql);
@@ -59,7 +63,7 @@ class BackupErrosTest extends TestCase
 
         $dono = User::factory()->admin()->create(['email' => 'dono@meucash.test']);
         $this->actingAs($dono)->get('/plataforma/backup/baixar')->assertOk()->assertDownload();
-        $this->actingAs($dono)->get('/plataforma')->assertOk()->assertSee('Backup diário')->assertSee('Monitoramento de erros');
+        $this->actingAs($dono)->get('/plataforma')->assertOk()->assertSee('Backup diário')->assertSee('Erros e sugestões');
     }
 
     public function test_erro_fica_registrado_agrupado_e_avisa_uma_vez(): void

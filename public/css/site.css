@@ -242,3 +242,5 @@
 .legal-contact .stat-icon { margin: 0; flex: none; }
 .legal-contact strong { color: var(--mc-ink); }
 .legal-contact p { margin: .2rem 0 0; color: var(--mc-muted); }
+.site-logo .beta-pill { display: inline-flex; padding: .1rem .5rem; border-radius: 999px; background: var(--mc-brand-soft); color: var(--mc-brand); font-size: .66rem; font-weight: 800; letter-spacing: .04em; }
+[data-bs-theme="dark"] .site-logo .beta-pill { color: #8db0ff; }

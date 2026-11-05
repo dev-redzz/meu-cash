@@ -12,7 +12,7 @@
     $s = $summary;
     $ticket = $s['sales_count'] > 0 ? $s['revenue'] / $s['sales_count'] : 0;
     $margin = $s['revenue'] > 0 ? $s['profit'] / $s['revenue'] * 100 : null;
-    $hasSeries = collect($series)->contains(fn ($p) => $p['revenue'] > 0 || $p['profit'] != 0);
+    $hasSeries = collect($series)->contains(fn ($p) => $p['revenue'] > 0 || $p['profit'] != 0 || $p['previous'] > 0);
     $methodsTotal = $methods->sum('total');
     $soldMax = max(1, $sold->max('revenue') ?? 0);
     $change = fn ($value, $inverse = false) => $value === null ? null : ['value' => $value, 'good' => $inverse ? $value <= 0 : $value >= 0];
@@ -30,13 +30,14 @@
                     <div class="dash2-hero">
                         <span class="dash2-hero-value">{{ money($s['revenue']) }}</span>
                         @if ($c = $change($changes['revenue']))
-                            <span @class(['dash2-delta', 'is-up' => $c['good'], 'is-down' => ! $c['good']])>
+                            <span @class(['dash2-delta', 'is-up' => $c['good'], 'is-down' => ! $c['good']]) title="Comparado com {{ $compare->shortLabel() }}">
                                 <x-icon :name="$c['value'] >= 0 ? 'trend-up' : 'trend-down'" width="14" height="14" />
                                 {{ $c['value'] >= 0 ? '+' : '' }}{{ number_format($c['value'], 1, ',', '.') }}%
                             </span>
                         @endif
                     </div>
                     <div class="dash2-hero-note">
+                        @if ($c)<span class="d-none d-sm-inline">vs. {{ $compare->shortLabel() }} · </span>@endif
                         @if ($today['count'] > 0)
                             Hoje: <strong>{{ money($today['total']) }}</strong> em {{ $today['count'] }} {{ $today['count'] === 1 ? 'venda' : 'vendas' }}
                         @else
@@ -44,7 +45,7 @@
                         @endif
                     </div>
                 </div>
-                <a href="{{ route('sales.create') }}" class="btn btn-cta d-none d-md-inline-flex"><span class="btn-cta-icon"><x-icon name="plus" width="16" height="16" /></span>Nova venda</a>
+                <a href="{{ route('sales.create') }}" class="btn btn-cta btn-cta-sm dash2-new"><span class="btn-cta-icon"><x-icon name="plus" width="14" height="14" /></span>Nova venda</a>
             </div>
 
             <dl class="dash2-metrics">
@@ -58,18 +59,19 @@
             </dl>
 
             <div class="dash2-chart-wrap">
-                <div class="dash2-legend" aria-hidden="true">
-                    <span><i class="is-revenue"></i>Faturamento</span>
-                    <span><i class="is-profit"></i>Lucro</span>
+                <div class="dash2-legend" role="group" aria-label="Mostrar no gráfico">
+                    <button type="button" aria-pressed="true" data-series="revenue"><i class="is-revenue"></i>Faturamento</button>
+                    <button type="button" aria-pressed="true" data-series="profit"><i class="is-profit"></i>Lucro</button>
+                    <button type="button" aria-pressed="true" data-series="previous"><i class="is-previous"></i>Período anterior</button>
                 </div>
                 @if ($hasSeries)
                     <div class="dash2-chart" data-dash-chart='@json($series)' role="img" aria-label="Gráfico de faturamento e lucro por {{ count($series) > 0 && str_contains($series[0]['label'], '/') ? 'dia' : 'mês' }} no período"></div>
                     <table class="visually-hidden">
                         <caption>Faturamento e lucro no período</caption>
-                        <thead><tr><th>Data</th><th>Faturamento</th><th>Lucro</th><th>Vendas</th></tr></thead>
+                        <thead><tr><th>Data</th><th>Faturamento</th><th>Lucro</th><th>Vendas</th><th>Período anterior</th></tr></thead>
                         <tbody>
                             @foreach ($series as $point)
-                                <tr><td>{{ $point['title'] }}</td><td>{{ money($point['revenue']) }}</td><td>{{ money($point['profit']) }}</td><td>{{ $point['count'] }}</td></tr>
+                                <tr><td>{{ $point['title'] }}</td><td>{{ money($point['revenue']) }}</td><td>{{ money($point['profit']) }}</td><td>{{ $point['count'] }}</td><td>{{ $point['previous'] === null ? '—' : money($point['previous']) }}</td></tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -292,5 +294,5 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/dashboard.js') }}?v=1" defer></script>
+<script src="{{ asset('js/dashboard.js') }}?v=2" defer></script>
 @endpush

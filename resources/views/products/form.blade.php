@@ -56,6 +56,21 @@
         <aside class="form-aside">
             <x-form-section title="Valores" icon="dollar" description="Valores por unidade.">
                 <x-input name="purchase_price" label="Valor de compra" :value="$product->exists ? number_format((float) $product->purchase_price, 2, ',', '.') : ''" inputmode="decimal" placeholder="0,00" required data-calc />
+                <div class="suggest" id="price-suggest">
+                    <div class="suggest-head">
+                        <span class="suggest-title"><x-icon name="tag" width="15" height="15" /> Preço sugerido</span>
+                        <label class="suggest-markup">
+                            lucro de
+                            <input type="number" id="suggest_markup" min="0" max="1000" step="1" value="{{ (int) \App\Models\Setting::get('target_markup', 40) }}" aria-label="Lucro desejado sobre o custo, em porcentagem">
+                            %
+                        </label>
+                    </div>
+                    <div class="suggest-body">
+                        <strong id="suggest-value">—</strong>
+                        <button type="button" class="btn btn-sm btn-light" id="suggest-use" disabled>Usar este preço</button>
+                    </div>
+                    <p class="suggest-note" id="suggest-note">Informe o valor de compra para ver a sugestão.</p>
+                </div>
                 <x-input name="sale_price" label="Preço de venda" :value="$product->exists ? number_format((float) $product->sale_price, 2, ',', '.') : ''" inputmode="decimal" placeholder="0,00" required data-calc />
 
                 <div class="calc-card">
@@ -107,6 +122,45 @@
     }
     [purchase, sale, qty].forEach(el => el.addEventListener('input', update));
     update();
+
+    // Preço sugerido: custo por unidade (compra + despesas divididas) + lucro desejado, arredondado para ,90
+    const markup = document.getElementById('suggest_markup');
+    const out = document.getElementById('suggest-value');
+    const note = document.getElementById('suggest-note');
+    const use = document.getElementById('suggest-use');
+    let suggested = 0;
+    function suggest() {
+        const q = Math.max(1, initialQty || parseInt(qty.value || '1', 10));
+        const cost = parseMoney(purchase.value) + expenses / q;
+        const pct = Math.max(0, parseFloat(markup.value || '0'));
+        if (cost <= 0) {
+            suggested = 0; out.textContent = '—'; use.disabled = true;
+            note.textContent = 'Informe o valor de compra para ver a sugestão.';
+            note.className = 'suggest-note';
+            return;
+        }
+        const raw = cost * (1 + pct / 100);
+        suggested = raw < 10 ? Math.ceil(raw * 10) / 10 : Math.ceil(raw - 0.9) + 0.9;
+        out.textContent = brl(suggested);
+        use.disabled = false;
+        const price = parseMoney(sale.value);
+        if (price > 0) {
+            const real = (price - cost) / cost * 100;
+            note.textContent = price < cost
+                ? 'Atenção: o preço atual fica abaixo do custo (' + brl(cost) + ').'
+                : 'Com o preço atual, seu lucro é de ' + real.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + '% sobre o custo de ' + brl(cost) + '.';
+            note.className = 'suggest-note ' + (price < cost ? 'is-bad' : (real + 0.5 < pct ? 'is-warn' : 'is-good'));
+        } else {
+            note.textContent = 'Custo por unidade: ' + brl(cost) + '.';
+            note.className = 'suggest-note';
+        }
+    }
+    [purchase, sale, qty, markup].forEach(el => el.addEventListener('input', suggest));
+    use.addEventListener('click', () => {
+        sale.value = suggested.toFixed(2).replace('.', ',');
+        sale.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    suggest();
 })();
 </script>
 @endpush

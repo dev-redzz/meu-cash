@@ -6,12 +6,13 @@ Cada empresa só enxerga os próprios dados.
 ## O que o sistema faz
 
 - **Vendas à vista e parceladas:** entrada, parcelas, vencimentos, comprovante em PDF e cobrança pelo WhatsApp.
-- **Estoque:** lucro de cada produto, despesas (peças, frete), estoque mínimo com aviso de reposição e entrada de mercadoria com custo médio.
+- **Estoque:** lucro de cada produto, preço de venda sugerido, despesas (peças, frete), estoque mínimo com aviso de reposição e entrada de mercadoria com custo médio.
 - **Clientes e área do cliente:** cada cliente consulta as próprias compras e parcelas com um código de acesso.
 - **Caixa, relatórios, metas e comissão de vendedores.**
 - **Equipe:** administrador e funcionário, com permissões diferentes.
 - **Backup diário** do banco por e-mail e **monitoramento de erros**, no Painel da plataforma.
-- **Painel da plataforma** (`/plataforma`): todas as empresas, uso, suspender e reativar.
+- **Painel da plataforma** (`/plataforma`): todas as empresas, uso, suspender e reativar, erros e sugestões da versão beta.
+- **Versão beta:** selo Beta e botão **Enviar sugestão** dentro do sistema; as mensagens chegam por e-mail e ficam em Plataforma > Sugestões.
 
 ## Acesso
 
@@ -48,10 +49,10 @@ O **Pre-deploy Command** continua `php artisan migrate --force`. O deploy é pel
 
 ## Backup diário
 
-- Todo dia, depois das 3h, o sistema gera uma cópia completa do banco (`.sql.gz`) e manda por e-mail para o `OWNER_EMAIL` (ou `BACKUP_EMAIL`).
+- Todo dia, depois das 3h, o sistema gera uma cópia completa do banco (`.zip` com o `.sql` dentro) e manda por e-mail para o `OWNER_EMAIL` (ou `BACKUP_EMAIL`).
 - Se o arquivo passar de 8 MB, o e-mail avisa e você baixa pelo painel.
 - No **Painel da plataforma**: data do último backup, **Fazer backup agora** e **Baixar backup**.
-- Para restaurar: descompacte o arquivo e importe o `.sql` no MySQL (phpMyAdmin, ou `mysql -u ... nome_do_banco < arquivo.sql`).
+- Para restaurar: descompacte o `.zip` e importe o `.sql` no MySQL (phpMyAdmin, ou `mysql -u ... nome_do_banco < arquivo.sql`).
 - O backup roda quando alguém usa o sistema depois das 3h. Para rodar mesmo sem ninguém usar, crie um Cron no Railway com `php artisan meucash:backup` e horário `0 6 * * *` (3h de Brasília).
 - Precisa do e-mail configurado (Brevo).
 
@@ -85,6 +86,7 @@ Os avisos de parcelas e de estoque e o backup também rodam quando alguém abre 
 
 ## No dia a dia
 
+- **Preço sugerido:** no cadastro do produto, o sistema sugere o preço de venda a partir do custo e do lucro desejado (padrão em Configurações > Empresa, 40%).
 - **Estoque mínimo:** no cadastro do produto. Quando chega no mínimo, o produto aparece no filtro **Repor**, no Dashboard e nas notificações.
 - **Repor estoque:** na página do produto, **Repor estoque** soma as unidades, recalcula o custo médio e lança a compra no caixa.
 - **Desfazer:** depois de excluir produto, cliente, categoria, despesa ou lançamento, aparece **Desfazer** (ou `Ctrl+Z`), por até 10 minutos.

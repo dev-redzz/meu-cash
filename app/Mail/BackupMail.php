@@ -32,6 +32,6 @@ class BackupMail extends Mailable
 
     public function attachments(): array
     {
-        return $this->attach ? [Attachment::fromPath($this->path)->as(basename($this->path))->withMime('application/gzip')] : [];
+        return $this->attach ? [Attachment::fromPath($this->path)->as(basename($this->path))->withMime('application/zip')] : [];
     }
 }

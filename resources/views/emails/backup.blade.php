@@ -6,7 +6,7 @@
         <p style="margin:0 0 16px;color:#667085">{{ now()->format('d/m/Y \à\s H:i') }} · {{ number_format($size / 1024 / 1024, 2, ',', '.') }} MB</p>
         @if ($attach)
             <p style="margin:0 0 12px">A cópia completa do banco de dados está em anexo (<strong>{{ $file }}</strong>).</p>
-            <p style="margin:0;color:#667085;font-size:13px">Guarde este e-mail. Para restaurar, descompacte o arquivo e importe o .sql no MySQL (por exemplo, pelo phpMyAdmin ou pelo Railway).</p>
+            <p style="margin:0;color:#667085;font-size:13px">Guarde este e-mail. Para restaurar, descompacte o .zip e importe o arquivo .sql no MySQL (por exemplo, pelo phpMyAdmin ou pelo Railway).</p>
         @else
             <p style="margin:0 0 12px">O backup foi gerado, mas ficou grande demais para ir em anexo.</p>
             <p style="margin:0">Baixe pelo <a href="{{ route('platform.index') }}" style="color:#155eef">Painel da plataforma</a>, no botão <strong>Baixar backup</strong>.</p>

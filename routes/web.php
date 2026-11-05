@@ -85,6 +85,7 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
     Route::patch('/installments/{installment}/due-date', [InstallmentController::class, 'updateDueDate'])->name('installments.due-date');
     Route::get('/installments/{installment}/whatsapp', [WhatsAppController::class, 'installment'])->name('installments.whatsapp');
 
+    Route::post('/sugestoes', [\App\Http\Controllers\FeedbackController::class, 'store'])->middleware('throttle:6,10')->name('feedback.store');
     Route::get('/notificacoes', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notificacoes/{notification}', [NotificationController::class, 'open'])->name('notifications.open');
     Route::post('/notificacoes/ler-todas', [NotificationController::class, 'readAll'])->name('notifications.read-all');
@@ -96,6 +97,8 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
         Route::post('/plataforma/backup', [PlatformController::class, 'backupNow'])->middleware('throttle:5,10')->name('platform.backup');
         Route::get('/plataforma/backup/baixar', [PlatformController::class, 'backupDownload'])->middleware('throttle:5,10')->name('platform.backup.download');
         Route::get('/plataforma/erros', [PlatformController::class, 'errors'])->name('platform.errors');
+        Route::get('/plataforma/sugestoes', [PlatformController::class, 'feedback'])->name('platform.feedback');
+        Route::post('/plataforma/sugestoes/lidas', [PlatformController::class, 'feedbackRead'])->name('platform.feedback.read');
         Route::patch('/plataforma/erros/{report}/resolver', [PlatformController::class, 'resolveError'])->name('platform.errors.resolve');
         Route::delete('/plataforma/erros/resolvidos', [PlatformController::class, 'clearResolved'])->name('platform.errors.clear');
     });

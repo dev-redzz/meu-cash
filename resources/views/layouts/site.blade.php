@@ -11,13 +11,13 @@
     <meta property="og:description" content="@yield('description', 'Sistema de vendas, estoque, parcelas e financeiro para lojas.')">
     <meta property="og:image" content="{{ asset('img/logo-full.png') }}">
     @include('partials.head-assets')
-    <link href="{{ asset('css/site.css') }}?v=6" rel="stylesheet">
+    <link href="{{ asset('css/site.css') }}?v=7" rel="stylesheet">
 </head>
 <body class="site-body">
 <header class="site-header">
     <div class="site-container site-header-inner">
         <a href="{{ route('home') }}" class="site-logo" aria-label="Meu Cash, página inicial">
-            <img src="{{ asset('img/logo-icon.png') }}" alt=""> <span>Meu Cash</span>
+            <img src="{{ asset('img/logo-icon.png') }}" alt=""> <span>Meu Cash</span> <span class="beta-pill">Beta</span>
         </a>
         <nav class="site-nav" id="site-nav" aria-label="Principal">
             <a href="{{ route('home') }}#recursos">Recursos</a>

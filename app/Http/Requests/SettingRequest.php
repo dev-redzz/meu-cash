@@ -15,6 +15,7 @@ class SettingRequest extends MoneyRequest
             'initial_balance' => ['required', 'numeric', 'min:-9999999', 'max:9999999'],
             'monthly_goal' => ['required', 'numeric', 'min:0', 'max:999999999'],
             'due_reminder_days' => ['required', 'integer', 'min:0', 'max:30'],
+            'target_markup' => ['nullable', 'integer', 'min:0', 'max:1000'],
             'weekly_summary' => ['nullable', 'boolean'],
             'receipt_terms' => ['nullable', 'string', 'max:5000'],
             'whatsapp_template_lembrete' => ['required', 'string', 'max:1000'],

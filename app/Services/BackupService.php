@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 use Throwable;
+use ZipArchive;
 
 /**
- * Cópia completa do banco em um arquivo .sql.gz.
+ * Cópia completa do banco em um arquivo .zip (com o .sql dentro).
  * Todo dia o arquivo vai por e-mail para o dono da plataforma; no painel dá para baixar na hora.
  */
 class BackupService
@@ -30,8 +31,9 @@ class BackupService
             mkdir($dir, 0700, true);
         }
 
-        $path = $dir.'/meucash-'.now()->format('Y-m-d-His').'.sql.gz';
-        $gz = gzopen($path, 'wb6');
+        $name = 'meucash-'.now()->format('Y-m-d-His');
+        $sqlPath = $dir.'/'.$name.'.sql';
+        $gz = fopen($sqlPath, 'wb');
 
         if (! $gz) {
             throw new RuntimeException('Não foi possível criar o arquivo de backup.');
@@ -40,12 +42,12 @@ class BackupService
         $mysql = DB::getDriverName() !== 'sqlite';
         $pdo = DB::getPdo();
 
-        gzwrite($gz, "-- Backup do Meu Cash\n-- Gerado em ".now()->format('d/m/Y H:i:s')."\n\n");
-        gzwrite($gz, $mysql ? "SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS=0;\n\n" : "PRAGMA foreign_keys=OFF;\n\n");
+        fwrite($gz, "-- Backup do Meu Cash\n-- Gerado em ".now()->format('d/m/Y H:i:s')."\n\n");
+        fwrite($gz, $mysql ? "SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS=0;\n\n" : "PRAGMA foreign_keys=OFF;\n\n");
 
         foreach ($this->tables() as $table) {
             $quoted = $mysql ? "`{$table}`" : "\"{$table}\"";
-            gzwrite($gz, "-- Tabela {$table}\nDROP TABLE IF EXISTS {$quoted};\n".$this->createStatement($table, $mysql).";\n");
+            fwrite($gz, "-- Tabela {$table}\nDROP TABLE IF EXISTS {$quoted};\n".$this->createStatement($table, $mysql).";\n");
 
             $columns = null;
             DB::table($table)->orderBy(DB::raw('1'))->lazy(500)->chunk(200)->each(function ($rows) use ($gz, $quoted, $pdo, $mysql, &$columns) {
@@ -55,14 +57,24 @@ class BackupService
                     fn ($v) => $v === null ? 'NULL' : (is_int($v) || is_float($v) ? (string) $v : $pdo->quote((string) $v)),
                     $row,
                 )).')')->implode(",\n");
-                gzwrite($gz, "INSERT INTO {$quoted} ({$columns}) VALUES\n{$values};\n");
+                fwrite($gz, "INSERT INTO {$quoted} ({$columns}) VALUES\n{$values};\n");
             });
 
-            gzwrite($gz, "\n");
+            fwrite($gz, "\n");
         }
 
-        gzwrite($gz, $mysql ? "SET FOREIGN_KEY_CHECKS=1;\n" : "PRAGMA foreign_keys=ON;\n");
-        gzclose($gz);
+        fwrite($gz, $mysql ? "SET FOREIGN_KEY_CHECKS=1;\n" : "PRAGMA foreign_keys=ON;\n");
+        fclose($gz);
+
+        // A Brevo não aceita .gz como anexo; .zip é aceito e abre em qualquer computador.
+        $path = $dir.'/'.$name.'.zip';
+        $zip = new ZipArchive();
+        if ($zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            throw new RuntimeException('Não foi possível compactar o backup.');
+        }
+        $zip->addFile($sqlPath, $name.'.sql');
+        $zip->close();
+        @unlink($sqlPath);
 
         $this->keepLast($dir, 3);
 
@@ -109,7 +121,14 @@ class BackupService
 
         $last = $this->lastStatus();
 
-        return ! $last || ! $last['ok'] || ! Carbon::parse($last['at'])->isToday();
+        if (! $last) {
+            return true;
+        }
+
+        $at = Carbon::parse($last['at']);
+
+        // Se falhou, tenta de novo só depois de 3 horas para não ficar repetindo o erro.
+        return $last['ok'] ? ! $at->isToday() : $at->lt(now()->subHours(3));
     }
 
     /** Roda o backup no fim da requisição, uma vez por dia, sem atrasar quem está usando. */
@@ -160,7 +179,7 @@ class BackupService
 
     private function keepLast(string $dir, int $keep): void
     {
-        $files = glob($dir.'/meucash-*.sql.gz') ?: [];
+        $files = glob($dir.'/meucash-*.zip') ?: [];
         rsort($files);
         foreach (array_slice($files, $keep) as $old) {
             @unlink($old);

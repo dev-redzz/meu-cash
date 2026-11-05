@@ -14,6 +14,7 @@ class Setting extends Model
         'initial_balance' => '0',
         'monthly_goal' => '0',
         'due_reminder_days' => '3',
+        'target_markup' => '40',
         'weekly_summary' => '1',
         'receipt_terms' => "O COMPRADOR declara ter recebido os produtos descritos neste documento, conferidos e em perfeito estado de funcionamento.\nNas compras parceladas, o COMPRADOR reconhece o saldo em aberto como dívida e se compromete a pagar cada parcela até a data de vencimento indicada.\nO atraso no pagamento pode gerar a cobrança dos valores devidos, conforme combinado entre as partes.\nOs produtos têm a garantia legal prevista no Código de Defesa do Consumidor. A garantia não cobre mau uso, quedas, contato com líquidos ou violação do aparelho.\nEste documento não substitui a nota fiscal.",
         'whatsapp_template_lembrete' => 'Olá, {cliente}! Passando para lembrar que a parcela {parcela} no valor de {valor} vence em {vencimento}. Qualquer dúvida, estou à disposição. {empresa}',

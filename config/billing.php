@@ -1,23 +1,28 @@
 <?php
 
 return [
-    // A cobrança do plano só liga quando o Access Token da sua conta Mercado Pago estiver configurado.
-    'enabled' => (bool) env('BILLING_ENABLED', true),
-    'mp_access_token' => env('MERCADOPAGO_ACCESS_TOKEN'),
+    // Liga a cobrança da assinatura das lojas. Enquanto estiver false, o Meu Cash é grátis para todos (versão beta).
+    'enabled' => (bool) env('BILLING_ENABLED', false),
 
-    'trial_days' => (int) env('PLAN_TRIAL_DAYS', 14),
-    'grace_days' => (int) env('PLAN_GRACE_DAYS', 3),
+    // Dia em que você ligou a cobrança: as lojas que já existiam ganham o teste grátis a partir desta data.
+    'starts_at' => env('BILLING_STARTS_AT'),
+
+    'trial_days' => (int) env('BILLING_TRIAL_DAYS', 14),
+    'grace_days' => (int) env('BILLING_GRACE_DAYS', 5),
 
     'plans' => [
         'mensal' => [
             'label' => 'Mensal',
-            'price' => (float) env('PLAN_PRICE_MONTHLY', 49.90),
+            'price' => (float) env('BILLING_PRICE_MONTHLY', 39.90),
             'months' => 1,
         ],
         'anual' => [
             'label' => 'Anual',
-            'price' => (float) env('PLAN_PRICE_YEARLY', 479.00),
+            'price' => (float) env('BILLING_PRICE_YEARLY', 399.00),
             'months' => 12,
         ],
     ],
+
+    // Conta do Mercado Pago que recebe as assinaturas (a SUA conta, dona da plataforma).
+    'mercadopago_token' => env('MP_ACCESS_TOKEN'),
 ];

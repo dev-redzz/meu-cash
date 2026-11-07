@@ -41,8 +41,13 @@ class PlatformController extends Controller
 
         $since = Carbon::now()->subDays(7);
 
+        $billing = app(\App\Services\Payments\SubscriptionService::class);
+        $companies->getCollection()->each(fn ($c) => $c->setAttribute('plan', $billing->status($c)));
+
         return view('platform.index', [
             'companies' => $companies,
+            'billingEnabled' => $billing->enabled(),
+            'subscriptionsMonth' => (float) \App\Models\SubscriptionPayment::where('status', 'pago')->where('paid_at', '>=', $monthStart)->sum('amount'),
             'backup' => app(BackupService::class)->lastStatus(),
             'backupRecipients' => app(BackupService::class)->recipients(),
             'openErrors' => ErrorReport::whereNull('resolved_at')->count(),
@@ -70,6 +75,24 @@ class PlatformController extends Controller
         AuditService::log('configuracoes', ($company->active ? 'Reativou' : 'Suspendeu')." a empresa {$company->name} (#{$company->id}) pela plataforma");
 
         return back()->with('success', "Empresa {$company->name} ".($company->active ? 'reativada.' : 'suspensa.'));
+    }
+
+    /* ---------- Assinatura ---------- */
+
+    public function courtesy(Request $request, Company $company, \App\Services\Payments\SubscriptionService $billing): RedirectResponse
+    {
+        $days = (int) $request->validate(['days' => ['required', 'integer', 'min:1', 'max:366']])['days'];
+        $billing->courtesy($company, $days);
+
+        return back()->with('success', "{$company->name} ganhou {$days} dias. Assinatura até ".$company->fresh()->paid_until->format('d/m/Y').'.');
+    }
+
+    public function exempt(Company $company): RedirectResponse
+    {
+        $company->update(['billing_exempt' => ! $company->billing_exempt]);
+        AuditService::log('configuracoes', ($company->billing_exempt ? 'Isentou' : 'Voltou a cobrar')." a empresa {$company->name} (#{$company->id}) pela plataforma");
+
+        return back()->with('success', $company->billing_exempt ? "{$company->name} não paga assinatura." : "{$company->name} volta a pagar a assinatura.");
     }
 
     /* ---------- Backup ---------- */

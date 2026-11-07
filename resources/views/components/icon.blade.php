@@ -54,6 +54,10 @@ $paths = [
     'download' => '<path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
     'barcode' => '<path d="M4 5v14M7 5v14M11 5v14M14 5v14M18 5v14M20 5v14"/>',
     'x' => '<path d="M6 6l12 12M18 6 6 18"/>',
+    'more' => '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    'pix' => '<path d="m12 3 3.2 3.2a2 2 0 0 0 1.4.6H18l3 3a3 3 0 0 1 0 4.4l-3 3h-1.4a2 2 0 0 0-1.4.6L12 21l-3.2-3.2a2 2 0 0 0-1.4-.6H6l-3-3a3 3 0 0 1 0-4.4l3-3h1.4a2 2 0 0 0 1.4-.6z"/><path d="M7.5 6.8 12 11.3l4.5-4.5M7.5 17.2l4.5-4.5 4.5 4.5"/>',
+    'card' => '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/>',
+    'lock' => '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
     'arrow-left' => '<path d="M19 12H5M11 6l-6 6 6 6"/>',
 ];
 @endphp

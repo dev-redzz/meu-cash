@@ -66,3 +66,11 @@ if (! function_exists('tenant_id')) {
         return app(Tenant::class)->id();
     }
 }
+
+if (! function_exists('public_url')) {
+    /** Endereço público do sistema (APP_URL), usado nos avisos do Mercado Pago. */
+    function public_url(string $path): string
+    {
+        return rtrim((string) config('app.url'), '/').'/'.ltrim($path, '/');
+    }
+}

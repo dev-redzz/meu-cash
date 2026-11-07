@@ -4,66 +4,48 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\OnlinePayment;
-use App\Models\Setting;
 use App\Services\AuditService;
-use App\Services\MercadoPago\MercadoPagoClient;
+use App\Services\Payments\PixService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PaymentSettingController extends Controller
 {
-    public function edit(): View
+    public function edit(PixService $pix): View
     {
-        $company = tenant()->company();
-
         return view('settings.payments', [
-            'company' => $company,
-            'portalPayments' => Setting::get('portal_payments', '1') === '1',
-            'recent' => OnlinePayment::where('company_id', $company->id)->where('kind', 'parcela')
-                ->where('status', '!=', 'criado')->with('installment.customer', 'installment.sale')->latest('id')->limit(15)->get(),
+            'connected' => $pix->enabled(),
+            'account' => $pix->account(),
+            'recent' => OnlinePayment::with(['installment.sale', 'installment.customer'])->whereNotNull('provider_id')->latest('id')->limit(15)->get(),
         ]);
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request, PixService $pix): RedirectResponse
     {
-        $company = tenant()->company();
-
-        $request->validate([
-            'mp_access_token' => [$company->acceptsOnlinePayments() ? 'nullable' : 'required', 'string', 'max:200', 'regex:/^(APP_USR|TEST)-[A-Za-z0-9\-]+$/'],
+        $data = $request->validate([
+            'access_token' => ['required', 'string', 'max:200', 'regex:/^(APP_USR|TEST)-[A-Za-z0-9\-]+$/'],
         ], [
-            'mp_access_token.required' => 'Cole o Access Token da sua conta Mercado Pago.',
-            'mp_access_token.regex' => 'Esse não parece um Access Token. Ele começa com APP_USR- (produção) ou TEST- (teste).',
+            'access_token.required' => 'Cole o Access Token do Mercado Pago.',
+            'access_token.regex' => 'O Access Token começa com APP_USR- (produção) ou TEST- (teste).',
         ]);
 
-        Setting::put('portal_payments', $request->boolean('portal_payments') ? '1' : '0');
-
-        if ($token = trim((string) $request->input('mp_access_token'))) {
-            $account = (new MercadoPagoClient($token))->account();
-
-            if (! $account) {
-                return back()->withErrors(['mp_access_token' => 'O Mercado Pago recusou esse token. Confira se copiou o Access Token inteiro.'])->withInput();
-            }
-
-            $company->update([
-                'mp_access_token' => $token,
-                'mp_account' => mb_substr(trim(($account['nickname'] ?? '').' · '.($account['email'] ?? ''), ' ·'), 0, 120) ?: 'Conta conectada',
-            ]);
-            $company->ensureWebhookKey();
-
-            AuditService::log('configuracoes', 'Conta Mercado Pago conectada para receber parcelas');
-
-            return back()->with('success', 'Mercado Pago conectado! Seus clientes já podem pagar as parcelas pela área do cliente.');
+        try {
+            $account = $pix->connect(trim($data['access_token']));
+        } catch (\Throwable $e) {
+            return back()->withErrors(['access_token' => 'O Mercado Pago recusou este token. Confira se copiou o Access Token inteiro.']);
         }
 
-        return back()->with('success', 'Configurações de pagamento salvas.');
+        AuditService::log('configuracoes', 'Conta Mercado Pago conectada para receber Pix na área do cliente');
+
+        return back()->with('success', 'Mercado Pago conectado'.(isset($account['email']) ? ' ('.$account['email'].')' : '').'. Seus clientes já podem pagar as parcelas pelo Pix.');
     }
 
-    public function destroy(): RedirectResponse
+    public function destroy(PixService $pix): RedirectResponse
     {
-        tenant()->company()->update(['mp_access_token' => null, 'mp_account' => null]);
+        $pix->disconnect();
         AuditService::log('configuracoes', 'Conta Mercado Pago desconectada');
 
-        return back()->with('success', 'Mercado Pago desconectado. Os clientes não veem mais o botão de pagar.');
+        return back()->with('success', 'Mercado Pago desconectado. O botão de Pix sumiu da área do cliente.');
     }
 }

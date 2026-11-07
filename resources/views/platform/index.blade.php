@@ -9,6 +9,9 @@
     <div class="col-6 col-lg"><x-stat label="Usuários" icon="team" accent="violet" :value="$stats['users']" /></div>
     <div class="col-6 col-lg"><x-stat label="Usaram em 7 dias" icon="users" accent="slate" :value="$stats['active_week']" /></div>
     <div class="col-6 col-lg"><x-stat label="Vendas no mês" icon="cart" accent="blue" :value="$stats['sales_month']" hint="Todas as empresas" /></div>
+    @if ($billingEnabled)
+        <div class="col-6 col-lg"><x-stat label="Assinaturas no mês" icon="wallet" accent="green" :value="money($subscriptionsMonth)" hint="Recebido pelo Mercado Pago" /></div>
+    @endif
 </div>
 
 @php
@@ -117,13 +120,38 @@
                         <td class="num">{{ $company->sales_count }}</td>
                         <td class="num">{{ money($company->month_revenue) }}</td>
                         <td class="small">{{ $company->last_activity ? \Illuminate\Support\Carbon::parse($company->last_activity)->diffForHumans() : 'Nunca' }}</td>
-                        <td><span class="pill {{ $company->active ? 'pill-success' : 'pill-danger' }}">{{ $company->active ? 'Ativa' : 'Suspensa' }}</span></td>
+                        <td>
+                            <span class="pill {{ $company->active ? 'pill-success' : 'pill-danger' }}">{{ $company->active ? 'Ativa' : 'Suspensa' }}</span>
+                            @include('billing._pill', ['plan' => $company->plan])
+                        </td>
                         <td class="text-end">
                             @if ($company->id !== auth()->user()->company_id)
-                                <form method="POST" action="{{ route('platform.toggle', $company) }}" data-confirm="{{ $company->active ? 'Suspender o acesso de '.$company->name.'? Ninguém da empresa conseguirá entrar.' : 'Reativar '.$company->name.'?' }}">
-                                    @csrf @method('PATCH')
-                                    <button class="btn btn-sm {{ $company->active ? 'btn-outline-danger' : 'btn-outline-primary' }}">{{ $company->active ? 'Suspender' : 'Reativar' }}</button>
-                                </form>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Ações de {{ $company->name }}"><x-icon name="more" width="16" height="16" /></button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        @if ($billingEnabled)
+                                            <li>
+                                                <form method="POST" action="{{ route('platform.courtesy', $company) }}">
+                                                    @csrf <input type="hidden" name="days" value="30">
+                                                    <button class="dropdown-item">Dar 30 dias grátis</button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form method="POST" action="{{ route('platform.exempt', $company) }}">
+                                                    @csrf @method('PATCH')
+                                                    <button class="dropdown-item">{{ $company->billing_exempt ? 'Voltar a cobrar assinatura' : 'Não cobrar assinatura' }}</button>
+                                                </form>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                        @endif
+                                        <li>
+                                            <form method="POST" action="{{ route('platform.toggle', $company) }}" data-confirm="{{ $company->active ? 'Suspender o acesso de '.$company->name.'? Ninguém da empresa conseguirá entrar.' : 'Reativar '.$company->name.'?' }}">
+                                                @csrf @method('PATCH')
+                                                <button class="dropdown-item {{ $company->active ? 'text-negative' : '' }}">{{ $company->active ? 'Suspender acesso' : 'Reativar acesso' }}</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             @else
                                 <span class="small text-muted-2">Você</span>
                             @endif

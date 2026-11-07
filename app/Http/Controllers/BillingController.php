@@ -2,74 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use App\Models\OnlinePayment;
-use App\Services\OnlinePaymentService;
+use App\Models\SubscriptionPayment;
+use App\Services\Payments\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
-use RuntimeException;
 
 class BillingController extends Controller
 {
-    public function __construct(private readonly OnlinePaymentService $payments)
+    public function __construct(private readonly SubscriptionService $billing)
     {
     }
 
-    public function index(): View
+    public function show(): View
     {
         $company = tenant()->company();
 
-        return view('billing.index', [
+        return view('billing.show', [
+            'status' => $this->billing->status($company),
+            'plans' => $this->billing->plans(),
             'company' => $company,
-            'enabled' => Company::billingEnabled(),
-            'plans' => config('billing.plans'),
-            'history' => OnlinePayment::where('company_id', $company->id)->where('kind', 'plano')
-                ->where('status', '!=', 'criado')->latest('id')->limit(12)->get(),
+            'payments' => SubscriptionPayment::where('company_id', $company->id)->where('status', 'pago')->latest('id')->limit(12)->get(),
+            'ready' => (bool) config('billing.mercadopago_token'),
         ]);
     }
 
     public function checkout(Request $request): RedirectResponse
     {
-        $request->validate(['period' => ['required', 'in:'.implode(',', array_keys(config('billing.plans')))]]);
-
-        if (! Company::billingEnabled()) {
-            return back()->with('error', 'A cobrança do plano ainda não está disponível.');
-        }
+        abort_unless($this->billing->enabled(), 404);
+        $data = $request->validate(['plan' => ['required', 'in:'.implode(',', array_keys($this->billing->plans()))]]);
 
         try {
-            $url = $this->payments->startPlanCheckout(tenant()->company(), $request->input('period'), $request->user());
-        } catch (RuntimeException $e) {
-            return back()->with('error', $e->getMessage());
+            $url = $this->billing->checkout(tenant()->company(), $request->user(), $data['plan']);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Não foi possível abrir o pagamento agora. Tente de novo em alguns minutos.');
         }
 
         return redirect()->away($url);
     }
 
-    /** O Mercado Pago devolve a pessoa para cá depois de pagar. */
+    /** Volta do Mercado Pago: confere o pagamento na hora, sem esperar o aviso. */
     public function return(Request $request): RedirectResponse
     {
         $id = (string) ($request->query('payment_id') ?: $request->query('collection_id'));
-        $payment = null;
 
-        if ($id !== '' && $id !== 'null' && Company::billingEnabled()) {
+        if ($id !== '' && $id !== 'null' && ctype_digit($id)) {
             try {
-                $payment = $this->payments->handlePlatformNotification($id);
-            } catch (RuntimeException $e) {
-                Log::warning('Retorno do plano: '.$e->getMessage());
+                $payment = $this->billing->confirm($id);
+
+                if ($payment?->company_id === tenant()->id() && $payment->status === 'pago') {
+                    return redirect()->route('billing.show')->with('success', 'Pagamento confirmado. Obrigado! Sua assinatura vai até '.tenant()->company()->fresh()->paid_until->format('d/m/Y').'.');
+                }
+            } catch (\Throwable $e) {
+                report($e);
             }
         }
 
-        if ($payment && (int) $payment->company_id !== (int) tenant_id()) {
-            $payment = null;
-        }
+        $status = $request->query('status') ?: $request->query('collection_status');
 
-        return redirect()->route('billing.index')->with(...match ($payment?->status) {
-            'aprovado' => ['success', 'Pagamento aprovado! Seu plano foi renovado.'],
-            'pendente' => ['success', 'Pagamento em processamento. Assim que o Mercado Pago confirmar, o plano é liberado sozinho.'],
-            'recusado' => ['error', 'O pagamento não foi aprovado. Tente outra forma de pagamento.'],
-            default => ['success', 'Se você concluiu o pagamento, ele aparece aqui em instantes.'],
-        });
+        return redirect()->route('billing.show')->with(
+            $status === 'rejected' || $status === 'failure' ? 'error' : 'success',
+            match ($status) {
+                'rejected', 'failure' => 'O pagamento não foi aprovado. Tente outra forma de pagamento.',
+                null, 'null' => 'Pagamento não concluído.',
+                default => 'Pagamento em análise. Assim que o Mercado Pago confirmar, sua assinatura é liberada sozinha.',
+            }
+        );
     }
 }

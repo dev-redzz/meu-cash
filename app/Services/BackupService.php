@@ -76,7 +76,7 @@ class BackupService
         $zip->close();
         @unlink($sqlPath);
 
-        $this->keepLast($dir, 3);
+        $this->keepLast($dir, 3, $path);
 
         return $path;
     }
@@ -177,11 +177,11 @@ class BackupService
         return DB::selectOne("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?", [$table])->sql;
     }
 
-    private function keepLast(string $dir, int $keep): void
+    private function keepLast(string $dir, int $keep, string $current): void
     {
-        $files = glob($dir.'/meucash-*.zip') ?: [];
-        rsort($files);
-        foreach (array_slice($files, $keep) as $old) {
+        $files = array_values(array_diff(glob($dir.'/meucash-*.zip') ?: [], [$current]));
+        usort($files, fn ($a, $b) => filemtime($b) <=> filemtime($a));
+        foreach (array_slice($files, $keep - 1) as $old) {
             @unlink($old);
         }
     }

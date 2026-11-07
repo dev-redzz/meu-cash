@@ -2,38 +2,44 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Payments\SubscriptionService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Plano vencido (depois da tolerância): a empresa continua vendo tudo,
- * mas não consegue criar, editar nem apagar até renovar.
+ * Assinatura vencida (passada a tolerância): a loja continua vendo e exportando os dados,
+ * mas não consegue cadastrar, vender nem alterar nada até pagar.
  */
 class EnsureActivePlan
 {
-    private const ALWAYS_ALLOWED = ['billing.*', 'logout', 'notifications.*', 'platform.*'];
+    private const ALLOWED = ['billing.*', 'logout', 'export.*', 'platform.*', 'feedback.store', 'notifications.*'];
+
+    public function __construct(private readonly SubscriptionService $billing)
+    {
+    }
 
     public function handle(Request $request, Closure $next): Response
     {
         $company = tenant()->company();
-        $user = $request->user();
 
-        $readOnly = $company && ! $company->planActive() && ! $user?->isPlatformAdmin();
-        view()->share('planReadOnly', $readOnly);
-
-        if (! $readOnly || $request->isMethodSafe() || $request->routeIs(...self::ALWAYS_ALLOWED)) {
+        if (! $company || ! $this->billing->enabled()) {
             return $next($request);
         }
 
-        $message = $user?->isAdmin()
-            ? 'Seu plano venceu. Renove em Plano para voltar a cadastrar e vender.'
-            : 'O plano da empresa venceu. Peça ao administrador para renovar.';
+        $status = $this->billing->status($company);
+        view()->share('plan', $status);
 
-        if ($request->expectsJson()) {
-            return response()->json(['message' => $message], 402);
+        if ($status['blocked'] && ! $request->isMethodSafe() && ! $request->routeIs(...self::ALLOWED)) {
+            $message = 'Sua assinatura venceu. Você ainda pode ver e exportar seus dados; para voltar a vender, renove a assinatura.';
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 402);
+            }
+
+            return redirect()->route('billing.show')->with('error', $message);
         }
 
-        return redirect()->to(url()->previous(route('dashboard')))->with('error', $message);
+        return $next($request);
     }
 }

@@ -67,6 +67,10 @@
 <h2 id="area-cliente">5. Área do cliente</h2>
 <p>A empresa pode oferecer aos seus clientes finais o acesso à área do cliente, onde cada um consulta as próprias compras, parcelas e comprovantes usando um código de acesso individual. A empresa é responsável por entregar o código apenas ao cliente correto e por gerar um novo código sempre que suspeitar que ele foi exposto.</p>
 <p>O cliente final deve guardar o código e não compartilhá-lo. Dúvidas sobre valores, parcelas e pagamentos devem ser tratadas diretamente com a loja.</p>
+<p>Quando a empresa conecta a própria conta do Mercado Pago, o cliente final pode pagar as parcelas pelo Pix na área do cliente. O dinheiro vai direto para a conta da empresa, que responde pelas taxas do Mercado Pago, por devoluções e por qualquer combinação com o cliente. O Meu Cash apenas gera a cobrança e dá baixa na parcela quando o Mercado Pago confirma o pagamento.</p>
+@if (config('billing.enabled'))
+<p><strong>Assinatura.</strong> O uso do Meu Cash é pago por assinatura mensal ou anual, depois de um teste grátis de {{ config('billing.trial_days') }} dias. O pagamento é feito pelo Mercado Pago e não é renovado de forma automática. Se a assinatura vencer, a empresa tem {{ config('billing.grace_days') }} dias de tolerância; depois disso o sistema fica só para consulta e exportação dos dados até a renovação. Os dados não são apagados por falta de pagamento.</p>
+@endif
 
 <h2 id="responsabilidades">6. Responsabilidades da empresa</h2>
 <ul>

@@ -29,6 +29,11 @@
 @endisset
 
 <main class="@isset($portalCustomer) portal-wrap portal-main @else portal-center @endisset">
+    @isset($portalCustomer)
+        @foreach (['success' => 'is-success', 'error' => 'is-error'] as $key => $cls)
+            @if (session($key))<div class="portal-flash {{ $cls }}" role="status">{{ session($key) }}</div>@endif
+        @endforeach
+    @endisset
     @yield('content')
 </main>
 

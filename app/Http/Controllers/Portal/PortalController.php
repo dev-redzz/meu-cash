@@ -78,6 +78,7 @@ class PortalController extends Controller
             'company' => $customer->company,
             'sales' => $sales,
             'next' => $open->sortBy('due_date')->first(),
+            'pix' => app(\App\Services\Payments\PixService::class)->enabled(),
             'totals' => [
                 'purchased' => (float) $sales->sum('total'),
                 'paid' => (float) $sales->flatMap->payments->sum('amount'),

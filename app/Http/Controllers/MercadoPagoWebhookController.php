@@ -3,56 +3,42 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
-use App\Services\OnlinePaymentService;
+use App\Services\Payments\PixService;
+use App\Services\Payments\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
-use Throwable;
 
 /**
- * Avisos do Mercado Pago. Nunca confiamos no conteúdo do aviso:
- * buscamos o pagamento direto na API com o token certo antes de fazer qualquer coisa.
+ * Avisos do Mercado Pago. O aviso só diz "o pagamento X mudou": os dados são sempre
+ * consultados na API, então um aviso falso não consegue dar baixa em nada.
  */
 class MercadoPagoWebhookController extends Controller
 {
-    public function __construct(private readonly OnlinePaymentService $payments)
+    public function store(Request $request, Company $company, PixService $pix): Response
     {
-    }
+        if ($id = $this->paymentId($request)) {
+            try {
+                $pix->handleNotification($company, $id);
+            } catch (\Throwable $e) {
+                report($e);
 
-    public function platform(Request $request): Response
-    {
-        $id = $this->paymentId($request);
-
-        if (! $id || ! Company::billingEnabled()) {
-            return response('ok');
-        }
-
-        try {
-            $this->payments->handlePlatformNotification($id);
-        } catch (Throwable $e) {
-            Log::error('Webhook Mercado Pago (plano) '.$id.': '.$e->getMessage());
-
-            return response('erro', 500);
+                return response('erro', 500);
+            }
         }
 
         return response('ok');
     }
 
-    public function store(Request $request, string $key): Response
+    public function platform(Request $request, SubscriptionService $billing): Response
     {
-        $company = Company::where('mp_webhook_key', $key)->first();
-        $id = $this->paymentId($request);
+        if ($id = $this->paymentId($request)) {
+            try {
+                $billing->confirm($id);
+            } catch (\Throwable $e) {
+                report($e);
 
-        if (! $company || ! $id || ! $company->acceptsOnlinePayments()) {
-            return response('ok');
-        }
-
-        try {
-            $this->payments->handleStoreNotification($company, $id);
-        } catch (Throwable $e) {
-            Log::error('Webhook Mercado Pago (loja '.$company->id.') '.$id.': '.$e->getMessage());
-
-            return response('erro', 500);
+                return response('erro', 500);
+            }
         }
 
         return response('ok');
@@ -60,14 +46,15 @@ class MercadoPagoWebhookController extends Controller
 
     private function paymentId(Request $request): ?string
     {
-        $type = $request->input('type') ?? $request->query('topic') ?? $request->input('topic');
+        $type = $request->input('type') ?? $request->query('topic') ?? $request->query('type');
+        $id = $request->input('data.id') ?? $request->query('data_id') ?? $request->query('id');
 
-        if ($type && ! in_array($type, ['payment'], true)) {
+        if (! in_array($type, ['payment', null], true) || ! $id) {
             return null;
         }
 
-        $id = $request->input('data.id') ?? $request->query('data_id') ?? $request->query('id') ?? $request->input('id');
+        $id = (string) $id;
 
-        return is_scalar($id) && preg_match('/^\d{1,30}$/', (string) $id) ? (string) $id : null;
+        return ctype_digit($id) && strlen($id) <= 30 ? $id : null;
     }
 }

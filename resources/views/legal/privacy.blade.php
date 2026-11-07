@@ -83,6 +83,7 @@
     <li><strong>Hospedagem e banco de dados</strong> (Railway): onde o sistema e os dados ficam armazenados;</li>
     <li><strong>Envio de e-mails</strong> (Brevo ou outro provedor de e-mail): para recuperação de senha e avisos da conta;</li>
     <li><strong>Google</strong>: apenas quando você escolhe entrar com a conta Google;</li>
+    <li><strong>Mercado Pago</strong>: quando a loja conecta a conta dela para receber Pix na área do cliente (enviamos o valor da parcela, o nome e o e-mail do cliente) e no pagamento da assinatura do Meu Cash. Os dados do pagamento, como cartão e conta bancária, ficam só com o Mercado Pago.</li>
 </ul>
 <p>Quando você usa os botões de WhatsApp, a mensagem é aberta no aplicativo do WhatsApp do seu aparelho e o envio acontece por lá. Também podemos compartilhar dados quando a lei exigir ou por ordem judicial.</p>
 

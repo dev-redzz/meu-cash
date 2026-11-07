@@ -10,16 +10,21 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'document', 'phone', 'active'];
+    protected $fillable = ['name', 'document', 'phone', 'active', 'paid_until', 'billing_exempt'];
 
     protected function casts(): array
     {
-        return ['active' => 'boolean'];
+        return ['active' => 'boolean', 'paid_until' => 'date', 'billing_exempt' => 'boolean'];
     }
 
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
     }
 
     public function invitations(): HasMany

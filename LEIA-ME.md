@@ -12,6 +12,8 @@ Cada empresa só enxerga os próprios dados.
 - **Equipe:** administrador e funcionário, com permissões diferentes.
 - **Backup diário** do banco por e-mail e **monitoramento de erros**, no Painel da plataforma.
 - **Painel da plataforma** (`/plataforma`): todas as empresas, uso, suspender e reativar, erros e sugestões da versão beta.
+- **Pix na área do cliente:** a loja conecta o Mercado Pago dela e o cliente paga a parcela pelo Pix, com baixa automática.
+- **Assinatura das lojas:** teste grátis, plano mensal ou anual pelo Mercado Pago e modo só consulta quando vence (desligada durante o beta).
 - **Versão beta:** selo Beta e botão **Enviar sugestão** dentro do sistema; as mensagens chegam por e-mail e ficam em Plataforma > Sugestões.
 
 ## Acesso
@@ -55,6 +57,36 @@ O **Pre-deploy Command** continua `php artisan migrate --force`. O deploy é pel
 - Para restaurar: descompacte o `.zip` e importe o `.sql` no MySQL (phpMyAdmin, ou `mysql -u ... nome_do_banco < arquivo.sql`).
 - O backup roda quando alguém usa o sistema depois das 3h. Para rodar mesmo sem ninguém usar, crie um Cron no Railway com `php artisan meucash:backup` e horário `0 6 * * *` (3h de Brasília).
 - Precisa do e-mail configurado (Brevo).
+
+## Pix na área do cliente (dinheiro vai para a loja)
+
+1. A loja entra em **Configurações > Recebimentos** e cola o **Access Token** do Mercado Pago dela (a própria tela explica onde pegar).
+2. O sistema testa o token na hora e guarda criptografado.
+3. Na área do cliente aparece **Pagar com Pix** em cada parcela em aberto. O cliente lê o QR Code ou copia o código.
+4. Quando o Mercado Pago confirma, a parcela é baixada sozinha (com lançamento no caixa e notificação). A tela do cliente também se atualiza sozinha.
+
+Segurança: o aviso do Mercado Pago (webhook, em `/webhooks/mercadopago/loja/{id}`) só diz qual pagamento mudou; o sistema sempre consulta o pagamento na API e confere a referência e o valor antes de dar baixa. O endereço do aviso usa o `APP_URL`, que precisa estar em https.
+
+Para testar: use o token de **Credenciais de teste** (`TEST-...`) e pague com um usuário de teste do Mercado Pago.
+
+## Assinatura das lojas (dinheiro vai para você)
+
+Fica **desligada** enquanto `BILLING_ENABLED=false` (versão beta). Para ligar:
+
+```
+BILLING_ENABLED=true
+BILLING_STARTS_AT=2026-12-01        # dia em que começou a cobrar: lojas antigas ganham o teste a partir daqui
+BILLING_TRIAL_DAYS=14
+BILLING_GRACE_DAYS=5
+BILLING_PRICE_MONTHLY=39.90
+BILLING_PRICE_YEARLY=399.00
+MP_ACCESS_TOKEN=APP_USR-...          # Access Token da SUA conta Mercado Pago
+```
+
+- A loja vê **Configurações > Assinatura**, escolhe mensal ou anual e paga no Mercado Pago (Pix, cartão ou boleto).
+- Pagou: o período soma a partir do fim do período atual (ou do fim do teste). A confirmação chega pelo aviso em `/webhooks/mercadopago/plataforma` e também quando a pessoa volta do Mercado Pago.
+- Faltando poucos dias aparece um aviso no topo. Vencida, a loja tem `BILLING_GRACE_DAYS` de tolerância; depois fica **só para consulta** (vê e exporta, mas não vende nem cadastra).
+- Sua empresa (a do `OWNER_EMAIL`) nunca paga. No **Painel da plataforma**, no botão `⋯` de cada empresa: **Dar 30 dias grátis** e **Não cobrar assinatura**.
 
 ## Monitoramento de erros
 
@@ -136,4 +168,7 @@ app/Services/BackupService.php             backup diário do banco
 app/Services/ErrorMonitor.php              registro e aviso de erros
 app/Services/SaleService.php               vendas, estoque e caixa
 app/Services/UndoService.php               botão Desfazer
+app/Services/Payments/MercadoPago.php      conversa com a API do Mercado Pago
+app/Services/Payments/PixService.php       Pix das parcelas na área do cliente
+app/Services/Payments/SubscriptionService.php  assinatura das lojas
 ```

@@ -31,7 +31,7 @@
         ],
         'Sistema' => [
             ['Notificações', 'notifications.index', 'notifications.*', 'bell', false],
-            ['Configurações', 'settings.edit', 'settings.*|users.*|audit.*|export.*', 'gear', true],
+            ['Configurações', 'settings.edit', 'settings.*|users.*|audit.*|export.*|billing.*', 'gear', true],
         ],
     ];
     $tabs = [
@@ -157,6 +157,7 @@
             <div class="page-actions">@yield('actions')</div>
         </div>
         @include('partials.flash')
+        @include('billing._notice')
         @yield('content')
     </main>
 </div>

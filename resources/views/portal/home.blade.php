@@ -18,7 +18,13 @@
     <section class="portal-hero is-late">
         <div class="portal-hero-label">{{ $totals['overdue_count'] === 1 ? 'Você tem 1 parcela atrasada' : 'Você tem '.$totals['overdue_count'].' parcelas atrasadas' }}</div>
         <div class="portal-hero-value">{{ money($totals['overdue']) }}</div>
-        <div class="portal-hero-text">Fale com a loja para combinar o pagamento.</div>
+        <div class="portal-hero-text">{{ $pix ? 'Pague agora pelo Pix e a baixa é na hora.' : 'Fale com a loja para combinar o pagamento.' }}</div>
+        @if ($pix && $next)
+            <form method="POST" action="{{ route('portal.pix.create', $next->id) }}" class="mt-3">
+                @csrf
+                <button class="portal-hero-btn"><x-icon name="pix" width="16" height="16" /> Pagar parcela {{ $next->label() }} com Pix · {{ money($next->amount) }}</button>
+            </form>
+        @endif
     </section>
 @elseif ($next)
     <section class="portal-hero">
@@ -28,6 +34,12 @@
             Vence {{ $days === 0 ? 'hoje' : ($days === 1 ? 'amanhã' : 'em '.$next->due_date->format('d/m/Y')) }}
             @if ($days > 1) <span class="portal-hero-chip">em {{ $days }} dias</span> @endif
         </div>
+        @if ($pix)
+            <form method="POST" action="{{ route('portal.pix.create', $next->id) }}" class="mt-3">
+                @csrf
+                <button class="portal-hero-btn"><x-icon name="pix" width="16" height="16" /> Pagar com Pix</button>
+            </form>
+        @endif
     </section>
 @elseif ($sales->isNotEmpty())
     <section class="portal-hero is-done">
@@ -111,6 +123,12 @@
                                     <span class="pill pill-danger">Atrasada</span>
                                 @else
                                     <x-status :value="$installment->status" />
+                                @endif
+                                @if ($pix && $installment->isOpen())
+                                    <form method="POST" action="{{ route('portal.pix.create', $installment->id) }}" class="mt-1">
+                                        @csrf
+                                        <button class="portal-pix-btn"><x-icon name="pix" width="13" height="13" /> Pagar com Pix</button>
+                                    </form>
                                 @endif
                             </div>
                         </li>

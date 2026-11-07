@@ -38,8 +38,13 @@ Route::prefix('cliente')->name('portal.')->group(function () {
         Route::get('/minha-area', [\App\Http\Controllers\Portal\PortalController::class, 'home'])->name('home');
         Route::get('/compras/{sale}/comprovante', [\App\Http\Controllers\Portal\PortalController::class, 'receipt'])->whereNumber('sale')->middleware('throttle:30,1')->name('receipt');
         Route::post('/sair', [\App\Http\Controllers\Portal\PortalController::class, 'logout'])->name('logout');
+        Route::post('/parcelas/{installment}/pix', [\App\Http\Controllers\Portal\PixController::class, 'create'])->whereNumber('installment')->middleware('throttle:10,1')->name('pix.create');
+        Route::get('/parcelas/{installment}/pix', [\App\Http\Controllers\Portal\PixController::class, 'show'])->whereNumber('installment')->name('pix.show');
+        Route::get('/parcelas/{installment}/pix/situacao', [\App\Http\Controllers\Portal\PixController::class, 'status'])->whereNumber('installment')->middleware('throttle:40,1')->name('pix.status');
     });
 });
+Route::post('/webhooks/mercadopago/loja/{company}', [\App\Http\Controllers\MercadoPagoWebhookController::class, 'store'])->whereNumber('company')->middleware('throttle:120,1')->name('webhooks.mercadopago.store');
+Route::post('/webhooks/mercadopago/plataforma', [\App\Http\Controllers\MercadoPagoWebhookController::class, 'platform'])->middleware('throttle:120,1')->name('webhooks.mercadopago.platform');
 Route::get('/recibo/{sale}', [ReceiptController::class, 'public'])->middleware(['signed', 'throttle:30,1'])->whereNumber('sale')->name('receipts.public');
 
 Route::middleware('guest')->group(function () {
@@ -59,7 +64,7 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
-Route::middleware(['auth', 'company', 'alerts'])->group(function () {
+Route::middleware(['auth', 'company', 'alerts', 'plan'])->group(function () {
     Route::post('/desfazer/{token}', \App\Http\Controllers\UndoController::class)->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:20,1')->name('undo');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/fotos/{path}', PhotoController::class)->where('path', '.*')->name('photos.show');
@@ -99,6 +104,8 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
         Route::get('/plataforma/erros', [PlatformController::class, 'errors'])->name('platform.errors');
         Route::get('/plataforma/sugestoes', [PlatformController::class, 'feedback'])->name('platform.feedback');
         Route::post('/plataforma/sugestoes/lidas', [PlatformController::class, 'feedbackRead'])->name('platform.feedback.read');
+        Route::post('/plataforma/empresas/{company}/cortesia', [PlatformController::class, 'courtesy'])->name('platform.courtesy');
+        Route::patch('/plataforma/empresas/{company}/isencao', [PlatformController::class, 'exempt'])->name('platform.exempt');
         Route::patch('/plataforma/erros/{report}/resolver', [PlatformController::class, 'resolveError'])->name('platform.errors.resolve');
         Route::delete('/plataforma/erros/resolvidos', [PlatformController::class, 'clearResolved'])->name('platform.errors.clear');
     });
@@ -120,6 +127,12 @@ Route::middleware(['auth', 'company', 'alerts'])->group(function () {
         Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/relatorios/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
 
+        Route::get('/assinatura', [\App\Http\Controllers\BillingController::class, 'show'])->name('billing.show');
+        Route::post('/assinatura/pagar', [\App\Http\Controllers\BillingController::class, 'checkout'])->middleware('throttle:10,1')->name('billing.checkout');
+        Route::get('/assinatura/retorno', [\App\Http\Controllers\BillingController::class, 'return'])->name('billing.return');
+        Route::get('/configuracoes/recebimentos', [\App\Http\Controllers\Settings\PaymentSettingController::class, 'edit'])->name('settings.payments');
+        Route::put('/configuracoes/recebimentos', [\App\Http\Controllers\Settings\PaymentSettingController::class, 'update'])->middleware('throttle:10,1')->name('settings.payments.update');
+        Route::delete('/configuracoes/recebimentos', [\App\Http\Controllers\Settings\PaymentSettingController::class, 'destroy'])->name('settings.payments.destroy');
         Route::get('/configuracoes', [SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/configuracoes', [SettingController::class, 'update'])->name('settings.update');
         Route::post('/configuracoes/resumo-semanal/previa', [SettingController::class, 'previewSummary'])->middleware('throttle:5,10')->name('settings.summary.preview');

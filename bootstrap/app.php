@@ -24,7 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'alerts' => SyncAlerts::class,
             'platform' => EnsurePlatformAdmin::class,
             'portal' => \App\Http\Middleware\EnsurePortalCustomer::class,
+            'plan' => \App\Http\Middleware\EnsureActivePlan::class,
         ]);
+        $middleware->validateCsrfTokens(except: ['webhooks/*']);
         $middleware->web(append: [SecurityHeaders::class]);
         $middleware->prependToPriorityList(
             before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -34,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo('/dashboard');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->dontFlash(['access_token', 'current_password', 'password', 'password_confirmation']);
         // Monitoramento: guarda o erro e avisa o dono por e-mail (o log normal continua).
         $exceptions->report(function (Throwable $e) {
             app(\App\Services\ErrorMonitor::class)->record($e);

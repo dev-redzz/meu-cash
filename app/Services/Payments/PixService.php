@@ -53,6 +53,7 @@ class PixService
     {
         $account = MercadoPago::make($token)->account();
 
+        $this->discardPending();
         Setting::put('mp_access_token', Crypt::encryptString($token));
         Setting::put('mp_account', json_encode([
             'id' => $account['id'] ?? null,
@@ -67,8 +68,15 @@ class PixService
 
     public function disconnect(): void
     {
+        $this->discardPending();
         Setting::put('mp_access_token', '');
         Setting::put('mp_account', '');
+    }
+
+    /** Pix gerados com o token antigo deixam de valer (ex.: troca do token de teste pelo de produção). */
+    private function discardPending(): void
+    {
+        OnlinePayment::where('status', 'pendente')->update(['status' => 'cancelado']);
     }
 
     public function account(): ?array

@@ -79,6 +79,28 @@ class PagamentosTest extends TestCase
         $this->put('/configuracoes/recebimentos', ['access_token' => 'qualquer'])->assertSessionHasErrors('access_token');
     }
 
+    public function test_trocar_token_descarta_pix_gerado_com_token_antigo(): void
+    {
+        [$customer, $installment] = $this->venda();
+        $this->conectarLoja();
+        $this->entrarNoPortal($customer);
+
+        Http::fake([
+            'api.mercadopago.com/v1/payments' => Http::sequence()
+                ->push(['id' => 1, 'status' => 'pending', 'point_of_interaction' => ['transaction_data' => ['qr_code' => 'PIX-TESTE']]], 201)
+                ->push(['id' => 2, 'status' => 'pending', 'point_of_interaction' => ['transaction_data' => ['qr_code' => 'PIX-PRODUCAO']]], 201),
+            'api.mercadopago.com/users/me' => Http::response(['id' => 1, 'email' => 'mp@loja.com']),
+        ]);
+        $this->post("/cliente/parcelas/{$installment->id}/pix");
+
+        auth('web')->logout();
+        $this->actingAs($this->admin)->put('/configuracoes/recebimentos', ['access_token' => 'APP_USR-novo-token'])->assertSessionHasNoErrors();
+
+        $this->entrarNoPortal($customer);
+        $this->post("/cliente/parcelas/{$installment->id}/pix");
+        $this->get("/cliente/parcelas/{$installment->id}/pix")->assertSee('PIX-PRODUCAO')->assertDontSee('PIX-TESTE');
+    }
+
     public function test_token_recusado_nao_conecta(): void
     {
         Http::fake(['api.mercadopago.com/*' => Http::response(['message' => 'invalid'], 401)]);

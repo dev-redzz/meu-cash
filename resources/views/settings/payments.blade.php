@@ -21,6 +21,12 @@
                         <span>{{ $account['name'] ?? 'Conta Mercado Pago' }}@if (! empty($account['email'])) · {{ $account['email'] }}@endif</span>
                         @if (! empty($account['at']))<span class="small text-muted-2">Desde {{ \Illuminate\Support\Carbon::parse($account['at'])->format('d/m/Y H:i') }}</span>@endif
                     </div>
+                    @if ($account['test'] ?? false)
+                        <div class="notice-bar is-warning mb-3" role="status">
+                            <x-icon name="alert" width="18" height="18" />
+                            <span><strong>Este token é de teste.</strong> O Pix gerado com ele não pode ser pago no app do banco (dá "chave Pix não encontrada"). Para receber de verdade, cole o Access Token das <strong>Credenciais de produção</strong> da sua conta real.</span>
+                        </div>
+                    @endif
                 @endif
 
                 <form method="POST" action="{{ route('settings.payments.update') }}">

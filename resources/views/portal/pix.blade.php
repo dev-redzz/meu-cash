@@ -34,6 +34,9 @@
     </div>
 
     <div class="pix-state pix-pending" @unless ($pending) hidden @endunless>
+        @if ($payment->live_mode === false)
+            <div class="portal-flash is-error">Pix de teste: não pode ser pago no app do banco. A loja precisa usar o token de produção do Mercado Pago.</div>
+        @endif
         @if ($payment->qr_code_base64)
             <img class="pix-qr" src="data:image/png;base64,{{ $payment->qr_code_base64 }}" alt="QR Code do Pix" width="220" height="220">
         @endif

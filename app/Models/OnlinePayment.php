@@ -12,7 +12,7 @@ class OnlinePayment extends Model
 
     protected $fillable = [
         'installment_id', 'customer_id', 'provider_id', 'status', 'amount',
-        'qr_code', 'qr_code_base64', 'ticket_url', 'expires_at', 'paid_at', 'checked_at',
+        'qr_code', 'qr_code_base64', 'ticket_url', 'expires_at', 'paid_at', 'checked_at', 'live_mode',
     ];
 
     protected $hidden = ['qr_code_base64'];
@@ -24,6 +24,7 @@ class OnlinePayment extends Model
             'expires_at' => 'datetime',
             'paid_at' => 'datetime',
             'checked_at' => 'datetime',
+            'live_mode' => 'boolean',
         ];
     }
 

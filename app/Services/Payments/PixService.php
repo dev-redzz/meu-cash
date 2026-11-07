@@ -59,7 +59,7 @@ class PixService
             'id' => $account['id'] ?? null,
             'name' => trim(($account['first_name'] ?? '').' '.($account['last_name'] ?? '')) ?: ($account['nickname'] ?? null),
             'email' => $account['email'] ?? null,
-            'test' => str_starts_with($token, 'TEST-'),
+            'test' => MercadoPago::isTestAccount($token, $account),
             'at' => now()->toIso8601String(),
         ]));
 
@@ -139,6 +139,7 @@ class PixService
             'qr_code' => $pix['qr_code'],
             'qr_code_base64' => $pix['qr_code_base64'],
             'ticket_url' => $pix['ticket_url'],
+            'live_mode' => $pix['live_mode'],
         ]);
 
         return $payment;
@@ -156,7 +157,19 @@ class PixService
         }
 
         $payment->update(['checked_at' => now()]);
-        $data = MercadoPago::make($this->token())->payment($payment->provider_id);
+
+        try {
+            $data = MercadoPago::make($this->token())->payment($payment->provider_id);
+        } catch (RuntimeException $e) {
+            // 404: o Pix foi criado com outro token (ex.: o de teste). Ele não vale mais.
+            if ($e->getCode() === 404) {
+                $payment->update(['status' => 'cancelado']);
+
+                return $payment;
+            }
+
+            throw $e;
+        }
 
         return $this->apply($payment, $data);
     }

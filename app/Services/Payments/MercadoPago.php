@@ -28,6 +28,14 @@ class MercadoPago
         return new self($token);
     }
 
+    /** Contas e tokens de teste geram Pix que nenhum banco consegue pagar. */
+    public static function isTestAccount(string $token, array $account): bool
+    {
+        $text = strtolower(($account['email'] ?? '').' '.($account['nickname'] ?? ''));
+
+        return str_starts_with($token, 'TEST-') || str_contains($text, 'testuser') || str_contains($text, 'test_user');
+    }
+
     /** Dados da conta dona do token (serve para testar a conexão). */
     public function account(): array
     {
@@ -59,6 +67,7 @@ class MercadoPago
             'qr_code' => $pix['qr_code'] ?? null,
             'qr_code_base64' => $pix['qr_code_base64'] ?? null,
             'ticket_url' => $pix['ticket_url'] ?? null,
+            'live_mode' => isset($payment['live_mode']) ? (bool) $payment['live_mode'] : null,
         ];
     }
 

@@ -101,6 +101,26 @@ class PagamentosTest extends TestCase
         $this->get("/cliente/parcelas/{$installment->id}/pix")->assertSee('PIX-PRODUCAO')->assertDontSee('PIX-TESTE');
     }
 
+    public function test_pix_de_outro_token_some_sem_erro_e_conta_de_teste_avisa(): void
+    {
+        [$customer, $installment] = $this->venda();
+
+        Http::fake(['api.mercadopago.com/users/me' => Http::response(['id' => 9, 'email' => 'test_user_123@testuser.com', 'nickname' => 'TESTUSER123'])]);
+        $this->actingAs($this->admin)->put('/configuracoes/recebimentos', ['access_token' => 'APP_USR-de-usuario-teste'])->assertSessionHasNoErrors();
+        $this->get('/configuracoes/recebimentos')->assertSee('Este token é de teste');
+
+        $this->entrarNoPortal($customer);
+        Http::fake([
+            'api.mercadopago.com/v1/payments' => Http::response(['id' => 42, 'status' => 'pending', 'live_mode' => false, 'point_of_interaction' => ['transaction_data' => ['qr_code' => 'X']]], 201),
+            'api.mercadopago.com/v1/payments/42' => Http::response(['message' => 'Payment not found'], 404),
+        ]);
+        $this->post("/cliente/parcelas/{$installment->id}/pix");
+        $this->get("/cliente/parcelas/{$installment->id}/pix")->assertSee('Pix de teste');
+
+        $this->getJson("/cliente/parcelas/{$installment->id}/pix/situacao")->assertOk()->assertJson(['status' => 'cancelado', 'paid' => false]);
+        $this->assertSame(0, \App\Models\ErrorReport::count());
+    }
+
     public function test_token_recusado_nao_conecta(): void
     {
         Http::fake(['api.mercadopago.com/*' => Http::response(['message' => 'invalid'], 401)]);

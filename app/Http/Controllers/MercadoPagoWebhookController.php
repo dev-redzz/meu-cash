@@ -20,6 +20,9 @@ class MercadoPagoWebhookController extends Controller
             try {
                 $pix->handleNotification($company, $id);
             } catch (\Throwable $e) {
+                if ($this->notFound($e)) {
+                    return response('ignorado');
+                }
                 report($e);
 
                 return response('erro', 500);
@@ -35,6 +38,9 @@ class MercadoPagoWebhookController extends Controller
             try {
                 $billing->confirm($id);
             } catch (\Throwable $e) {
+                if ($this->notFound($e)) {
+                    return response('ignorado');
+                }
                 report($e);
 
                 return response('erro', 500);
@@ -42,6 +48,15 @@ class MercadoPagoWebhookController extends Controller
         }
 
         return response('ok');
+    }
+
+    /**
+     * Pagamento que não existe nesta conta: aviso de teste do painel do Mercado Pago,
+     * pagamento de outra integração ou de outro token. Não é erro do sistema.
+     */
+    private function notFound(\Throwable $e): bool
+    {
+        return $e->getCode() === 404 || str_contains($e->getMessage(), 'not found');
     }
 
     private function paymentId(Request $request): ?string

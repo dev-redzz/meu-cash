@@ -52,7 +52,7 @@
                             @endif
                             @if ($installment->customer?->whatsappNumber())
                                 <div class="dropdown">
-                                    <button class="icon-btn icon-btn-whatsapp" data-bs-toggle="dropdown" aria-expanded="false" title="Enviar pelo WhatsApp" aria-label="Enviar pelo WhatsApp">
+                                    <button class="icon-btn icon-btn-whatsapp" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="Enviar pelo WhatsApp" aria-label="Enviar pelo WhatsApp">
                                         <x-icon name="whatsapp" width="16" height="16" />
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">

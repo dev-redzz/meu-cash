@@ -1,4 +1,4 @@
-@props(['period', 'keep' => []])
+@props(['period', 'keep' => [], 'align' => 'end'])
 @php
     $kept = collect($keep)->mapWithKeys(fn ($name) => [$name => request($name)])->filter(fn ($v) => filled($v))->all();
     $label = $period->key === 'personalizado' ? 'Personalizado' : \App\Support\Period::OPTIONS[$period->key];
@@ -8,7 +8,7 @@
     $presets = collect(\App\Support\Period::OPTIONS)->except('personalizado');
 @endphp
 <div class="dropdown period-picker no-print">
-    <button type="button" class="period-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+    <button type="button" class="period-toggle" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' data-bs-auto-close="outside" aria-expanded="false">
         <span class="period-toggle-icon"><x-icon name="calendar" width="16" height="16" /></span>
         <span class="period-toggle-text">
             <span class="period-toggle-label">{{ $label }}</span>
@@ -16,7 +16,7 @@
         </span>
         <x-icon name="chevron-down" width="16" height="16" class="period-toggle-caret" />
     </button>
-    <div class="dropdown-menu dropdown-menu-end period-menu">
+    <div class="dropdown-menu {{ $align === 'start' ? '' : 'dropdown-menu-end' }} period-menu">
         <div class="period-presets">
             @foreach ($presets as $key => $text)
                 <a href="{{ url()->current().'?'.http_build_query($kept + ['periodo' => $key]) }}" @class(['period-preset', 'active' => $period->key === $key])>

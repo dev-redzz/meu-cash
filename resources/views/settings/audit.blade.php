@@ -6,7 +6,7 @@
 @include('settings._tabs')
 <div class="panel">
     <div class="panel-header flex-wrap">
-        <x-period :period="$period" :keep="['user_id', 'action']" />
+        <x-period align="start" :period="$period" :keep="['user_id', 'action']" />
         <form method="GET" class="d-flex flex-wrap gap-2" data-no-lock>
             @foreach ($period->query() as $k => $v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endforeach
             <select name="user_id" class="form-select w-auto" aria-label="Usuário">

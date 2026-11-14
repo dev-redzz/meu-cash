@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 use Throwable;
-use ZipArchive;
+use App\Support\ZipWriter;
 
 /**
  * Cópia completa do banco em um arquivo .zip (com o .sql dentro).
@@ -68,10 +68,8 @@ class BackupService
 
         // A Brevo não aceita .gz como anexo; .zip é aceito e abre em qualquer computador.
         $path = $dir.'/'.$name.'.zip';
-        $zip = new ZipArchive();
-        if ($zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            throw new RuntimeException('Não foi possível compactar o backup.');
-        }
+        // ZipWriter não depende da extensão zip do PHP (que não vem instalada no Railway).
+        $zip = new ZipWriter($path);
         $zip->addFile($sqlPath, $name.'.sql');
         $zip->close();
         @unlink($sqlPath);

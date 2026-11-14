@@ -10,7 +10,7 @@ use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use RuntimeException;
-use ZipArchive;
+use App\Support\ZipWriter;
 
 class ExportService
 {
@@ -45,13 +45,8 @@ class ExportService
 
     public function zip(): string
     {
-        if (! class_exists(ZipArchive::class)) {
-            throw new RuntimeException('A extensão zip do PHP não está ativa no servidor. Baixe as planilhas uma por uma.');
-        }
-
         $path = tempnam(sys_get_temp_dir(), 'meucash').'.zip';
-        $zip = new ZipArchive();
-        $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $zip = new ZipWriter($path);
 
         foreach (array_keys(self::DATASETS) as $dataset) {
             $zip->addFromString("{$dataset}.csv", $this->csv($dataset));

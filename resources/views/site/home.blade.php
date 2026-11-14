@@ -4,14 +4,14 @@
 
 @php
     $features = [
-        ['cart', 'blue', 'Vendas à vista e parceladas', 'Registre a venda em segundos, com entrada, parcelas e vencimentos calculados sozinhos.'],
+        ['cart', 'blue', 'Vendas, crediário e trocas', 'Registre a venda em segundos, com entrada e parcelas. Trocou o tamanho? O estoque e as parcelas se ajustam sozinhos.'],
         ['tag', 'violet', 'Preço sugerido', 'Informe quanto pagou e quanto quer lucrar: o sistema sugere um preço de venda justo, já arredondado.'],
-        ['box', 'green', 'Estoque com reposição', 'Lucro de cada produto, estoque mínimo e aviso quando é hora de comprar de novo.'],
+        ['barcode', 'green', 'Estoque e etiquetas', 'Lucro de cada produto, aviso de reposição e etiquetas com preço e código de barras para imprimir.'],
         ['users', 'amber', 'Clientes e cobrança', 'Histórico de compras de cada cliente e lembrete de parcela pronto para enviar no WhatsApp.'],
         ['wallet', 'rose', 'Caixa e financeiro', 'Entradas e saídas, saldo do caixa e o que ainda falta receber, sem planilha.'],
         ['chart', 'slate', 'Relatórios e metas', 'Faturamento, lucro, produtos mais vendidos e meta do mês para a loja e para cada vendedor.'],
         ['team', 'blue', 'Equipe com permissões', 'Funcionários vendem e cadastram; só o administrador vê o financeiro e exclui registros.'],
-        ['upload', 'violet', 'Importação de planilha', 'Já tem tudo no Excel? Envie a planilha e cadastre todos os produtos de uma vez.'],
+        ['store', 'violet', 'Catálogo online', 'Um link com suas peças, fotos e preços. A cliente escolhe e o pedido chega no seu WhatsApp.'],
     ];
     $faq = [
         ['O que quer dizer versão beta?', 'Que o sistema já está pronto para o dia a dia da loja e segue recebendo melhorias toda semana. Durante o beta o uso é grátis, e dentro do sistema tem o botão Enviar sugestão para você contar o que falta.'],

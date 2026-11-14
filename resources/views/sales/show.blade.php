@@ -7,6 +7,9 @@
     @if ($sale->customer?->whatsappNumber())
         <a href="{{ route('receipts.whatsapp', $sale) }}" target="_blank" rel="noopener" class="btn btn-cta btn-cta-green"><span class="btn-cta-icon"><x-icon name="whatsapp" width="16" height="16" /></span>Enviar comprovante</a>
     @endif
+    @if ($sale->status->value === 'concluida')
+        <a href="{{ route('sales.exchange', $sale) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="refresh" width="16" height="16" /></span>Troca</a>
+    @endif
     <a href="{{ route('sales.edit', $sale) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="pencil" width="16" height="16" /></span>Editar</a>
     @can('admin')
         @if ($sale->status->value === 'concluida')
@@ -56,6 +59,7 @@
                 @if ($sale->notes)<hr><p class="mb-0" style="white-space: pre-line">{{ $sale->notes }}</p>@endif
             </div>
         </div>
+        @include('sales._invoice')
     </div>
     <div class="col-lg-8">
         <div class="panel mb-3">
@@ -90,6 +94,33 @@
             </div>
         @endif
 
+        @if ($sale->exchanges->isNotEmpty())
+            <div class="panel mb-3">
+                <div class="panel-header"><h2 class="panel-title">Trocas</h2></div>
+                <div class="panel-body exchange-list">
+                    @foreach ($sale->exchanges as $exchange)
+                        <div class="exchange-item">
+                            <div class="exchange-head">
+                                <strong>{{ $exchange->created_at->format('d/m/Y H:i') }}</strong>
+                                <span class="small text-muted-2">{{ $exchange->user?->name }}</span>
+                            </div>
+                            <div class="exchange-cols">
+                                <div>
+                                    <div class="exchange-label is-out">Devolveu</div>
+                                    @forelse ($exchange->returned as $row)<div>{{ $row['quantity'] }}x {{ $row['description'] }} <span class="text-muted-2">{{ money($row['total']) }}</span></div>@empty<div class="text-muted-2">—</div>@endforelse
+                                </div>
+                                <div>
+                                    <div class="exchange-label is-in">Levou</div>
+                                    @forelse ($exchange->added as $row)<div>{{ $row['quantity'] }}x {{ $row['description'] }} <span class="text-muted-2">{{ money($row['total']) }}</span></div>@empty<div class="text-muted-2">—</div>@endforelse
+                                </div>
+                            </div>
+                            <div class="exchange-foot">{{ $exchange->settlementLabel() }}@if ($exchange->notes) · {{ $exchange->notes }}@endif</div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <div class="panel">
             <div class="panel-header"><h2 class="panel-title">Pagamentos recebidos</h2></div>
             <div class="table-responsive">
@@ -99,9 +130,9 @@
                         @forelse ($sale->payments as $payment)
                             <tr>
                                 <td>{{ $payment->paid_at->format('d/m/Y') }}</td>
-                                <td>{{ $payment->installment ? 'Parcela '.$payment->installment->label() : 'Entrada / à vista' }}</td>
+                                <td>{{ $payment->installment ? 'Parcela '.$payment->installment->label() : ($payment->notes && str_contains($payment->notes, 'troca') ? $payment->notes : 'Entrada / à vista') }}</td>
                                 <td>{{ $payment->payment_method->label() }}</td>
-                                <td class="num text-positive">{{ money($payment->amount) }}</td>
+                                <td class="num {{ $payment->amount < 0 ? 'text-negative' : 'text-positive' }}">{{ money($payment->amount) }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="4"><x-empty message="Nenhum pagamento recebido ainda." /></td></tr>

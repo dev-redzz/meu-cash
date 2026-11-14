@@ -16,6 +16,7 @@ class Product extends Model
     protected $fillable = [
         'category_id', 'name', 'brand', 'model', 'barcode', 'purchase_date', 'purchase_price', 'expenses_total',
         'sale_price', 'initial_quantity', 'quantity', 'min_stock', 'status', 'notes', 'photos',
+        'ncm', 'cest', 'cfop', 'csosn', 'origin', 'unit', 'in_catalog',
     ];
 
     protected function casts(): array
@@ -27,6 +28,7 @@ class Product extends Model
             'sale_price' => 'decimal:2',
             'status' => ProductStatus::class,
             'photos' => 'array',
+            'in_catalog' => 'boolean',
             'min_stock' => 'integer',
         ];
     }

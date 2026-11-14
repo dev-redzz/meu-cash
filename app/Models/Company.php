@@ -10,7 +10,7 @@ class Company extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'document', 'phone', 'active', 'paid_until', 'billing_exempt'];
+    protected $fillable = ['name', 'document', 'phone', 'active', 'paid_until', 'billing_exempt', 'catalog_slug'];
 
     protected function casts(): array
     {

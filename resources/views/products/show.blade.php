@@ -11,6 +11,7 @@
         <a href="{{ route('sales.create', ['product_id' => $product->id]) }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="cart" width="16" height="16" /></span>Vender</a>
     @endif
     <button type="button" class="btn btn-cta btn-cta-light" data-bs-toggle="modal" data-bs-target="#restockModal"><span class="btn-cta-icon"><x-icon name="box" width="16" height="16" /></span>Repor estoque</button>
+    <a href="{{ route('labels.index', ['ids' => $product->id]) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="barcode" width="16" height="16" /></span>Etiquetas</a>
     <a href="{{ route('products.edit', $product) }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="pencil" width="16" height="16" /></span>Editar</a>
     @can('admin')
         <form method="POST" action="{{ route('products.destroy', $product) }}" data-confirm="Excluir este produto e suas despesas?">

@@ -81,14 +81,34 @@ class SaleController extends Controller
 
         $sale = $this->sales->create($data);
 
+        $fiscal = app(\App\Services\Fiscal\InvoiceService::class);
+        if ($fiscal->autoEnabled()) {
+            \Illuminate\Support\defer(fn () => $fiscal->emitQuietly($sale->fresh()));
+        }
+
         return redirect()->route('sales.show', $sale)->with('success', "Venda {$sale->code} registrada.");
     }
 
     public function show(Sale $sale): View
     {
-        $sale->load(['customer', 'user', 'items.product', 'installments', 'payments.installment']);
+        $sale->load(['customer', 'user', 'items.product', 'installments', 'payments.installment', 'invoices', 'exchanges.user']);
+        $fiscal = app(\App\Services\Fiscal\InvoiceService::class);
 
-        return view('sales.show', ['sale' => $sale, 'receivingMethods' => PaymentMethod::receiving()]);
+        $invoice = $sale->invoices->first();
+        if ($invoice && $invoice->status === 'pendente' && $invoice->provider_id && $invoice->updated_at->lt(now()->subSeconds(3))) {
+            try {
+                $invoice = $fiscal->refresh($invoice);
+            } catch (\Throwable) {
+            }
+        }
+
+        return view('sales.show', [
+            'sale' => $sale,
+            'receivingMethods' => PaymentMethod::receiving(),
+            'invoice' => $invoice,
+            'fiscalReady' => $fiscal->ready(),
+            'fiscalIssues' => $invoice || ! $fiscal->ready() ? [] : $fiscal->productIssues($sale),
+        ]);
     }
 
     public function edit(Sale $sale): View
@@ -106,12 +126,19 @@ class SaleController extends Controller
     public function cancel(Sale $sale): RedirectResponse
     {
         $this->sales->cancel($sale);
+        $warning = app(\App\Services\Fiscal\InvoiceService::class)->cancelForSale($sale);
 
-        return redirect()->route('sales.show', $sale)->with('success', 'Venda cancelada. O estoque voltou e o dinheiro dela saiu do caixa.');
+        $redirect = redirect()->route('sales.show', $sale)->with('success', 'Venda cancelada. O estoque voltou e o dinheiro dela saiu do caixa.');
+
+        return $warning ? $redirect->with('error', $warning) : $redirect;
     }
 
     public function destroy(Sale $sale): RedirectResponse
     {
+        if ($sale->invoices()->where('status', 'autorizado')->exists()) {
+            return back()->with('error', 'Esta venda tem nota fiscal autorizada. Cancele a venda (a nota é cancelada junto) em vez de excluir.');
+        }
+
         $code = $sale->code;
         $this->sales->delete($sale);
 

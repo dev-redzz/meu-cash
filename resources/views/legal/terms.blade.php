@@ -74,6 +74,7 @@
 
 <h2 id="responsabilidades">6. Responsabilidades da empresa</h2>
 <ul>
+    <li>quando usar a emissão de nota fiscal, manter corretos os dados fiscais da empresa e dos produtos (NCM, CFOP, CSOSN e demais informações), o certificado digital e o CSC, e conferir as notas emitidas. O Meu Cash transmite a nota com as informações cadastradas pela empresa e não presta serviço de contabilidade;</li>
     <li>Garantir que os dados cadastrados estão corretos e que ela tem base legal para tratar os dados pessoais dos seus clientes, conforme a Lei Geral de Proteção de Dados (LGPD).</li>
     <li>Cumprir as leis que se aplicam ao seu negócio, inclusive as obrigações fiscais e de emissão de notas. O Meu Cash é uma ferramenta de gestão e não emite documentos fiscais.</li>
     <li>Conferir os cálculos e relatórios antes de tomar decisões financeiras importantes.</li>

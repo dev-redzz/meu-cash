@@ -28,7 +28,25 @@
                     <div class="col-md-6 col-xl-3"><x-select name="status" label="Status" :options="\App\Enums\ProductStatus::options()" :value="$product->status" required /></div>
                     <div class="col-6 col-xl-3"><x-input name="quantity" type="number" min="0" label="Quantidade" :value="$product->quantity ?? 1" required /></div>
                     <div class="col-6 col-xl-3"><x-input name="min_stock" type="number" min="0" label="Estoque mínimo" :value="$product->min_stock" placeholder="Ex.: 3" help="Avisamos quando chegar nisso." /></div>
+                    <div class="col-12">
+                        <div class="form-check form-switch mb-3">
+                            <input type="hidden" name="in_catalog" value="0">
+                            <input class="form-check-input" type="checkbox" role="switch" name="in_catalog" id="in_catalog" value="1" @checked(old('in_catalog', ($product->in_catalog ?? true) ? '1' : '0') === '1')>
+                            <label class="form-check-label" for="in_catalog">Mostrar no catálogo online</label>
+                        </div>
+                    </div>
                     <div class="col-12"><x-textarea name="notes" label="Observações" :value="$product->notes" rows="3" placeholder="Estado, saúde da bateria, IMEI, detalhes..." /></div>
+                </div>
+            </x-form-section>
+
+            <x-form-section title="Dados fiscais" icon="receipt" accent="amber" description="Usados na nota fiscal (NFC-e). O NCM é obrigatório para emitir; os outros campos podem ficar no padrão. Na dúvida, pergunte ao seu contador.">
+                <div class="row gx-3">
+                    <div class="col-sm-6 col-xl-3"><x-input name="ncm" label="NCM" :value="$product->ncm" maxlength="10" inputmode="numeric" placeholder="Ex.: 85171300" help="Classificação do produto." /></div>
+                    <div class="col-sm-6 col-xl-3"><x-input name="cfop" label="CFOP" :value="$product->cfop" maxlength="4" inputmode="numeric" placeholder="Padrão da loja" /></div>
+                    <div class="col-sm-6 col-xl-3"><x-input name="cest" label="CEST" :value="$product->cest" maxlength="9" inputmode="numeric" placeholder="Se tiver" /></div>
+                    <div class="col-sm-6 col-xl-3"><x-input name="unit" label="Unidade" :value="$product->unit ?? 'UN'" maxlength="6" placeholder="UN" /></div>
+                    <div class="col-md-6"><x-select name="csosn" label="Situação do ICMS (CSOSN)" :options="\App\Services\Fiscal\InvoiceService::CSOSN" :value="$product->csosn" placeholder="Padrão da loja" /></div>
+                    <div class="col-md-6"><x-select name="origin" label="Origem" :options="\App\Services\Fiscal\InvoiceService::ORIGIN" :value="$product->origin ?? 0" /></div>
                 </div>
             </x-form-section>
 

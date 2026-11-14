@@ -205,7 +205,7 @@ class SaleService
         return 'V'.str_pad((string) ((int) substr((string) $last, 1) + 1), 5, '0', STR_PAD_LEFT);
     }
 
-    private function decrementStock(Product $product, int $quantity, Sale $sale): void
+    public function decrementStock(Product $product, int $quantity, Sale $sale): void
     {
         $product->decrement('quantity', $quantity);
         $product->refresh();

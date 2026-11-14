@@ -45,6 +45,8 @@ Route::prefix('cliente')->name('portal.')->group(function () {
 });
 Route::post('/webhooks/mercadopago/loja/{company}', [\App\Http\Controllers\MercadoPagoWebhookController::class, 'store'])->whereNumber('company')->middleware('throttle:120,1')->name('webhooks.mercadopago.store');
 Route::post('/webhooks/mercadopago/plataforma', [\App\Http\Controllers\MercadoPagoWebhookController::class, 'platform'])->middleware('throttle:120,1')->name('webhooks.mercadopago.platform');
+Route::get('/loja/{slug}', [\App\Http\Controllers\CatalogController::class, 'show'])->where('slug', '[a-z0-9-]+')->middleware('throttle:120,1')->name('catalog.show');
+Route::get('/loja/{slug}/foto/{product}/{index}', [\App\Http\Controllers\CatalogController::class, 'photo'])->where('slug', '[a-z0-9-]+')->whereNumber(['product', 'index'])->middleware('throttle:600,1')->name('catalog.photo');
 Route::get('/recibo/{sale}', [ReceiptController::class, 'public'])->middleware(['signed', 'throttle:30,1'])->whereNumber('sale')->name('receipts.public');
 
 Route::middleware('guest')->group(function () {
@@ -76,6 +78,8 @@ Route::middleware(['auth', 'company', 'alerts', 'plan'])->group(function () {
     Route::get('/products/importar', [ProductImportController::class, 'create'])->name('products.import.create');
     Route::get('/products/importar/modelo', [ProductImportController::class, 'template'])->name('products.import.template');
     Route::post('/products/importar', [ProductImportController::class, 'store'])->middleware('throttle:10,1')->name('products.import.store');
+    Route::get('/etiquetas', [\App\Http\Controllers\LabelController::class, 'index'])->name('labels.index');
+    Route::get('/etiquetas/imprimir', [\App\Http\Controllers\LabelController::class, 'print'])->name('labels.print');
     Route::resource('products', ProductController::class)->except('destroy');
     Route::post('/products/{product}/repor', [ProductController::class, 'restock'])->name('products.restock');
     Route::post('/products/{product}/expenses', [ProductExpenseController::class, 'store'])->name('products.expenses.store');
@@ -84,6 +88,11 @@ Route::middleware(['auth', 'company', 'alerts', 'plan'])->group(function () {
     Route::get('/buscar', \App\Http\Controllers\SearchController::class)->name('search');
     Route::resource('sales', SaleController::class)->except('destroy');
     Route::get('/sales/{sale}/recibo', [ReceiptController::class, 'show'])->name('receipts.show');
+    Route::get('/sales/{sale}/troca', [\App\Http\Controllers\ExchangeController::class, 'create'])->name('sales.exchange');
+    Route::post('/sales/{sale}/troca', [\App\Http\Controllers\ExchangeController::class, 'store'])->middleware('throttle:20,1')->name('sales.exchange.store');
+    Route::post('/sales/{sale}/nota', [\App\Http\Controllers\InvoiceController::class, 'store'])->middleware('throttle:20,1')->name('invoices.store');
+    Route::post('/notas/{invoice}/atualizar', [\App\Http\Controllers\InvoiceController::class, 'refresh'])->middleware('throttle:30,1')->name('invoices.refresh');
+    Route::get('/notas/{invoice}/{kind}', [\App\Http\Controllers\InvoiceController::class, 'download'])->whereIn('kind', ['pdf', 'xml'])->name('invoices.download');
     Route::get('/sales/{sale}/recibo/whatsapp', [ReceiptController::class, 'whatsapp'])->name('receipts.whatsapp');
 
     Route::post('/installments/{installment}/pay', [InstallmentController::class, 'pay'])->name('installments.pay');
@@ -117,6 +126,12 @@ Route::middleware(['auth', 'company', 'alerts', 'plan'])->group(function () {
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
         Route::delete('/products/{product}/expenses/{expense}', [ProductExpenseController::class, 'destroy'])->name('products.expenses.destroy');
         Route::post('/sales/{sale}/cancel', [SaleController::class, 'cancel'])->name('sales.cancel');
+        Route::post('/notas/{invoice}/cancelar', [\App\Http\Controllers\InvoiceController::class, 'cancel'])->middleware('throttle:10,1')->name('invoices.cancel');
+        Route::get('/configuracoes/catalogo', [\App\Http\Controllers\Settings\CatalogSettingController::class, 'edit'])->name('settings.catalog');
+        Route::put('/configuracoes/catalogo', [\App\Http\Controllers\Settings\CatalogSettingController::class, 'update'])->name('settings.catalog.update');
+        Route::get('/configuracoes/nota-fiscal', [\App\Http\Controllers\Settings\FiscalSettingController::class, 'edit'])->name('settings.fiscal');
+        Route::put('/configuracoes/nota-fiscal', [\App\Http\Controllers\Settings\FiscalSettingController::class, 'update'])->middleware('throttle:20,1')->name('settings.fiscal.update');
+        Route::post('/configuracoes/nota-fiscal/certificado', [\App\Http\Controllers\Settings\FiscalSettingController::class, 'certificate'])->middleware('throttle:10,1')->name('settings.fiscal.certificate');
         Route::delete('/sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');
 
         Route::get('/vendedores', SellerController::class)->name('sellers.index');

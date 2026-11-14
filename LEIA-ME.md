@@ -12,6 +12,10 @@ Cada empresa só enxerga os próprios dados.
 - **Equipe:** administrador e funcionário, com permissões diferentes.
 - **Backup diário** do banco por e-mail e **monitoramento de erros**, no Painel da plataforma.
 - **Painel da plataforma** (`/plataforma`): todas as empresas, uso, suspender e reativar, erros e sugestões da versão beta.
+- **Troca:** o cliente devolve peças e leva outras; estoque, venda, caixa e parcelas se ajustam.
+- **Etiquetas com código de barras:** térmica ou folha A4, com preço; produto sem código ganha um código da loja.
+- **Catálogo online:** página pública da loja com os produtos em estoque e pedido pelo WhatsApp.
+- **Nota fiscal (NFC-e):** emissão pela Nuvem Fiscal, automática ou pelo botão na venda, com DANFE, XML e cancelamento.
 - **Pix na área do cliente:** a loja conecta o Mercado Pago dela e o cliente paga a parcela pelo Pix, com baixa automática.
 - **Assinatura das lojas:** teste grátis, plano mensal ou anual pelo Mercado Pago e modo só consulta quando vence (desligada durante o beta).
 - **Versão beta:** selo Beta e botão **Enviar sugestão** dentro do sistema; as mensagens chegam por e-mail e ficam em Plataforma > Sugestões.
@@ -57,6 +61,65 @@ O **Pre-deploy Command** continua `php artisan migrate --force`. O deploy é pel
 - Para restaurar: descompacte o `.zip` e importe o `.sql` no MySQL (phpMyAdmin, ou `mysql -u ... nome_do_banco < arquivo.sql`).
 - O backup roda quando alguém usa o sistema depois das 3h. Para rodar mesmo sem ninguém usar, crie um Cron no Railway com `php artisan meucash:backup` e horário `0 6 * * *` (3h de Brasília).
 - Precisa do e-mail configurado (Brevo).
+
+## Troca
+
+Na página da venda, botão **Troca**:
+
+1. Marque quantas unidades de cada item o cliente devolveu.
+2. Bipe ou procure os produtos que ele vai levar (o preço pode ser ajustado).
+3. O sistema mostra a diferença: **Cliente paga** ou **Loja devolve**.
+   - **Recebo/Devolvo agora:** entra ou sai do caixa na forma escolhida.
+   - **Somar na última parcela / Abater das parcelas** (venda no crediário): ajusta as parcelas em aberto, da última para a primeira.
+4. A venda passa a mostrar os itens que o cliente ficou, com total e lucro atualizados. O histórico fica no quadro **Trocas** da venda.
+
+Para devolver tudo, cancele a venda. Venda com NFC-e: a troca não altera a nota (confira a nota de devolução com o contador).
+
+## Etiquetas
+
+**Produtos > Etiquetas** (ou **Etiquetas** na página do produto): escolha a quantidade de cada produto e o modelo:
+
+- térmica 50 × 30, 40 × 25 ou 33 × 22 mm (3 colunas);
+- folha A4 com 21 ou 65 etiquetas.
+
+Abre uma página pronta para imprimir com nome, preço e código de barras (Code 128, lido por qualquer leitor). Produto sem código ganha um **EAN-13 interno** (começa com 2), que já serve para bipar na venda e na troca. Na impressora térmica, escolha o papel do mesmo tamanho da etiqueta e margens "Nenhuma".
+
+## Catálogo online
+
+**Configurações > Catálogo online**: ligue, escolha o endereço (ex.: `SEU-DOMINIO/loja/boutique-da-ana`) e o WhatsApp que recebe os pedidos.
+
+- Aparecem só produtos em estoque, com preço e marcados com **Mostrar no catálogo online** (no cadastro do produto). Esgotou, sai sozinho.
+- O cliente busca, filtra por categoria, monta o pedido e toca em **Enviar pedido pelo WhatsApp**: chega uma mensagem pronta com itens, quantidades e total.
+- Custo, lucro e observações do produto nunca aparecem.
+
+## Nota fiscal (NFC-e)
+
+O Meu Cash emite a **NFC-e** (cupom fiscal eletrônico do consumidor, modelo 65) pela **Nuvem Fiscal**, que assina e transmite para a SEFAZ. Funciona para empresas do **Simples Nacional** e **MEI**.
+
+**Você (plataforma), uma vez só:**
+
+1. Crie a conta em https://www.nuvemfiscal.com.br e, no console, crie as credenciais da API (Client ID e Client Secret).
+2. No Railway, adicione:
+   ```
+   NUVEMFISCAL_CLIENT_ID=...
+   NUVEMFISCAL_CLIENT_SECRET=...
+   NUVEMFISCAL_SANDBOX=true      # false quando for emitir de verdade
+   ```
+   Com `true` tudo vai para o ambiente de testes da Nuvem Fiscal. Cada loja é cadastrada como uma empresa dentro da sua conta; a Nuvem Fiscal cobra de você conforme o plano dela.
+
+**Cada loja, em Configurações > Nota fiscal:**
+
+1. Dados da empresa (CNPJ, Inscrição Estadual, razão social, regime) e endereço. O código do município é buscado pelo CEP.
+2. **CSC** (ID e código), gerado no portal da SEFAZ do estado. Homologação e produção têm CSC diferentes.
+3. **Certificado A1** (.pfx + senha). Vai direto para a Nuvem Fiscal; não fica guardado no Meu Cash.
+4. Ambiente **Homologação** para testar; depois **Produção**. A numeração é separada por ambiente; se a loja já emitia em outro sistema, informe o próximo número.
+5. Opcional: **Emitir automaticamente** ao concluir cada venda.
+
+**Produtos:** cada produto precisa de **NCM** (seção "Dados fiscais" no cadastro). CFOP e CSOSN usam o padrão da loja se ficarem vazios.
+
+**Na venda:** painel **Nota fiscal** com **Emitir NFC-e**, **DANFE** (PDF), **XML** e **Cancelar nota** (a maioria dos estados aceita só nos primeiros 30 minutos). Nota rejeitada mostra o motivo da SEFAZ; depois de corrigir, **transmitir de novo** usa o mesmo número. Cancelar a venda tenta cancelar a nota junto; venda com nota autorizada não pode ser excluída.
+
+Formas de pagamento na nota: dinheiro 01, crédito 03, débito 04, Pix 17, transferência 18, outro 99; no parcelado, a entrada sai com a forma usada e o restante como **05 · Crédito loja**.
 
 ## Pix na área do cliente (dinheiro vai para a loja)
 
@@ -168,6 +231,11 @@ app/Services/BackupService.php             backup diário do banco
 app/Services/ErrorMonitor.php              registro e aviso de erros
 app/Services/SaleService.php               vendas, estoque e caixa
 app/Services/UndoService.php               botão Desfazer
+app/Services/ExchangeService.php           trocas
+app/Services/CatalogService.php            catálogo online
+app/Support/Barcode.php                    código de barras das etiquetas
+app/Services/Fiscal/NuvemFiscal.php        conversa com a API da Nuvem Fiscal
+app/Services/Fiscal/InvoiceService.php     montagem, emissão e cancelamento da NFC-e
 app/Services/Payments/MercadoPago.php      conversa com a API do Mercado Pago
 app/Services/Payments/PixService.php       Pix das parcelas na área do cliente
 app/Services/Payments/SubscriptionService.php  assinatura das lojas

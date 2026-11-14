@@ -127,7 +127,7 @@
                         <td class="text-end">
                             @if ($company->id !== auth()->user()->company_id)
                                 <div class="dropdown">
-                                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Ações de {{ $company->name }}"><x-icon name="more" width="16" height="16" /></button>
+                                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" aria-label="Ações de {{ $company->name }}"><x-icon name="more" width="16" height="16" /></button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         @if ($billingEnabled)
                                             <li>

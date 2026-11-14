@@ -81,4 +81,14 @@ class Sale extends Model
     {
         return $query->where('status', SaleStatus::Concluida->value);
     }
+
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Invoice::class)->latest('id');
+    }
+
+    public function exchanges(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SaleExchange::class)->latest('id');
+    }
 }

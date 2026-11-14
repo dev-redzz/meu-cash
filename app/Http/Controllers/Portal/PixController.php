@@ -62,7 +62,9 @@ class PixController extends Controller
             try {
                 $payment = $this->pix->refresh($payment);
             } catch (\Throwable $e) {
-                report($e);
+                if ($e->getCode() !== 404) {
+                    report($e);
+                }
             }
         }
 

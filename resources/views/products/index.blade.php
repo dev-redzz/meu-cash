@@ -6,6 +6,7 @@
 
 @section('actions')
     <a href="{{ route('categories.index') }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="tag" width="16" height="16" /></span>Categorias</a>
+    <a href="{{ route('labels.index') }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="barcode" width="16" height="16" /></span>Etiquetas</a>
     <a href="{{ route('products.import.create') }}" class="btn btn-cta btn-cta-light"><span class="btn-cta-icon"><x-icon name="upload" width="16" height="16" /></span>Importar</a>
     <a href="{{ route('products.create') }}" class="btn btn-cta"><span class="btn-cta-icon"><x-icon name="plus" width="16" height="16" /></span>Novo produto</a>
 @endsection

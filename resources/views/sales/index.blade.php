@@ -15,7 +15,7 @@
 
 <div class="panel">
     <div class="panel-header flex-wrap">
-        <x-period :period="$period" :keep="['q', 'status', 'payment_method']" />
+        <x-period align="start" :period="$period" :keep="['q', 'status', 'payment_method']" />
         <form method="GET" class="d-flex flex-wrap gap-2" data-no-lock>
             @foreach ($period->query() as $k => $v)<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endforeach
             <div class="input-icon toolbar-search">

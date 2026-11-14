@@ -56,7 +56,9 @@ class BillingController extends Controller
                     return redirect()->route('billing.show')->with('success', 'Pagamento confirmado. Obrigado! Sua assinatura vai até '.tenant()->company()->fresh()->paid_until->format('d/m/Y').'.');
                 }
             } catch (\Throwable $e) {
-                report($e);
+                if ($e->getCode() !== 404) {
+                    report($e);
+                }
             }
         }
 

@@ -121,6 +121,18 @@ class PagamentosTest extends TestCase
         $this->assertSame(0, \App\Models\ErrorReport::count());
     }
 
+    public function test_aviso_de_pagamento_inexistente_nao_vira_erro(): void
+    {
+        $this->conectarLoja();
+        config(['billing.mercadopago_token' => 'APP_USR-plataforma']);
+        Http::fake(['api.mercadopago.com/v1/payments/*' => Http::response(['message' => 'Payment not found'], 404)]);
+
+        $this->postJson('/webhooks/mercadopago/plataforma', ['type' => 'payment', 'data' => ['id' => '123456']])->assertOk();
+        $this->postJson('/webhooks/mercadopago/loja/'.$this->admin->company_id, ['type' => 'payment', 'data' => ['id' => '123456']])->assertOk();
+
+        $this->assertSame(0, \App\Models\ErrorReport::count());
+    }
+
     public function test_token_recusado_nao_conecta(): void
     {
         Http::fake(['api.mercadopago.com/*' => Http::response(['message' => 'invalid'], 401)]);
